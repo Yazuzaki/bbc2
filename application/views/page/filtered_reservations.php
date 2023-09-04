@@ -31,7 +31,6 @@
     <input type="date" id="end_date" name="end_date">
     <button type="submit" class="btn btn-primary">Filter</button>
 	<?php echo form_close();?>
-    <div id="reservationTableContainer">
     <?php if (!empty($reservations)) : ?>
         <?php
         usort($reservations, function ($a, $b) {
@@ -67,8 +66,6 @@
     <?php else : ?>
         <p>No reservations available.</p>
     <?php endif; ?>
-    </div>
-    
 
 
     <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
@@ -98,7 +95,7 @@
 
         const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
         const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
-        
+
         approveButtons.forEach(button => {
             button.addEventListener("click", function() {
                 const reservationId = this.getAttribute("data-id");
@@ -112,8 +109,6 @@
                 performAction(reservationId, "decline");
             });
         });
-       
-
 
         function performAction(reservationId, action) {
             fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
@@ -143,27 +138,32 @@
             $('#responseModal').modal('hide');
         });
 
-     
-   // AJAX for date filtering
-   const dateFilterForm = document.getElementById('dateFilterForm');
-        const reservationTableContainer = document.getElementById('reservationTableContainer');
+            // AJAX for date filtering
+        const dateFilterForm = document.getElementById('dateFilterForm');
+        const reservationTable = document.getElementById('reservationTable');
 
         dateFilterForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(dateFilterForm);
             
-            fetch('<?= site_url('Page/fetch_reservations') ?>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                reservationTableContainer.innerHTML = data; // Update reservation table content
-            })
-            .catch(error => {
-                console.error(error);
-            });
+            if (formData.get('start_date') === '' && formData.get('end_date') === '') {
+                // Reload the page to return to the normal state
+                location.reload();
+            } else {
+                fetch('<?= site_url('Page/fetch_reservations') ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    reservationTable.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            }
         });
+
     });
 </script>
 

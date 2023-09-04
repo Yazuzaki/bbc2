@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css">
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
     <title>Reservation</title>
     <style>
         .reserved-slot {
@@ -64,6 +65,22 @@
         background-color: #eee;
         cursor: pointer;
         }
+        a {
+            text-decoration: none;
+        }
+
+
+        .fc-day-number {
+            color: #000000;
+        }
+        .fc-col-header-cell-cushion{
+            color: #000000;
+        }
+        .fc-daygrid-day-number{
+            color: #000000;
+        }
+        
+        
         
     </style>
 </head>
@@ -124,6 +141,7 @@
         return ['future-date'];
       }
     }
+
   });
 
   calendar.render();
@@ -149,8 +167,14 @@
                         <label for="timePicker" class="form-label">Select Time:</label>
                         <input type="time" id="timePicker" name="time" class="form-control" required>
                     </div>
-                </form>
-            </div>
+                    <div class="mb-3">
+                        <label for="court" class="form-label">Select Court:</label>
+                        <select id="court" name="court" class="form-select" required>
+                            <?php foreach ($courts as $court): ?>
+                                <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="submitReservation">Make Reservation</button>
@@ -163,11 +187,18 @@
     var datetimePicker = document.getElementById('datetimePicker');
     var timePicker = document.getElementById('timePicker');
     var submitButton = document.getElementById('submitReservation');
+    
+    
 
 
     submitButton.addEventListener('click', function() {
     var selectedDate = datetimePicker.value;
     var selectedTime = timePicker.value;
+    var selectedCourtId = document.getElementById('court').value;
+    
+    console.log('Selected Court ID:', selectedCourtId); // Add this line for debugging
+
+
 
     // Fetch reservations for the selected date
     $.ajax({
@@ -183,7 +214,8 @@
             }
 
             var reservationData = {
-                datetime: selectedDate + ' ' + selectedTime
+                datetime: selectedDate + ' ' + selectedTime,
+                court: selectedCourtId
             };
 
             $.ajax({
@@ -224,5 +256,26 @@ function checkTimeSlotAvailability(reservations, selectedTime) {
     return true; 
 }
 
+$.ajax({
+    type: 'GET',
+    url: '<?php echo site_url("Page/get_court_choices"); ?>',
+    dataType: 'json',
+    success: function(courts) {
+        var courtSelect = document.getElementById('court');
+
+
+        courts.forEach(function(court) {
+            var option = document.createElement('option');
+            option.value = court.court_id;
+            option.text = court.court_number;
+            courtSelect.appendChild(option);
+        });
+    },
+    error: function() {
+        alert('Error fetching court choices');
+    }
+});
+
+  
 </script>
 </html>

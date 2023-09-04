@@ -24,14 +24,9 @@ class Page extends CI_Controller {
     public function reserve() {
         $this->load->view('template/header');
         $this->load->view('page/reserve');
-        $this->load->view('template/footer');
+
     }
 
-    public function view_reservations() {
-        $this->load->view('template/header');
-        $this->load->view('page/view-reservation');
-        $this->load->view('template/footer');
-    }
 
     public function register()
 	{
@@ -67,6 +62,7 @@ class Page extends CI_Controller {
     public function admin() {
         $data['reservations'] = $this->bud_model->get_all_reservations(); 
         $this->load->view('page/admin', $data);
+        $this->load->view('template/adminheader');
     }
     
 
@@ -81,19 +77,18 @@ class Page extends CI_Controller {
         $this->load->model('bud_model');
     
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
-            $userDateTime = $this->input->post('datetime'); 
-            
-            $userTimezone = new DateTimeZone('Asia/Manila');
+            $userDateTime = $this->input->post('datetime');
+            $court = $this->input->post('court'); 
     
+            $userTimezone = new DateTimeZone('Asia/Manila');
             $dateTime = new DateTime($userDateTime, $userTimezone);
- 
             $utcDatetime = $dateTime->format('Y-m-d H:i:s');
-            
+    
             $data = array(
-                'reserved_datetime' => $utcDatetime
+                'reserved_datetime' => $utcDatetime,
+                'court' => $court
             );
-            
-            
+    
             if ($this->db->insert('reservations', $data)) {
                 echo "Reservation created successfully";
             } else {
@@ -103,10 +98,17 @@ class Page extends CI_Controller {
     }
     
     
+    
     public function timetable() {
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/timetable', $data);
+        $this->load->view('template/adminheader');
+    }
+    public function filtered_reservations() {
+        $this->load->model('bud_model');
+        $data['reservations'] = $this->bud_model->get_reservations_by_date_range();
+        $this->load->view('page/filtered_reservations', $data);
         $this->load->view('template/adminheader');
     }
     public function approved() {
@@ -125,16 +127,16 @@ class Page extends CI_Controller {
     
         $events = [];
         foreach ($reservations as $reservation) {
-            $randomColor = $this->generateRandomColor(); // Call a function to generate a random color
+            $randomColor = $this->generateRandomColor(); 
             
             $events[] = [
                 'title' => 'Reserved',
                 'start' => $reservation->reserved_datetime,
-                'color' => $randomColor, // Use the random color here
+                'color' => $randomColor, 
                 'popoverHtml' => 'Reservation Details:<br>' .
                     'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
                     'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
-                'eventDisplay' => 'popover'
+
             ];
         }
     
@@ -221,8 +223,46 @@ class Page extends CI_Controller {
             // Send the response as JSON
             $this->output->set_content_type('application/json')->set_output(json_encode($response));
         }
-
+        public function fetch_reservations()
+        {
+            $this->load->model('bud_model');
         
+            $start_date_str = $this->input->post('start_date');
+            $end_date_str = $this->input->post('end_date');
+        
+            if (!empty($start_date_str) && !empty($end_date_str)) {
+                $start_date = new DateTime($start_date_str);
+                $end_date = new DateTime($end_date_str);
+        
+                $data['reservations'] = $this->bud_model->get_reservations_by_date_range($start_date, $end_date);
+            } else {
+                $data['reservations'] = $this->bud_model->get_all_reservations();
+            }
+        
+            $this->load->view('page/filtered_reservations', $data); 
+            $this->load->view('template/adminheader');
+        }
+        public function get_court_choices() {
+            $this->load->database(); 
+        
+
+            $query = $this->db->get('courts');
+        
+
+            if ($query->num_rows() > 0) {
+
+                $courts = $query->result_array();
+        
+
+                echo json_encode($courts);
+            } else {
+
+                echo json_encode([]);
+            }
+        }
+        
+        
+    }
+
     
-}
          

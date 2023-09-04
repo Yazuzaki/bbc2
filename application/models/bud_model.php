@@ -172,7 +172,32 @@ public function updateDeclinedStatus($reservedDatetime, $status) {
     $data = array('status' => $status);
     $this->db->update('declined', $data);
 }
+public function get_reservations_by_date_range($start_date, $end_date) {
+    $formatted_start_date = $start_date->format('Y-m-d 00:00:00');
+    $formatted_end_date = $end_date->format('Y-m-d 23:59:59');
 
+    $this->db->where('reserved_datetime >=', $formatted_start_date);
+    $this->db->where('reserved_datetime <=', $formatted_end_date);
+    $query = $this->db->get('reservations');
+
+    return $query->result();
+}
+public function getCourtChoices()
+{
+  
+    $query = $this->db->get('courts'); 
+    return $query->result_array();
+}
+public function getCourtNumberById($courtId) {
+    $query = $this->db->get_where('courts', array('court_number' => $courtId));
+
+    if ($query->num_rows() > 0) {
+        $row = $query->row();
+        return $row->court_number;
+    } else {
+        return null; // Court not found
+    }
+}
 
 
 }
