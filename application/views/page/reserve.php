@@ -13,7 +13,6 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css">
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
     <title>Reservation</title>
     <style>
         .reserved-slot {
