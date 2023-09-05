@@ -145,7 +145,9 @@ public function getReservation($reservationId) {
 public function transferToToday($reservation) {
     $data = array(
         'reserved_datetime' => $reservation->reserved_datetime,
-        'created_at' => $reservation->created_at
+        'created_at' => $reservation->created_at,
+        'court' => $reservation->court,
+        'sport' => $reservation->sport
     );
     $this->db->insert('today', $data);
 }
@@ -182,12 +184,7 @@ public function get_reservations_by_date_range($start_date, $end_date) {
 
     return $query->result();
 }
-public function getCourtChoices()
-{
-  
-    $query = $this->db->get('courts'); 
-    return $query->result_array();
-}
+
 public function getCourtNumberById($courtId) {
     $query = $this->db->get_where('courts', array('court_number' => $courtId));
 
@@ -195,9 +192,20 @@ public function getCourtNumberById($courtId) {
         $row = $query->row();
         return $row->court_number;
     } else {
-        return null; // Court not found
+        return null; 
     }
 }
+public function getSportNameById($sportId) {
+    $query = $this->db->get_where('sports', array('sport_id' => $sportId));
+
+    if ($query->num_rows() > 0) {
+        $row = $query->row();
+        return $row->sport_name;
+    } else {
+        return null; 
+    }
+}
+
 
 
 }

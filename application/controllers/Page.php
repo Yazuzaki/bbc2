@@ -79,6 +79,8 @@ class Page extends CI_Controller {
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
             $userDateTime = $this->input->post('datetime');
             $court = $this->input->post('court'); 
+            $sport = $this->input->post('sport'); 
+            
     
             $userTimezone = new DateTimeZone('Asia/Manila');
             $dateTime = new DateTime($userDateTime, $userTimezone);
@@ -86,7 +88,8 @@ class Page extends CI_Controller {
     
             $data = array(
                 'reserved_datetime' => $utcDatetime,
-                'court' => $court
+                'court' => $court,
+                'sport' => $sport
             );
     
             if ($this->db->insert('reservations', $data)) {
@@ -260,6 +263,26 @@ class Page extends CI_Controller {
                 echo json_encode([]);
             }
         }
+
+        public function get_sport_choices() {
+            $this->load->database(); 
+        
+
+            $query = $this->db->get('sports');
+        
+
+            if ($query->num_rows() > 0) {
+
+                $sports = $query->result_array();
+        
+
+                echo json_encode($sports);
+            } else {
+
+                echo json_encode([]);
+            }
+        }
+        
         
         
     }

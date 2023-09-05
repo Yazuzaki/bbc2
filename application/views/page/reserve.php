@@ -174,6 +174,16 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="sport" class="form-label">Select Sport:</label>
+                        <select id="sport" name="sport" class="form-select" required>
+                            <?php foreach ($sports as $sport): ?>
+                                <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </form>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="submitReservation">Make Reservation</button>
@@ -186,6 +196,9 @@
     var datetimePicker = document.getElementById('datetimePicker');
     var timePicker = document.getElementById('timePicker');
     var submitButton = document.getElementById('submitReservation');
+    var courtElement = document.getElementById('court');
+    var sportElement = document.getElementById('sport');
+
     
     
 
@@ -193,9 +206,11 @@
     submitButton.addEventListener('click', function() {
     var selectedDate = datetimePicker.value;
     var selectedTime = timePicker.value;
-    var selectedCourtId = document.getElementById('court').value;
-    
-    console.log('Selected Court ID:', selectedCourtId); // Add this line for debugging
+    var selectedCourtId = courtElement.value; 
+    var selectedSportId = sportElement.value; 
+    console.log('Selected Court ID:', selectedCourtId); 
+    console.log('Selected Sport ID:', selectedSportId); 
+    console.log('Button clicked'); 
 
 
 
@@ -214,7 +229,9 @@
 
             var reservationData = {
                 datetime: selectedDate + ' ' + selectedTime,
-                court: selectedCourtId
+                court: selectedCourtId,
+                sport: selectedSportId,
+
             };
 
             $.ajax({
@@ -265,7 +282,7 @@ $.ajax({
 
         courts.forEach(function(court) {
             var option = document.createElement('option');
-            option.value = court.court_id;
+            option.value = court.court_number;
             option.text = court.court_number;
             courtSelect.appendChild(option);
         });
@@ -274,6 +291,25 @@ $.ajax({
         alert('Error fetching court choices');
     }
 });
+$.ajax({
+    type: 'GET',
+    url: '<?php echo site_url("Page/get_sport_choices"); ?>',
+    dataType: 'json',
+    success: function(sports) {
+        var sportSelect = document.getElementById('sport'); 
+
+        sports.forEach(function(sport) { 
+            var option = document.createElement('option');
+            option.value = sport.sport_name; 
+            option.text = sport.sport_name; 
+            sportSelect.appendChild(option); 
+        });
+    },
+    error: function() {
+        alert('Error fetching sport choices'); 
+    }
+});
+
 
   
 </script>
