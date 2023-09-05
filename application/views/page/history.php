@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Declined Reservations</title>
     <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .no-reservations {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
 
     </style>
 </head>
@@ -22,6 +59,8 @@
                 <th>Reserve ID</th>
                 <th>Reserved Datetime</th>
                 <th>Created on</th>
+                <th>Court</th>
+                <th>Sport</th>
                 <th>Status</th>
             </tr>
             <?php foreach ($declined as $row) : ?>
@@ -29,6 +68,8 @@
                     <td><?= $row->id ?></td>
                     <td><?= $row->reserved_datetime ?></td>
                     <td><?= $row->created_at ?></td>
+                    <td><?= $row->court ?></td>
+                    <td><?= $row->sport ?></td>
                     <td><?= $row->status ?></td>
                 </tr>
             <?php endforeach; ?>

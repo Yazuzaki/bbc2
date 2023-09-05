@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .table-hover tbody tr:hover {
-            background-color: #00E277;
+            background-color: #58D68D;
         }
 
         .status-pending {

@@ -165,7 +165,9 @@ public function updateTodayStatus($reservedDatetime, $status) {
 public function transferTodeclined($reservation) {
     $data = array(
         'reserved_datetime' => $reservation->reserved_datetime,
-        'created_at' => $reservation->created_at
+        'created_at' => $reservation->created_at,
+        'court' => $reservation->court,
+        'sport' => $reservation->sport,
     );
     $this->db->insert('declined', $data);
 }
