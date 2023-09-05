@@ -157,7 +157,7 @@
         // AJAX for date filtering
         const dateFilterForm = document.getElementById('dateFilterForm');
         const reservationTableContainer = document.getElementById('reservationTableContainer');
-/* 
+
         dateFilterForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const formData = new FormData(dateFilterForm);
@@ -174,7 +174,7 @@
                     console.error(error);
                 });
         });
-    }); */
+    });
 </script>
 
 
