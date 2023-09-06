@@ -198,19 +198,19 @@
                         <input type="time" id="timePicker" name="time" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="court" class="form-label">Select Court:</label>
-                        <select id="court" name="court" class="form-select" required>
-                            <?php foreach ($courts as $court): ?>
-                                <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?>
+                        <label for="sport" class="form-label">Select Sport:</label>
+                        <select id="sport" name="sport" class="form-select" required>
+                            <?php foreach ($sports as $sport): ?>
+                                <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="sport" class="form-label">Select Sport:</label>
-                        <select id="sport" name="sport" class="form-select" required>
-                            <?php foreach ($sports as $sport): ?>
-                                <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?>
+                        <label for="court" class="form-label">Select Court:</label>
+                        <select id="court" name="court" class="form-select" required>
+                            <?php foreach ($courts as $court): ?>
+                                <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

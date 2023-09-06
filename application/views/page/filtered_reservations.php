@@ -39,11 +39,13 @@
         ?>
         <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
             <tr style="background:#CCC">
-                <th>Reserve ID</th>
-                <th>Reserved Datetime</th>
-                <th>Created on</th>
-                <th>Status</th>
-                <th>Action</th>
+                    <th>Reserve ID</th>
+                    <th>Reserved Datetime</th>
+                    <th>Created on</th>
+                    <th>Status</th>
+                    <th>Court</th>
+                    <th>Sport</th>
+                    <th>Action</th>
             </tr>
             <?php
             foreach ($reservations as $row) {
@@ -52,6 +54,8 @@
                 echo "<td>" . $row->reserved_datetime . "</td>";
                 echo "<td>" . $row->created_at . "</td>";
                 echo "<td class=\"status-" . strtolower($row->status) . "\">" . $row->status . "</td>";
+                echo "<td>" . $row->court . "</td>";
+                echo "<td>" . $row->sport . "</td>";
                 echo '<td>';
                 
                 echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="approve" data-id="' . $row->id . '" class="btn btn-success">Approve</a>';

@@ -49,8 +49,8 @@
                     <th>Reserved Datetime</th>
                     <th>Created on</th>
                     <th>Status</th>
-                    <th>Court</th>
                     <th>Sport</th>
+                    <th>Court</th>
                     <th>Action</th>
                 </tr>
                 <?php
@@ -60,8 +60,8 @@
                     echo "<td>" . $row->reserved_datetime . "</td>";
                     echo "<td>" . $row->created_at . "</td>";
                     echo "<td class=\"status-" . strtolower($row->status) . "\">" . $row->status . "</td>";
-                    echo "<td>" . $row->court . "</td>";
                     echo "<td>" . $row->sport . "</td>";
+                    echo "<td>" . $row->court . "</td>";
                     echo '<td>';
 
                     echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="approve" data-id="' . $row->id . '" class="btn btn-success">Approve</a>';
