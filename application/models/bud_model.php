@@ -102,9 +102,7 @@ public function get_all_approved() {
 }
 
 
-public function delete_reservation($id) {
-   
-}
+
 public function get_a_reservations() {
     $query = $this->db->select('id, reserved_datetime, created_at')
                       ->from('reservations')
@@ -206,6 +204,15 @@ public function getSportNameById($sportId) {
     } else {
         return null; 
     }
+}
+public function get_reservation($reservation_id) {
+    $query = $this->db->get_where('reservations', array('id' => $reservation_id));
+    return $query->row();
+}
+
+public function update_reservation($reservation_id, $data) {
+    $this->db->where('id', $reservation_id);
+    $this->db->update('reservations', $data);
 }
 
 

@@ -8,6 +8,12 @@
     <title>Timeline</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        .table,
+        th,
+        td {
+            color: black;
+        }
+
         .table-hover tbody tr:hover {
             background-color: #58D68D;
         }
@@ -23,6 +29,21 @@
         .status-declined {
             color: #FF0000;
         }
+
+        .nav .nav-item button.active {
+            background-color: transparent;
+            color: var(--bs-danger) !important;
+        }
+
+        .nav .nav-item button.active::after {
+            content: "";
+            border-bottom: 4px solid var(--bs-danger);
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            border-radius: 5px 5px 0 0;
+        }
     </style>
 </head>
 
@@ -36,47 +57,82 @@
     <input type="date" id="end_date" name="end_date">
     <button type="submit" class="btn btn-primary">Filter</button>
     <?php echo form_close(); ?>
-    <div id="reservationTableContainer">
-        <?php if (!empty($reservations)): ?>
-            <?php
-            usort($reservations, function ($a, $b) {
-                return strtotime($a->reserved_datetime) - strtotime($b->reserved_datetime);
-            });
-            ?>
-            <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
-                <tr style="background:#CCC">
-                    <th>Reserve ID</th>
-                    <th>Reserved Datetime</th>
-                    <th>Created on</th>
-                    <th>Status</th>
-                    <th>Sport</th>
-                    <th>Court</th>
-                    <th>Action</th>
-                </tr>
-                <?php
-                foreach ($reservations as $row) {
-                    echo "<tr>";
-                    echo "<td>" . $row->id . "</td>";
-                    echo "<td>" . $row->reserved_datetime . "</td>";
-                    echo "<td>" . $row->created_at . "</td>";
-                    echo "<td class=\"status-" . strtolower($row->status) . "\">" . $row->status . "</td>";
-                    echo "<td>" . $row->sport . "</td>";
-                    echo "<td>" . $row->court . "</td>";
-                    echo '<td>';
+    <div class="container p-5">
+        <ul class="nav nav-pills mb-3 border-bottom border-2" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-primary fw-semibold active position-relative" id="pills-home-tab"
+                    data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab"
+                    aria-controls="pills-home" aria-selected="true">Current Reservations</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-primary fw-semibold position-relative" id="pills-profile-tab"
+                    data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab"
+                    aria-controls="pills-profile" aria-selected="false">Upcoming Reservations</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-primary fw-semibold position-relative" id="pills-contact-tab"
+                    data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab"
+                    aria-controls="pills-contact" aria-selected="false">Contact</button>
+            </li>
+        </ul>
+        <div class="tab-content border rounded-3 border-primary p-3 text-danger" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <h2>Current Reservations</h2>
+                <div id="reservationTableContainer">
+                    <?php if (!empty($reservations)): ?>
+                        <?php
+                        usort($reservations, function ($a, $b) {
+                            return strtotime($a->reserved_datetime) - strtotime($b->reserved_datetime);
+                        });
+                        ?>
+                        <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
+                            <tr style="background:#CCC">
+                                <th>Reserve ID</th>
+                                <th>Reserved Datetime</th>
+                                <th>Created on</th>
+                                <th>Status</th>
+                                <th>Sport</th>
+                                <th>Court</th>
+                                <th>Action</th>
+                            </tr>
+                            <?php
+                            foreach ($reservations as $row) {
+                                echo "<tr>";
+                                echo "<td>" . $row->id . "</td>";
+                                echo "<td>" . $row->reserved_datetime . "</td>";
+                                echo "<td>" . $row->created_at . "</td>";
+                                echo "<td class=\"status-" . strtolower($row->status) . "\">" . $row->status . "</td>";
+                                echo "<td>" . $row->sport . "</td>";
+                                echo "<td>" . $row->court . "</td>";
+                                echo '<td>';
 
-                    echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="approve" data-id="' . $row->id . '" class="btn btn-success">Approve</a>';
-                    echo ' ';
-                    echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline" data-id="' . $row->id . '" class="btn btn-danger">Decline</a>';
+                                echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="approve" data-id="' . $row->id . '" class="btn btn-success">Approve</a>';
+                                echo ' ';
+                                echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline" data-id="' . $row->id . '" class="btn btn-danger">Decline</a>';
+                                echo ' ';
 
-                    echo '</td>';
-                    echo '</tr>';
-                }
-                ?>
-            </table>
-        <?php else: ?>
-            <p>No reservations available.</p>
-        <?php endif; ?>
+
+                                echo '</td>';
+                                echo '</tr>';
+                            }
+                            ?>
+                        </table>
+                    <?php else: ?>
+                        <p>No reservations available.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <h2>Upcoming Reservations</h2>
+
+            </div>
+            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                <h2></h2>
+
+            </div>
+        </div>
     </div>
+
 
 
 

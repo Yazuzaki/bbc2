@@ -1,27 +1,32 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Page extends CI_Controller {
-    public function __construct(){
+class Page extends CI_Controller
+{
+    public function __construct()
+    {
         parent::__construct();
         $this->load->database();
-        
+
     }
-    public function landing_page() {
+    public function landing_page()
+    {
 
         $this->load->view('template/header');
         $this->load->view('page/landing_page');
         $this->load->view('template/footer');
     }
-    public function history() {
+    public function history()
+    {
 
         $this->load->model('bud_model');
         $data['declined'] = $this->bud_model->get_all_declined();
         $this->load->view('page/history', $data);
         $this->load->view('template/adminheader');
-        
+
     }
-    public function reserve() {
+    public function reserve()
+    {
         $this->load->view('template/header');
         $this->load->view('page/reserve');
 
@@ -29,69 +34,81 @@ class Page extends CI_Controller {
 
 
     public function register()
-	{
+    {
         $this->load->view('template/header');
-		$this->load->view('page/register');
-      
-	}
+        $this->load->view('page/register');
+
+    }
 
     public function login()
-	{
+    {
         $this->load->view('template/header');
-		$this->load->view('page/loginview');
-       
-	}
-    public function register_form() {
+        $this->load->view('page/loginview');
+
+    }
+    public function upcoming()
+    {
+        $this->load->view('template/header');
+        $this->load->view('page/upcoming');
+
+    }
+    public function register_form()
+    {
         $this->load->model('bud_model');
         $this->bud_model->user_registration();
-        
+
     }
-    
-    public function login_form() {
+
+    public function login_form()
+    {
         $this->load->model('bud_model');
         $this->bud_model->login_user();
     }
-    
-    public function main() {
+
+    public function main()
+    {
         $this->load->model('bud_model');
         $this->load->view('template/header');
-		$this->load->view('page/index');
+        $this->load->view('page/index');
         $this->load->view('template/footer');
     }
 
-    public function admin() {
-        $data['reservations'] = $this->bud_model->get_all_reservations(); 
+    public function admin()
+    {
+        $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/admin', $data);
         $this->load->view('template/adminheader');
     }
-    
+
 
 
     public function logout()
     {
-      $this->load->model('bud_model');
-      $this->bud_model->logout();
+        $this->load->model('bud_model');
+        $this->bud_model->logout();
     }
     
-    public function submit_reserve() {
+
+    public function submit_reserve()
+    {
         $this->load->model('bud_model');
-    
+
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
             $userDateTime = $this->input->post('datetime');
-            $court = $this->input->post('court'); 
-            $sport = $this->input->post('sport'); 
-            
-    
+            $court = $this->input->post('court');
+            $sport = $this->input->post('sport');
+
+
             $userTimezone = new DateTimeZone('Asia/Manila');
             $dateTime = new DateTime($userDateTime, $userTimezone);
             $utcDatetime = $dateTime->format('Y-m-d H:i:s');
-    
+
             $data = array(
                 'reserved_datetime' => $utcDatetime,
                 'court' => $court,
                 'sport' => $sport
             );
-    
+
             if ($this->db->insert('reservations', $data)) {
                 echo "Reservation created successfully";
             } else {
@@ -99,22 +116,25 @@ class Page extends CI_Controller {
             }
         }
     }
-    
-    
-    
-    public function timetable() {
+
+
+
+    public function timetable()
+    {
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/timetable', $data);
         $this->load->view('template/adminheader');
     }
-    public function filtered_reservations() {
+    public function filtered_reservations()
+    {
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_reservations_by_date_range();
         $this->load->view('page/filtered_reservations', $data);
         $this->load->view('template/adminheader');
     }
-    public function approved() {
+    public function approved()
+    {
         $this->load->model('bud_model');
         $data['today'] = $this->bud_model->get_all_approved();
         $this->load->view('page/approved', $data);
@@ -122,33 +142,35 @@ class Page extends CI_Controller {
     }
 
 
-    
-    public function get_reservations() {
+
+    public function get_reservations()
+    {
         $this->load->model('bud_model');
-        
+
         $reservations = $this->bud_model->getReservations();
-    
+
         $events = [];
         foreach ($reservations as $reservation) {
-            $randomColor = $this->generateRandomColor(); 
-            
+            $randomColor = $this->generateRandomColor();
+
             $events[] = [
                 'title' => 'Reserved',
                 'start' => $reservation->reserved_datetime,
-                'color' => $randomColor, 
+                'color' => $randomColor,
                 'popoverHtml' => 'Reservation Details:<br>' .
-                    'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
-                    'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
+                'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
+                'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
 
             ];
         }
-    
+
         header('Content-Type: application/json');
         echo json_encode($events);
     }
-    
+
     // Function to generate a random color
-    private function generateRandomColor() {
+    private function generateRandomColor()
+    {
         $letters = '0123456789ABCDEF';
         $color = '#';
         for ($i = 0; $i < 6; $i++) {
@@ -156,136 +178,168 @@ class Page extends CI_Controller {
         }
         return $color;
     }
-    
-        public function get_approved_reservations() {
-            // Load the Reservations_model
-            $this->load->model('bud_model');
 
-            // Fetch approved reservations from the model
-            $approved_reservations = $this->bud_model->get_a_reservations();
+    public function get_approved_reservations()
+    {
+        // Load the Reservations_model
+        $this->load->model('bud_model');
 
-            // Return the JSON response
-            $this->output->set_content_type('application/json')->set_output(json_encode($approved_reservations));
-        }
-        public function get_reservations_for_date() {
-            $date = $this->input->post('date');
-            $this->load->model('bud_model');
-            $reservations = $this->bud_model->getReservationsForDate($date);
-            header('Content-Type: application/json');
-            echo json_encode($reservations);
-        }
-        public function approve_reservation($reservationId) {
-            $this->load->model('bud_model');
-            $reservation = $this->bud_model->getReservation($reservationId);
-    
-            if ($reservation->status === 'pending') {
-                // Update the status to 'approved' in the "reservations" table
-                $this->bud_model->updateStatus($reservationId, 'approved');
-    
-                // Transfer approved reservation to the "today" table
-                $this->bud_model->transferToToday($reservation);
+        // Fetch approved reservations from the model
+        $approved_reservations = $this->bud_model->get_a_reservations();
 
-                // Update status in the "today" table
-                $this->bud_model->updateTodayStatus($reservation->reserved_datetime, 'approved');
-    
-                // Remove the reservation from the "reservations" table
-                $this->bud_model->removeReservation($reservationId);
-    
-                $response = array('status' => 'success');
-            } else {
-                $response = array('status' => 'error', 'message' => 'Reservation not pending.');
-            }
-    
-            // Send the response as JSON
-            $this->output->set_content_type('application/json')->set_output(json_encode($response));
-        }
-        
-        
-        public function decline_reservation($reservationId) {
-            $this->load->model('bud_model');
-            $reservation = $this->bud_model->getReservation($reservationId);
-    
-            if ($reservation->status === 'pending') {
-                // Update the status to 'approved' in the "reservations" table
-                $this->bud_model->updateStatus($reservationId, 'declined');
-    
-                // Transfer approved reservation to the "today" table
-                $this->bud_model->transferTodeclined($reservation);
+        // Return the JSON response
+        $this->output->set_content_type('application/json')->set_output(json_encode($approved_reservations));
+    }
+    public function get_reservations_for_date()
+    {
+        $date = $this->input->post('date');
+        $this->load->model('bud_model');
+        $reservations = $this->bud_model->getReservationsForDate($date);
+        header('Content-Type: application/json');
+        echo json_encode($reservations);
+    }
+    public function approve_reservation($reservationId)
+    {
+        $this->load->model('bud_model');
+        $reservation = $this->bud_model->getReservation($reservationId);
 
-                // Update status in the "today" table
-                $this->bud_model->updateDeclinedStatus($reservation->reserved_datetime, 'declined');
-    
-                // Remove the reservation from the "reservations" table
-                $this->bud_model->removeReservation($reservationId);
-    
-                $response = array('status' => 'success');
-            } else {
-                $response = array('status' => 'error', 'message' => 'Reservation not pending.');
-            }
-    
-            // Send the response as JSON
-            $this->output->set_content_type('application/json')->set_output(json_encode($response));
-        }
-        public function fetch_reservations()
-        {
-            $this->load->model('bud_model');
-        
-            $start_date_str = $this->input->post('start_date');
-            $end_date_str = $this->input->post('end_date');
-        
-            if (!empty($start_date_str) && !empty($end_date_str)) {
-                $start_date = new DateTime($start_date_str);
-                $end_date = new DateTime($end_date_str);
-        
-                $data['reservations'] = $this->bud_model->get_reservations_by_date_range($start_date, $end_date);
-            } else {
-                $data['reservations'] = $this->bud_model->get_all_reservations();
-            }
-        
-            $this->load->view('page/filtered_reservations', $data); 
-            $this->load->view('template/adminheader');
-        }
-        public function get_court_choices() {
-            $this->load->database(); 
-        
+        if ($reservation->status === 'pending') {
+            // Update the status to 'approved' in the "reservations" table
+            $this->bud_model->updateStatus($reservationId, 'approved');
 
-            $query = $this->db->get('courts');
-        
+            // Transfer approved reservation to the "today" table
+            $this->bud_model->transferToToday($reservation);
 
-            if ($query->num_rows() > 0) {
+            // Update status in the "today" table
+            $this->bud_model->updateTodayStatus($reservation->reserved_datetime, 'approved');
 
-                $courts = $query->result_array();
-        
+            // Remove the reservation from the "reservations" table
+            $this->bud_model->removeReservation($reservationId);
 
-                echo json_encode($courts);
-            } else {
-
-                echo json_encode([]);
-            }
+            $response = array('status' => 'success');
+        } else {
+            $response = array('status' => 'error', 'message' => 'Reservation not pending.');
         }
 
-        public function get_sport_choices() {
-            $this->load->database(); 
-        
-
-            $query = $this->db->get('sports');
-        
-
-            if ($query->num_rows() > 0) {
-
-                $sports = $query->result_array();
-        
-
-                echo json_encode($sports);
-            } else {
-
-                echo json_encode([]);
-            }
-        }
-        
-        
-        
+        // Send the response as JSON
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
 
+
+    public function decline_reservation($reservationId)
+    {
+        $this->load->model('bud_model');
+        $reservation = $this->bud_model->getReservation($reservationId);
+
+        if ($reservation->status === 'pending') {
+            // Update the status to 'approved' in the "reservations" table
+            $this->bud_model->updateStatus($reservationId, 'declined');
+
+            // Transfer approved reservation to the "today" table
+            $this->bud_model->transferTodeclined($reservation);
+
+            // Update status in the "today" table
+            $this->bud_model->updateDeclinedStatus($reservation->reserved_datetime, 'declined');
+
+            // Remove the reservation from the "reservations" table
+            $this->bud_model->removeReservation($reservationId);
+
+            $response = array('status' => 'success');
+        } else {
+            $response = array('status' => 'error', 'message' => 'Reservation not pending.');
+        }
+
+        // Send the response as JSON
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+    public function fetch_reservations()
+    {
+        $this->load->model('bud_model');
+
+        $start_date_str = $this->input->post('start_date');
+        $end_date_str = $this->input->post('end_date');
+
+        if (!empty($start_date_str) && !empty($end_date_str)) {
+            $start_date = new DateTime($start_date_str);
+            $end_date = new DateTime($end_date_str);
+
+            $data['reservations'] = $this->bud_model->get_reservations_by_date_range($start_date, $end_date);
+        } else {
+            $data['reservations'] = $this->bud_model->get_all_reservations();
+        }
+
+        $this->load->view('page/filtered_reservations', $data);
+        $this->load->view('template/adminheader');
+    }
+    public function get_court_choices()
+    {
+        $this->load->database();
+
+
+        $query = $this->db->get('courts');
+
+
+        if ($query->num_rows() > 0) {
+
+            $courts = $query->result_array();
+
+
+            echo json_encode($courts);
+        } else {
+
+            echo json_encode([]);
+        }
+    }
+
+    public function get_sport_choices()
+    {
+        $this->load->database();
+
+
+        $query = $this->db->get('sports');
+
+
+        if ($query->num_rows() > 0) {
+
+            $sports = $query->result_array();
+
+
+            echo json_encode($sports);
+        } else {
+
+            echo json_encode([]);
+        }
+    }
+    public function grab_reservations() {
+        // Handle form submission
+        if ($this->input->server('REQUEST_METHOD') === 'POST') {
+            $start_date = $this->input->post('start_date');
+            $end_date = $this->input->post('end_date');
+
+            // Query to fetch future reservations
+            $this->db->where('reserved_datetime >=', $start_date);
+            $this->db->where('reserved_datetime <=', $end_date);
+            $query = $this->db->get('reservations');
+
+            // Check if there are future reservations
+            if ($query->num_rows() > 0) {
+                $future_reservations = $query->result_array();
+
+                // Loop through future reservations and insert into the "future" table
+                foreach ($future_reservations as $reservation) {
+                    $this->db->insert('future', $reservation);
+                }
+
+                // Now, you can delete the future reservations from the "reservations" table
+                $this->db->where('reserved_datetime >=', $start_date);
+                $this->db->where('reserved_datetime <=', $end_date);
+                $this->db->delete('reservations');
+            }
+        }
+
+        // Load the view with the updated reservation data
+        $this->load->view('reservation_view');
+    }
     
-         
+
+}
