@@ -69,11 +69,6 @@
                     data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab"
                     aria-controls="pills-profile" aria-selected="false">Upcoming Reservations</button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link text-primary fw-semibold position-relative" id="pills-contact-tab"
-                    data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab"
-                    aria-controls="pills-contact" aria-selected="false">Contact</button>
-            </li>
         </ul>
         <div class="tab-content border rounded-3 border-primary p-3 text-danger" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
