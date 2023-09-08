@@ -276,7 +276,9 @@
                         $('#reservationFormModal').modal('hide');
                         $('#calendar').fullCalendar('refetchEvents');
                     },
-                    error: function () {
+                    error: function (xhr, status, error) {
+                        console.log('XHR status: ' + status);
+                        console.log('Error: ' + error);
                         alert('Error creating reservation');
                     }
                 });

@@ -340,6 +340,40 @@ class Page extends CI_Controller
         // Load the view with the updated reservation data
         $this->load->view('reservation_view');
     }
-    
+    public function move_reservation_to_table($reservationId, $tableName)
+{
+    // Check if the $tableName is 'today' or 'future'
+    if ($tableName !== 'today' && $tableName !== 'future') {
+        echo json_encode(array('status' => 'error', 'message' => 'Invalid table name'));
+        return;
+    }
+
+    // Check if the reservation with the given ID exists
+    $reservation = $this->bud_model->get_reservation_by_id($reservationId);
+
+    if (!$reservation) {
+        echo json_encode(array('status' => 'error', 'message' => 'Reservation not found'));
+        return;
+    }
+
+    // Update the status and move the reservation to the specified table
+    $this->load->model('bud_model');
+    $data = array('status' => 'approved'); // Update the status as 'approved'
+    $this->db->where('id', $reservationId);
+    $this->db->update('reservations', $data);
+
+
+
+    echo json_encode(array('status' => 'success'));
+}
+
+public function ongoing()
+    {
+        // Load the Today_model to get data
+        $data['today'] = $this->bud_model->getTodayReservations();
+
+        // Load a view to display the data
+        $this->load->view('timetable', $data);
+    }
 
 }

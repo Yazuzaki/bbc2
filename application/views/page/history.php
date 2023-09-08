@@ -50,9 +50,20 @@
     <br>
     <?php if (!empty($declined)) : ?>
         <?php
-        usort($declined, function ($a, $b) {
-            return strtotime($a->reserved_datetime) - strtotime($b->reserved_datetime);
-        });
+        // Define the number of reservations per page
+        $reservationsPerPage = 10;
+
+        // Calculate the total number of pages
+        $totalPages = ceil(count($declined) / $reservationsPerPage);
+
+        // Get the current page from the URL parameter
+        $currentPage = isset($_GET['page']) ? max(1, min((int)$_GET['page'], $totalPages)) : 1;
+
+        // Calculate the starting index for displaying reservations on the current page
+        $startIndex = ($currentPage - 1) * $reservationsPerPage;
+
+        // Create a subset of declined reservations to display on the current page
+        $displayDeclined = array_slice($declined, $startIndex, $reservationsPerPage);
         ?>
         <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
             <tr style="background:#CCC">
@@ -63,7 +74,7 @@
                 <th>Sport</th>
                 <th>Status</th>
             </tr>
-            <?php foreach ($declined as $row) : ?>
+            <?php foreach ($displayDeclined as $row) : ?>
                 <tr>
                     <td><?= $row->id ?></td>
                     <td><?= $row->reserved_datetime ?></td>
@@ -74,8 +85,21 @@
                 </tr>
             <?php endforeach; ?>
         </table>
+
+        <!-- Pagination links -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php
+                // Display pagination links
+                for ($i = 1; $i <= $totalPages; $i++) {
+                    $activeClass = ($i === $currentPage) ? 'active' : '';
+                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                }
+                ?>
+            </ul>
+        </nav>
     <?php else : ?>
-        <p>No declined reservations available.</p>
+        <p class="no-reservations">No declined reservations available.</p>
     <?php endif; ?>
 </body>
 </html>

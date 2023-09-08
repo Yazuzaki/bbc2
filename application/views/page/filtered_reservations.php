@@ -62,23 +62,40 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link text-primary fw-semibold active position-relative" id="pills-home-tab"
                     data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab"
-                    aria-controls="pills-home" aria-selected="true">Current Reservations</button>
+                    aria-controls="pills-home" aria-selected="true">Reservations</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link text-primary fw-semibold position-relative" id="pills-profile-tab"
                     data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab"
-                    aria-controls="pills-profile" aria-selected="false">Upcoming Reservations</button>
+                    aria-controls="pills-profile" aria-selected="false">Current Reservations</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-primary fw-semibold position-relative" id="pills-contact-tab"
+                    data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab"
+                    aria-controls="pills-contact" aria-selected="false">Upcoming Reservations</button>
             </li>
         </ul>
         <div class="tab-content border rounded-3 border-primary p-3 text-danger" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                <h2>Current Reservations</h2>
-                <div id="reservationTableContainer">
-                    <?php if (!empty($reservations)): ?>
-                        <?php
-                        usort($reservations, function ($a, $b) {
-                            return strtotime($a->reserved_datetime) - strtotime($b->reserved_datetime);
-                        });
+            <div id="reservationTableContainer">
+                    <?php
+                    // Define the number of reservations per page
+                    $reservationsPerPage = 10;
+
+                    // Calculate the total number of pages
+                    $totalPages = ceil(count($reservations) / $reservationsPerPage);
+
+                    // Get the current page from the URL parameter
+                    $currentPage = isset($_GET['page']) ? max(1, min((int) $_GET['page'], $totalPages)) : 1;
+
+                    // Calculate the starting index for displaying reservations on the current page
+                    $startIndex = ($currentPage - 1) * $reservationsPerPage;
+
+                    // Create a subset of reservations to display on the current page
+                    $displayReservations = array_slice($reservations, $startIndex, $reservationsPerPage);
+
+                    // Check if there are reservations to display
+                    if (!empty($displayReservations)):
                         ?>
                         <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
                             <tr style="background:#CCC">
@@ -91,7 +108,7 @@
                                 <th>Action</th>
                             </tr>
                             <?php
-                            foreach ($reservations as $row) {
+                            foreach ($displayReservations as $row) {
                                 echo "<tr>";
                                 echo "<td>" . $row->id . "</td>";
                                 echo "<td>" . $row->reserved_datetime . "</td>";
@@ -106,7 +123,6 @@
                                 echo '<a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline" data-id="' . $row->id . '" class="btn btn-danger">Decline</a>';
                                 echo ' ';
 
-
                                 echo '</td>';
                                 echo '</tr>';
                             }
@@ -115,14 +131,62 @@
                     <?php else: ?>
                         <p>No reservations available.</p>
                     <?php endif; ?>
+
+                    <!-- Pagination links -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <?php
+                            // Display pagination links
+                            for ($i = 1; $i <= $totalPages; $i++) {
+                                $activeClass = ($i === $currentPage) ? 'active' : '';
+                                echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                            }
+                            ?>
+                        </ul>
+                    </nav>
                 </div>
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <h2>Upcoming Reservations</h2>
-
+            <div id="currentReservationsContainer">
+                <h2>Current Reservations</h2>
+                <?php if (!empty($today_reservations)): ?>
+                    <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
+                        <tr style="background:#CCC">
+                            <th>Reserve ID</th>
+                            <th>Reserved Datetime</th>
+                            <th>Created on</th>
+                            <th>Status</th>
+                            <th>Sport</th>
+                            <th>Court</th>
+                        </tr>
+                        <?php foreach ($today_reservations as $row): ?>
+                            <tr>
+                                <td>
+                                    <?= $row->id ?>
+                                </td>
+                                <td>
+                                    <?= $row->reserved_datetime ?>
+                                </td>
+                                <td>
+                                    <?= $row->created_at ?>
+                                </td>
+                                <td class="status-<?= strtolower($row->status) ?>"><?= $row->status ?></td>
+                                <td>
+                                    <?= $row->sport ?>
+                                </td>
+                                <td>
+                                    <?= $row->court ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                <?php else: ?>
+                    <p>No today's reservations available.</p>
+                <?php endif; ?>
+            </div>
             </div>
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-                <h2></h2>
+                <h2>Upcoming Reservations</h2>
 
             </div>
         </div>
