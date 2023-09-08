@@ -246,15 +246,32 @@ class bud_model extends CI_Model
         $query = $this->db->get('today');
         return $query->result();
     }
-    
-    public function insert_future_reservation($reservationData)
+
+
+    public function transferToOngoing($reservation)
     {
-        $this->db->insert('future', $reservationData);
+        $data = array(
+            'reserved_datetime' => $reservation->reserved_datetime,
+            'created_at' => date('Y-m-d H:i:s'),
+            'court' => $reservation->court,
+            'sport' => $reservation->sport,
+            'status' => 'ongoing'
+        );
+        $this->db->insert('ongoing', $data);
     }
-    public function insert_ongoing_reservation($reservationData)
+
+    public function transferToFuture($reservation)
     {
-        // Insert the reservation data into the "Ongoing" table
-        $this->db->insert('ongoing', $reservationData);
+        $data = array(
+            'reserved_datetime' => $reservation->reserved_datetime,
+            'created_at' => date('Y-m-d H:i:s'),
+            'court' => $reservation->court,
+            'sport' => $reservation->sport,
+            'status' => 'approved'
+        );
+        $this->db->insert('future', $data);
     }
+
+
 
 }

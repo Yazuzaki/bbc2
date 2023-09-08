@@ -198,32 +198,40 @@ class Page extends CI_Controller
         header('Content-Type: application/json');
         echo json_encode($reservations);
     }
+    
     public function approve_reservation($reservationId)
-    {
-        $this->load->model('bud_model');
-        $reservation = $this->bud_model->getReservation($reservationId);
+{
+    $this->load->model('bud_model');
+    $reservation = $this->bud_model->getReservation($reservationId);
 
-        if ($reservation->status === 'pending') {
-            // Update the status to 'approved' in the "reservations" table
+    if ($reservation->status === 'pending') {
+        // Check if the reservation date is today
+        $today = date('Y-m-d');
+        $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
+
+        if ($reservationDate === $today) {
+            // If it's today, update status to 'ongoing' and transfer to the "ongoing" table
             $this->bud_model->updateStatus($reservationId, 'approved');
-
-            // Transfer approved reservation to the "today" table
+            $this->bud_model->transferToOngoing($reservation);
             $this->bud_model->transferToToday($reservation);
-
-            // Update status in the "today" table
-            $this->bud_model->updateTodayStatus($reservation->reserved_datetime, 'approved');
-
-            // Remove the reservation from the "reservations" table
-            $this->bud_model->removeReservation($reservationId);
-
-            $response = array('status' => 'success');
         } else {
-            $response = array('status' => 'error', 'message' => 'Reservation not pending.');
+            // If it's in the future, update status to 'approved' and transfer to the "future" table
+            $this->bud_model->updateStatus($reservationId, 'approved');
+            $this->bud_model->transferToFuture($reservation);
         }
 
-        // Send the response as JSON
-        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+        // Remove the reservation from the "reservations" table
+        $this->bud_model->removeReservation($reservationId);
+
+        $response = array('status' => 'success');
+    } else {
+        $response = array('status' => 'error', 'message' => 'Reservation not pending.');
     }
+
+    // Send the response as JSON
+    $this->output->set_content_type('application/json')->set_output(json_encode($response));
+}
+
 
 
     public function decline_reservation($reservationId)
@@ -367,13 +375,6 @@ class Page extends CI_Controller
     echo json_encode(array('status' => 'success'));
 }
 
-public function ongoing()
-    {
-        // Load the Today_model to get data
-        $data['today'] = $this->bud_model->getTodayReservations();
 
-        // Load a view to display the data
-        $this->load->view('timetable', $data);
-    }
 
 }
