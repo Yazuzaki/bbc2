@@ -374,7 +374,14 @@ class Page extends CI_Controller
 
     echo json_encode(array('status' => 'success'));
 }
+public function fetch_current_reservations()
+{
+    // Replace this with your logic to fetch current reservations
+    $data['currentReservations'] = $this->bud_model->getCurrentReservations();
 
+    // Load a view to render the current reservations table
+    $this->load->view('timetable', $data);
+}
 
 
 }

@@ -15,7 +15,8 @@
             margin-bottom: 20px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #dee2e6;
             padding: 10px;
             text-align: center;
@@ -25,7 +26,7 @@
             background-color: #f8f9fa;
         }
 
-      
+
         tr:hover {
             background-color: #f2f2f2;
         }
@@ -39,10 +40,11 @@
             text-align: center;
         }
 
-    
+
         .pagination {
             justify-content: center;
         }
+
         .table,
         th,
         td {
@@ -52,6 +54,7 @@
         .table-hover tbody tr:hover {
             background-color: #58D68D;
         }
+
         .nav .nav-item button.active {
             background-color: transparent;
             color: var(--bs-danger) !important;
@@ -188,7 +191,44 @@
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <div id="currentReservationsContainer">
-                    <h2>Current Reservations</h2> 
+                    <h2>Current Reservations</h2>
+                    <?php if (!empty($currentReservations)): ?>
+                        <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
+                            <tr style="background:#CCC">
+                                <th>Reserve ID</th>
+                                <th>Reserved Datetime</th>
+                                <th>Created on</th>
+                                <th>Status</th>
+                                <th>Sport</th>
+                                <th>Court</th>
+                                <th>Action</th>
+                            </tr>
+                            <?php foreach ($currentReservations as $row): ?>
+                                <tr>
+                                    <td>
+                                        <?= $row->id ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->reserved_datetime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->created_at ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->court ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->sport ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->status ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    <?php else: ?>
+                        <p>No current reservations available.</p>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
@@ -327,7 +367,7 @@
                 date.getFullYear() === today.getFullYear();
         }
         function loadCurrentReservations() {
-            fetch('<?= base_url('Page/current_reservations') ?>', {
+            fetch('<?= base_url('Page/fetch_current_reservations') ?>', {
                 method: 'GET',
             })
                 .then(response => response.text())
@@ -338,11 +378,7 @@
                 .catch(error => {
                     console.error(error);
                 });
-        }
-
-        loadCurrentReservations();
-
-    });
+        });
 </script>
 
 

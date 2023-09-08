@@ -8,6 +8,43 @@
     <title>Timeline</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+
+
+        .status-pending {
+            color: #FFA500;
+        }
+
+        .table-container {
+            text-align: center;
+        }
+
+
+        .pagination {
+            justify-content: center;
+        }
+
         .table,
         th,
         td {
@@ -15,19 +52,7 @@
         }
 
         .table-hover tbody tr:hover {
-            background-color: #00E277;
-        }
-
-        .status-pending {
-            color: #FFA500;
-        }
-
-        .status-approved {
-            color: #00FF00;
-        }
-
-        .status-declined {
-            color: #FF0000;
+            background-color: #58D68D;
         }
 
         .nav .nav-item button.active {
@@ -43,6 +68,16 @@
             left: 0;
             bottom: -1px;
             border-radius: 5px 5px 0 0;
+        }
+
+
+        td:nth-child(5) {
+            color: blue;
+        }
+
+
+        td:nth-child(6) {
+            color: violet;
         }
     </style>
 </head>
