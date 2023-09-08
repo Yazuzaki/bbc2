@@ -295,6 +295,7 @@
         responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
             responseBody.innerText = '';
             $('#responseModal').modal('hide');
+            location.reload();
         });
 
         // AJAX for date filtering
