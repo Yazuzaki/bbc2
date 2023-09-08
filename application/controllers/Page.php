@@ -374,14 +374,25 @@ class Page extends CI_Controller
 
     echo json_encode(array('status' => 'success'));
 }
+
 public function fetch_current_reservations()
 {
-    // Replace this with your logic to fetch current reservations
-    $data['currentReservations'] = $this->bud_model->getCurrentReservations();
+    $this->load->model('bud_model');
 
-    // Load a view to render the current reservations table
-    $this->load->view('timetable', $data);
+    $start_date_str = $this->input->post('start_date');
+    $end_date_str = $this->input->post('end_date');
+
+    if (!empty($start_date_str) && !empty($end_date_str)) {
+        $start_date = new DateTime($start_date_str);
+        $end_date = new DateTime($end_date_str);
+
+        $data['ongoing'] = $this->bud_model->get_reservations_by_date_range_ongoing($start_date, $end_date);
+    } else {
+        $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
+    }
+
+    $this->load->view('page/filtered_reservations', $data);
+    $this->load->view('template/adminheader');
 }
-
 
 }

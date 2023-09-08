@@ -97,6 +97,10 @@ class bud_model extends CI_Model
     {
         return $this->db->get('reservations')->result();
     }
+    public function get_all_reservations_ongoing()
+    {
+        return $this->db->get('ongoing')->result();
+    }
     public function get_all_declined()
     {
         return $this->db->get('declined')->result();
@@ -191,6 +195,17 @@ class bud_model extends CI_Model
         $this->db->update('declined', $data);
     }
     public function get_reservations_by_date_range($start_date, $end_date)
+    {
+        $formatted_start_date = $start_date->format('Y-m-d 00:00:00');
+        $formatted_end_date = $end_date->format('Y-m-d 23:59:59');
+
+        $this->db->where('reserved_datetime >=', $formatted_start_date);
+        $this->db->where('reserved_datetime <=', $formatted_end_date);
+        $query = $this->db->get('reservations');
+
+        return $query->result();
+    }
+    public function get_reservations_by_date_range_ongoing($start_date, $end_date)
     {
         $formatted_start_date = $start_date->format('Y-m-d 00:00:00');
         $formatted_end_date = $end_date->format('Y-m-d 23:59:59');
