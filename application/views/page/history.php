@@ -88,16 +88,26 @@
 
         <!-- Pagination links -->
         <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <?php
-                // Display pagination links
-                for ($i = 1; $i <= $totalPages; $i++) {
-                    $activeClass = ($i === $currentPage) ? 'active' : '';
-                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
-                }
-                ?>
-            </ul>
-        </nav>
+                            <ul class="pagination">
+                                <?php
+                                $previousPage = $currentPage - 1;
+                                $nextPage = $currentPage + 1;
+
+                                if ($currentPage > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $previousPage . '">Previous</a></li>';
+                                }
+
+                                for ($i = 1; $i <= $totalPages; $i++) {
+                                    $activeClass = ($i === $currentPage) ? 'active' : '';
+                                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                                }
+
+                                if ($currentPage < $totalPages) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $nextPage . '">Next</a></li>';
+                                }
+                                ?>
+                            </ul>
+                        </nav>
     <?php else : ?>
         <p class="no-reservations">No declined reservations available.</p>
     <?php endif; ?>

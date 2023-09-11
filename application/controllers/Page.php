@@ -87,7 +87,7 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
         $this->bud_model->logout();
     }
-    
+
 
     public function submit_reserve()
     {
@@ -123,6 +123,8 @@ class Page extends CI_Controller
     {
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_all_reservations();
+        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
+        $data['future_reservations'] = $this->bud_model->getFutureReservations();
         $this->load->view('page/timetable', $data);
         $this->load->view('template/adminheader');
     }
@@ -130,6 +132,8 @@ class Page extends CI_Controller
     {
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_reservations_by_date_range();
+        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
+        $data['future_reservations'] = $this->bud_model->getFutureReservations();
         $this->load->view('page/filtered_reservations', $data);
         $this->load->view('template/adminheader');
     }
@@ -198,39 +202,40 @@ class Page extends CI_Controller
         header('Content-Type: application/json');
         echo json_encode($reservations);
     }
-    
+
     public function approve_reservation($reservationId)
-{
-    $this->load->model('bud_model');
-    $reservation = $this->bud_model->getReservation($reservationId);
+    {
+        $this->load->model('bud_model');
+        $reservation = $this->bud_model->getReservation($reservationId);
 
-    if ($reservation->status === 'pending') {
-        // Check if the reservation date is today
-        $today = date('Y-m-d');
-        $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
+        if ($reservation->status === 'pending') {
+            // Check if the reservation date is today
+            $today = date('Y-m-d');
+            $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
 
-        if ($reservationDate === $today) {
-            // If it's today, update status to 'ongoing' and transfer to the "ongoing" table
-            $this->bud_model->updateStatus($reservationId, 'approved');
-            $this->bud_model->transferToOngoing($reservation);
-            $this->bud_model->transferToToday($reservation);
+            if ($reservationDate === $today) {
+                // If it's today, update status to 'ongoing' and transfer to the "ongoing" table
+                $this->bud_model->updateStatus($reservationId, 'approved');
+                $this->bud_model->transferToOngoing($reservation);
+                $this->bud_model->transferToToday($reservation);
+            } else {
+                // If it's in the future, update status to 'approved' and transfer to the "future" table
+                $this->bud_model->updateStatus($reservationId, 'approved');
+                $this->bud_model->transferToFuture($reservation);
+                $this->bud_model->transferToToday($reservation);
+            }
+
+            // Remove the reservation from the "reservations" table
+            $this->bud_model->removeReservation($reservationId);
+
+            $response = array('status' => 'success');
         } else {
-            // If it's in the future, update status to 'approved' and transfer to the "future" table
-            $this->bud_model->updateStatus($reservationId, 'approved');
-            $this->bud_model->transferToFuture($reservation);
+            $response = array('status' => 'error', 'message' => 'Reservation not pending.');
         }
 
-        // Remove the reservation from the "reservations" table
-        $this->bud_model->removeReservation($reservationId);
-
-        $response = array('status' => 'success');
-    } else {
-        $response = array('status' => 'error', 'message' => 'Reservation not pending.');
+        // Send the response as JSON
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
-
-    // Send the response as JSON
-    $this->output->set_content_type('application/json')->set_output(json_encode($response));
-}
 
 
 
@@ -318,7 +323,8 @@ class Page extends CI_Controller
             echo json_encode([]);
         }
     }
-    public function grab_reservations() {
+    public function grab_reservations()
+    {
         // Handle form submission
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
             $start_date = $this->input->post('start_date');
@@ -333,12 +339,12 @@ class Page extends CI_Controller
             if ($query->num_rows() > 0) {
                 $future_reservations = $query->result_array();
 
-                // Loop through future reservations and insert into the "future" table
+                // Loop through future reservations and insert into the future table
                 foreach ($future_reservations as $reservation) {
                     $this->db->insert('future', $reservation);
                 }
 
-                // Now, you can delete the future reservations from the "reservations" table
+                // delete from pending
                 $this->db->where('reserved_datetime >=', $start_date);
                 $this->db->where('reserved_datetime <=', $end_date);
                 $this->db->delete('reservations');
@@ -349,50 +355,52 @@ class Page extends CI_Controller
         $this->load->view('reservation_view');
     }
     public function move_reservation_to_table($reservationId, $tableName)
-{
-    // Check if the $tableName is 'today' or 'future'
-    if ($tableName !== 'today' && $tableName !== 'future') {
-        echo json_encode(array('status' => 'error', 'message' => 'Invalid table name'));
-        return;
+    {
+        // Check if the $tableName is 'today' or 'future'
+        if ($tableName !== 'today' && $tableName !== 'future') {
+            echo json_encode(array('status' => 'error', 'message' => 'Invalid table name'));
+            return;
+        }
+
+        // Check if the reservation with the given ID exists
+        $reservation = $this->bud_model->get_reservation_by_id($reservationId);
+
+        if (!$reservation) {
+            echo json_encode(array('status' => 'error', 'message' => 'Reservation not found'));
+            return;
+        }
+
+        // Update the status and move the reservation to the specified table
+        $this->load->model('bud_model');
+        $data = array('status' => 'approved'); // Update the status as 'approved'
+        $this->db->where('id', $reservationId);
+        $this->db->update('reservations', $data);
+
+
+
+        echo json_encode(array('status' => 'success'));
     }
 
-    // Check if the reservation with the given ID exists
-    $reservation = $this->bud_model->get_reservation_by_id($reservationId);
+    public function fetch_current_reservations()
+    {
+        $this->load->model('bud_model');
 
-    if (!$reservation) {
-        echo json_encode(array('status' => 'error', 'message' => 'Reservation not found'));
-        return;
+        $start_date_str = $this->input->post('start_date');
+        $end_date_str = $this->input->post('end_date');
+
+        if (!empty($start_date_str) && !empty($end_date_str)) {
+            $start_date = new DateTime($start_date_str);
+            $end_date = new DateTime($end_date_str);
+
+            $data['ongoing'] = $this->bud_model->get_reservations_by_date_range_ongoing($start_date, $end_date);
+        } else {
+            $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
+        }
+
+        $this->load->view('page/filtered_reservations', $data);
+        $this->load->view('template/adminheader');
     }
 
-    // Update the status and move the reservation to the specified table
-    $this->load->model('bud_model');
-    $data = array('status' => 'approved'); // Update the status as 'approved'
-    $this->db->where('id', $reservationId);
-    $this->db->update('reservations', $data);
 
-
-
-    echo json_encode(array('status' => 'success'));
-}
-
-public function fetch_current_reservations()
-{
-    $this->load->model('bud_model');
-
-    $start_date_str = $this->input->post('start_date');
-    $end_date_str = $this->input->post('end_date');
-
-    if (!empty($start_date_str) && !empty($end_date_str)) {
-        $start_date = new DateTime($start_date_str);
-        $end_date = new DateTime($end_date_str);
-
-        $data['ongoing'] = $this->bud_model->get_reservations_by_date_range_ongoing($start_date, $end_date);
-    } else {
-        $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
-    }
-
-    $this->load->view('page/filtered_reservations', $data);
-    $this->load->view('template/adminheader');
-}
 
 }

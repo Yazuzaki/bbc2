@@ -79,6 +79,14 @@
         td:nth-child(6) {
             color: violet;
         }
+
+        .green-status table tr td:nth-child(4) {
+            color: green;
+        }
+
+        .status-green table tr td:nth-child(4) {
+            color: green;
+        }
     </style>
 </head>
 
@@ -113,20 +121,13 @@
         <div class="tab-content border rounded-3 border-primary p-3 text-danger" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                 <div id="reservationTableContainer">
+                    <h2>Reservation</h2>
 
                     <?php
-
                     $reservationsPerPage = 10;
-
-
                     $totalPages = ceil(count($reservations) / $reservationsPerPage);
-
-
                     $currentPage = isset($_GET['page']) ? max(1, min((int) $_GET['page'], $totalPages)) : 1;
-
-
                     $startIndex = ($currentPage - 1) * $reservationsPerPage;
-
                     $displayReservations = array_slice($reservations, $startIndex, $reservationsPerPage);
 
 
@@ -164,7 +165,9 @@
                             ?>
                         </table>
                     <?php else: ?>
-                        <p>No reservations available.</p>
+                        <tr>
+                            <td colspan="6">No reservations available.</td>
+                        </tr>
                     <?php endif; ?>
                     <nav aria-label="Page navigation">
                         <ul class="pagination">
@@ -190,9 +193,16 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <div id="currentReservationsContainer">
+                <div id="currentReservationsContainer" class="green-status">
                     <h2>Current Reservations</h2>
-                    <?php if (!empty($currentReservations)): ?>
+                    <?php if (!empty($ongoing_reservations)): ?>
+                        <?php
+                        $reservationsPerPage = 10;
+                        $totalPages = ceil(count($ongoing_reservations) / $reservationsPerPage);
+                        $currentPage = isset($_GET['page']) ? max(1, min((int) $_GET['page'], $totalPages)) : 1;
+                        $startIndex = ($currentPage - 1) * $reservationsPerPage;
+                        $displayReservations = array_slice($ongoing_reservations, $startIndex, $reservationsPerPage);
+                        ?>
                         <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
                             <tr style="background:#CCC">
                                 <th>Reserve ID</th>
@@ -201,9 +211,10 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
-                                <th>Action</th>
+
+
                             </tr>
-                            <?php foreach ($currentReservations as $row): ?>
+                            <?php foreach ($ongoing_reservations as $row): ?>
                                 <tr>
                                     <td>
                                         <?= $row->id ?>
@@ -215,175 +226,266 @@
                                         <?= $row->created_at ?>
                                     </td>
                                     <td>
-                                        <?= $row->court ?>
+                                        <?= $row->status ?>
                                     </td>
                                     <td>
                                         <?= $row->sport ?>
                                     </td>
                                     <td>
-                                        <?= $row->status ?>
+                                        <?= $row->court ?>
                                     </td>
+
+
                                 </tr>
                             <?php endforeach; ?>
                         </table>
+
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <?php
+                                $previousPage = $currentPage - 1;
+                                $nextPage = $currentPage + 1;
+
+                                if ($currentPage > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $previousPage . '">Previous</a></li>';
+                                }
+
+                                for ($i = 1; $i <= $totalPages; $i++) {
+                                    $activeClass = ($i === $currentPage) ? 'active' : '';
+                                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                                }
+
+                                if ($currentPage < $totalPages) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $nextPage . '">Next</a></li>';
+                                }
+                                ?>
+                            </ul>
+                        </nav>
                     <?php else: ?>
-                        <p>No current reservations available.</p>
+                        <td colspan="6">No reservations available.</td>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                <div id="upcomingReservationsContainer" class="status-green">
+                    <h2>Upcoming Reservations</h2>
+                    <?php if (!empty($future_reservations)): ?>
+                        <?php
+
+                        $reservationsPerPage = 10;
+
+
+                        $totalPages = ceil(count($future_reservations) / $reservationsPerPage);
+
+
+                        $currentPage = isset($_GET['page']) ? max(1, min((int) $_GET['page'], $totalPages)) : 1;
+
+
+                        $startIndex = ($currentPage - 1) * $reservationsPerPage;
+
+
+                        $displayDeclined = array_slice($future_reservations, $startIndex, $reservationsPerPage);
+                        ?>
+                        <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
+                            <tr style="background:#CCC">
+                                <th>Reserve ID</th>
+                                <th>Reserved Datetime</th>
+                                <th>Created on</th>
+                                <th>Status</th>
+                                <th>Sport</th>
+                                <th>Court</th>
+
+
+                            </tr>
+                            <?php foreach ($future_reservations as $row): ?>
+                                <tr>
+                                    <td>
+                                        <?= $row->id ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->reserved_datetime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->created_at ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->status ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->sport ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->court ?>
+                                    </td>
+
+
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <?php
+                                $previousPage = $currentPage - 1;
+                                $nextPage = $currentPage + 1;
+
+                                if ($currentPage > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $previousPage . '">Previous</a></li>';
+                                }
+
+                                for ($i = 1; $i <= $totalPages; $i++) {
+                                    $activeClass = ($i === $currentPage) ? 'active' : '';
+                                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                                }
+
+                                if ($currentPage < $totalPages) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $nextPage . '">Next</a></li>';
+                                }
+                                ?>
+                            </ul>
+                        </nav>
+                    <?php else: ?>
+                      <td colspan="6">No reservations available.</td>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-                <h2>Upcoming Reservations</h2>
+            <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="responseModalLabel">Response</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="responseBody">
 
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="responseModalLabel">Response</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="responseBody">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-</body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const responseModal = document.getElementById('responseModal');
-        const responseBody = document.getElementById('responseBody');
+            <!--JS -->
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const responseModal = document.getElementById('responseModal');
+                    const responseBody = document.getElementById('responseBody');
 
-        const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
-        const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
-
-        approveButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const reservationId = this.getAttribute("data-id");
-                const reservationRow = this.closest("tr");
-                const reservationDate = new Date(reservationRow.getAttribute("data-date"));
-                performAction(reservationId, "approve", reservationDate, reservationRow);
-            });
-        });
-
-        declineButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const reservationId = this.getAttribute("data-id");
-                performAction(reservationId, "decline");
-            });
-        });
-
-        function performAction(reservationId, action, reservationDate, reservationRow) {
-            fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
-                method: "GET",
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        responseBody.innerText = "Reservation has been " + action + "d.";
+                    const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
+                    const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
 
 
-                        if (isToday(reservationDate)) {
+                    approveButtons.forEach(button => {
+                        button.addEventListener("click", function () {
+                            const reservationId = this.getAttribute("data-id");
+                            const reservationRow = this.closest("tr");
+                            const reservationDate = new Date(reservationRow.getAttribute("data-date"));
+                            performAction(reservationId, "approve", reservationDate, reservationRow);
+                        });
+                    });
 
-                            if (action === 'approve') {
-                                reservationRow.remove();
-                                const todayTable = document.getElementById('today');
-                                todayTable.appendChild(reservationRow);
-                            } else if (action === 'decline') {
+                    declineButtons.forEach(button => {
+                        button.addEventListener("click", function () {
+                            const reservationId = this.getAttribute("data-id");
+                            performAction(reservationId, "decline");
+                        });
+                    });
 
-                                reservationRow.remove();
-                            }
-                        } else {
-
-                            if (action === 'approve') {
-                                reservationRow.remove();
-                                const futureTable = document.getElementById('future');
-                                futureTable.appendChild(reservationRow);
-                            } else if (action === 'decline') {
-
-                                reservationRow.remove();
-                            }
-                        }
+                    function performAction(reservationId, action, reservationDate, reservationRow) {
+                        fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
+                            method: "GET",
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    responseBody.innerText = "Reservation has been " + action + "d.";
 
 
-                        refreshReservationTable();
-                    } else {
-                        responseBody.innerText = data.message;
+                                    if (isToday(reservationDate)) {
+
+                                        if (action === 'approve') {
+                                            reservationRow.remove();
+                                            const todayTable = document.getElementById('today');
+                                            todayTable.appendChild(reservationRow);
+                                        } else if (action === 'decline') {
+
+                                            reservationRow.remove();
+                                        }
+                                    } else {
+
+                                        if (action === 'approve') {
+                                            reservationRow.remove();
+                                            const futureTable = document.getElementById('future');
+                                            futureTable.appendChild(reservationRow);
+                                        } else if (action === 'decline') {
+
+                                            reservationRow.remove();
+                                        }
+                                    }
+
+
+                                    refreshReservationTable();
+                                } else {
+                                    responseBody.innerText = data.message;
+                                }
+                                $('#responseModal').modal('show');
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
                     }
-                    $('#responseModal').modal('show');
-                })
-                .catch(error => {
-                    console.error(error);
+
+
+                    responseModal.addEventListener('hidden.bs.modal', function () {
+                        responseBody.innerText = '';
+                        location.reload();
+                    });
+
+                    responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
+                        responseBody.innerText = '';
+                        $('#responseModal').modal('hide');
+                        location.reload();
+                    });
+
+                    // AJAX for date filtering
+                    const dateFilterForm = document.getElementById('dateFilterForm');
+                    const reservationTableContainer = document.getElementById('reservationTableContainer');
+
+                    dateFilterForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(dateFilterForm);
+
+                        fetch('<?= site_url('Page/fetch_reservations') ?>', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.text())
+                            .then(data => {
+                                reservationTableContainer.innerHTML = data; // Update reservation table content
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    });
+
+                    // Function to determine if the date is today
+                    function isToday(date) {
+                        const today = new Date();
+                        return date.getDate() === today.getDate() &&
+                            date.getMonth() === today.getMonth() &&
+                            date.getFullYear() === today.getFullYear();
+                    }
+
                 });
-        }
-
-
-        responseModal.addEventListener('hidden.bs.modal', function () {
-            responseBody.innerText = '';
-            location.reload();
-        });
-
-        responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
-            responseBody.innerText = '';
-            $('#responseModal').modal('hide');
-            location.reload();
-        });
-
-        // AJAX for date filtering
-        const dateFilterForm = document.getElementById('dateFilterForm');
-        const reservationTableContainer = document.getElementById('reservationTableContainer');
-
-        dateFilterForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const formData = new FormData(dateFilterForm);
-
-            fetch('<?= site_url('Page/fetch_reservations') ?>', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.text())
-                .then(data => {
-                    reservationTableContainer.innerHTML = data; // Update reservation table content
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        });
-
-        // Function to determine if the date is today
-        function isToday(date) {
-            const today = new Date();
-            return date.getDate() === today.getDate() &&
-                date.getMonth() === today.getMonth() &&
-                date.getFullYear() === today.getFullYear();
-        }
-        function loadCurrentReservations() {
-            fetch('<?= base_url('Page/fetch_current_reservations') ?>', {
-                method: 'GET',
-            })
-                .then(response => response.text())
-                .then(data => {
-                    const currentReservationsContainer = document.getElementById('currentReservationsContainer');
-                    currentReservationsContainer.innerHTML = data; // Update reservation table content for "Current Reservations"
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }});
-</script>
-
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            </script>
+</body>
 
 </html>
