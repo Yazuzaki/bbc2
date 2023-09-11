@@ -5,36 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Declined Reservations</title>
     <style>
-         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-
-        table {
+            table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
         }
 
         th {
-            background-color: #007BFF;
-            color: #fff;
+            background-color: #f8f9fa;
         }
 
-        tr:nth-child(even) {
+
+        tr:hover {
             background-color: #f2f2f2;
         }
 
-        tr:hover {
-            background-color: #ddd;
+
+        .status-pending {
+            color: #FFA500;
+        }
+
+        .table-container {
+            text-align: center;
+        }
+
+
+        .pagination {
+            justify-content: center;
+        }
+
+        .table,
+        th,
+        td {
+            color: black;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #58D68D;
+        }
+
+        .nav .nav-item button.active {
+            background-color: transparent;
+            color: var(--bs-danger) !important;
+        }
+
+        .nav .nav-item button.active::after {
+            content: "";
+            border-bottom: 4px solid var(--bs-danger);
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            border-radius: 5px 5px 0 0;
+        }
+
+
+        td:nth-child(5) {
+            color: blue;
+        }
+
+
+        td:nth-child(6) {
+            color: violet;
         }
 
         .no-reservations {
@@ -65,6 +105,8 @@
         // Create a subset of declined reservations to display on the current page
         $displayDeclined = array_slice($declined, $startIndex, $reservationsPerPage);
         ?>
+        <br>
+        <h2>Declined</h2>
         <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
             <tr style="background:#CCC">
                 <th>Reserve ID</th>
