@@ -48,7 +48,7 @@ class Page extends CI_Controller
     }
     public function test()
     {
-        
+
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['reservations'] = $this->bud_model->get_all_reservations();
@@ -407,7 +407,21 @@ class Page extends CI_Controller
         $this->load->view('page/filtered_reservations', $data);
         $this->load->view('template/adminheader');
     }
+    public function cancel_reservation($reservationId)
+    {
+        // Check if the user is logged in or authorized to perform this action if needed
 
+        // Update the reservation status
+        $result = $this->Reservation_model->cancel_reservation($reservationId);
 
+        if ($result) {
+            $response = array('status' => 'success', 'message' => 'Reservation has been canceled.');
+        } else {
+            $response = array('status' => 'error', 'message' => 'Failed to cancel reservation.');
+        }
 
+        // Return the response as JSON
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
 }

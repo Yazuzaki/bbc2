@@ -105,6 +105,10 @@
             opacity: 1;
             transition: all 0.35s;
         }
+
+        .modal-content {
+            color: black;
+        }
     </style>
     <div class="wrapper">
         <div class="tabs">
@@ -113,7 +117,7 @@
                 <label for="tab-1" class="tab-label">Pending Reservations</label>
                 <div class="tab-content">
 
-                    <table id="myTable" class="display">
+                    <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>Reserve ID</th>
@@ -172,6 +176,7 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -195,6 +200,12 @@
                                     <td>
                                         <?= $row->court ?>
                                     </td>
+                                    <td>
+                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel"
+                                            data-id="<?= $row->id ?>" class="btn btn-danger">Cancel</a>
+                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
+                                            data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -215,6 +226,7 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -237,6 +249,12 @@
                                     </td>
                                     <td>
                                         <?= $row->court ?>
+                                    </td>
+                                    <td>
+                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel"
+                                            data-id="<?= $row->id ?>" class="btn btn-danger">Cancel</a>
+                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
+                                            data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -267,11 +285,20 @@
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
             <script>
-                
                 $(document).ready(function () {
                     $('#myTable').DataTable();
                     $('#myTable2').DataTable();
                     $('#myTable3').DataTable();
+                });
+                const cancelButtons = document.querySelectorAll(".btn-danger[data-action='cancel']");
+
+                cancelButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        const reservationId = this.getAttribute("data-id");
+                        const reservationRow = this.closest("tr");
+                        const reservationDate = new Date(reservationRow.getAttribute("data-date"));
+                        performAction(reservationId, "cancel", reservationDate, reservationRow);
+                    });
                 });
 
                 document.addEventListener("DOMContentLoaded", function () {
@@ -341,49 +368,17 @@
                                 console.error(error);
                             });
                     }
+                  
 
+                        // Function to determine if the date is today
+                        function isToday(date) {
+                            const today = new Date();
+                            return date.getDate() === today.getDate() &&
+                                date.getMonth() === today.getMonth() &&
+                                date.getFullYear() === today.getFullYear();
+                        }
 
-                    responseModal.addEventListener('hidden.bs.modal', function () {
-                        responseBody.innerText = '';
-                        location.reload();
                     });
-
-                    responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
-                        responseBody.innerText = '';
-                        $('#responseModal').modal('hide');
-                        location.reload();
-                    });
-
-                    // AJAX for date filtering
-                    const dateFilterForm = document.getElementById('dateFilterForm');
-                    const reservationTableContainer = document.getElementById('reservationTableContainer');
-
-                    dateFilterForm.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        const formData = new FormData(dateFilterForm);
-
-                        fetch('<?= site_url('Page/fetch_reservations') ?>', {
-                            method: 'POST',
-                            body: formData
-                        })
-                            .then(response => response.text())
-                            .then(data => {
-                                reservationTableContainer.innerHTML = data; // Update reservation table content
-                            })
-                            .catch(error => {
-                                console.error(error);
-                            });
-                    });
-
-                    // Function to determine if the date is today
-                    function isToday(date) {
-                        const today = new Date();
-                        return date.getDate() === today.getDate() &&
-                            date.getMonth() === today.getMonth() &&
-                            date.getFullYear() === today.getFullYear();
-                    }
-
-                });
             </script>
 </body>
 

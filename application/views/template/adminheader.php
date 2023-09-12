@@ -74,10 +74,7 @@
     </div>
     <!-- Sidebar content goes here -->
     <ul>
-      <li><a href="">Dashboard</a></li>
-      <li><a href="#">Users</a></li>
-      <li><a href="#">Settings</a></li>
-      <!-- Add more sidebar links as needed -->
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Manage</a></li>
     </ul>
   </div>
 </body>

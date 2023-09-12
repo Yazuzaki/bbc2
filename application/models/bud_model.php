@@ -286,9 +286,10 @@ class bud_model extends CI_Model
         );
         $this->db->insert('future', $data);
     }
-    public function getOngoingReservations($dateRange = null) {
+    public function getOngoingReservations($dateRange = null)
+    {
 
-        
+
         $this->db->where('status', 'ongoing');
         if ($dateRange) {
             $this->db->where('start_date <=', $dateRange['end_date']);
@@ -297,9 +298,22 @@ class bud_model extends CI_Model
         $query = $this->db->get('ongoing'); // Assuming 'ongoing' is your database table name
         return $query->result();
     }
-    public function getFutureReservations() {
+    public function getFutureReservations()
+    {
         $query = $this->db->get('future');
         return $query->result();
     }
+    public function cancel_reservation($reservationId)
+    {
+        // Assuming you have a "reservations" table with fields "id" and "status"
+        $data = array('status' => 'canceled');
+
+        // Update the status where reservationId matches
+        $this->db->where('id', $reservationId);
+        $this->db->update('reservations', $data);
+
+        return $this->db->affected_rows() > 0;
+    }
+
 
 }
