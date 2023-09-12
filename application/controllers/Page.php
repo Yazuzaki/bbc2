@@ -46,10 +46,17 @@ class Page extends CI_Controller
         $this->load->view('page/loginview');
 
     }
-    public function upcoming()
+    public function test()
     {
-        $this->load->view('template/header');
-        $this->load->view('page/upcoming');
+        
+        $this->load->model('bud_model');
+        $this->load->view('template/adminheader');
+        $data['reservations'] = $this->bud_model->get_all_reservations();
+        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
+        $data['future_reservations'] = $this->bud_model->getFutureReservations();
+
+        $this->load->view('page/test', $data);
+
 
     }
     public function register_form()
