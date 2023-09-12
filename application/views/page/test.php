@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -21,7 +20,7 @@
 
         body {
             font-family: "Open Sans";
-            background: #2c3e50;
+            background: white;
             color: #ecf0f1;
             line-height: 1.618em;
         }
@@ -324,7 +323,6 @@
                             performAction(reservationId, "decline");
                         });
                     });
-
                     function performAction(reservationId, action, reservationDate, reservationRow) {
                         fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
                             method: "GET",
@@ -368,17 +366,17 @@
                                 console.error(error);
                             });
                     }
-                  
 
-                        // Function to determine if the date is today
-                        function isToday(date) {
-                            const today = new Date();
-                            return date.getDate() === today.getDate() &&
-                                date.getMonth() === today.getMonth() &&
-                                date.getFullYear() === today.getFullYear();
-                        }
 
-                    });
+                    // Function to determine if the date is today
+                    function isToday(date) {
+                        const today = new Date();
+                        return date.getDate() === today.getDate() &&
+                            date.getMonth() === today.getMonth() &&
+                            date.getFullYear() === today.getFullYear();
+                    }
+
+                });
             </script>
 </body>
 

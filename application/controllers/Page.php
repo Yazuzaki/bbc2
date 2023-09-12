@@ -21,6 +21,9 @@ class Page extends CI_Controller
 
         $this->load->model('bud_model');
         $data['declined'] = $this->bud_model->get_all_declined();
+        $data['reservations'] = $this->bud_model->get_all_reservations();
+        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
+        $data['future_reservations'] = $this->bud_model->getFutureReservations();
         $this->load->view('page/history', $data);
         $this->load->view('template/adminheader');
 

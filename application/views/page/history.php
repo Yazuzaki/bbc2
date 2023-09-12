@@ -1,157 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <title>Declined Reservations</title>
+</head>
+
+<body>
     <style>
-            table {
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Open Sans";
+            background: #2c3e50;
+            color: #ecf0f1;
+            line-height: 1.618em;
+        }
+
+        .wrapper {
+            max-width: 50rem;
             width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #dee2e6;
-            margin-bottom: 20px;
+            margin: 0 auto;
         }
 
-        th,
-        td {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            text-align: center;
+        .tabs {
+            position: relative;
+            margin: 3rem 0;
+            height: auto;
+
         }
 
-        th {
-            background-color: #f8f9fa;
+        .tabs::before,
+        .tabs::after {
+            content: "";
+            display: table;
         }
 
-
-        tr:hover {
-            background-color: #f2f2f2;
+        .tabs::after {
+            clear: both;
         }
 
-
-        .status-pending {
-            color: #FFA500;
+        .tab {
+            float: left;
         }
 
-        .table-container {
-            text-align: center;
+        .tab-switch {
+            display: none;
         }
 
-
-        .pagination {
-            justify-content: center;
+        .tab-label {
+            position: relative;
+            display: block;
+            line-height: 2.75em;
+            height: 3em;
+            padding: 0 1.618em;
+            background: #1abc9c;
+            border-right: 0.125rem solid #16a085;
+            color: #fff;
+            cursor: pointer;
+            top: 0;
+            transition: all 0.25s;
         }
 
-        .table,
-        th,
-        td {
+        .tab-label:hover {
+            top: -0.25rem;
+            transition: top 0.25s;
+        }
+
+        .tab-content {
+            /* Removed fixed height */
+            position: absolute;
+            z-index: 1;
+            top: 2.75em;
+            left: 0;
+            padding: 1.618rem;
+            background: #fff;
+            color: #2c3e50;
+            border-bottom: 0.25rem solid #bdc3c7;
+            opacity: 0;
+            transition: all 0.35s;
+        }
+
+        .tab-switch:checked+.tab-label {
+            background: #fff;
+            color: #2c3e50;
+            border-bottom: 0;
+            border-right: 0.125rem solid #fff;
+            transition: all 0.35s;
+            z-index: 1;
+            top: -0.0625rem;
+        }
+
+        .tab-switch:checked+label+.tab-content {
+            z-index: 2;
+            opacity: 1;
+            transition: all 0.35s;
+        }
+
+        .modal-content {
             color: black;
         }
-
-        .table-hover tbody tr:hover {
-            background-color: #58D68D;
-        }
-
-        .nav .nav-item button.active {
-            background-color: transparent;
-            color: var(--bs-danger) !important;
-        }
-
-        .nav .nav-item button.active::after {
-            content: "";
-            border-bottom: 4px solid var(--bs-danger);
-            width: 100%;
-            position: absolute;
-            left: 0;
-            bottom: -1px;
-            border-radius: 5px 5px 0 0;
-        }
-
-
-        td:nth-child(5) {
-            color: blue;
-        }
-
-
-        td:nth-child(6) {
-            color: violet;
-        }
-
-        .no-reservations {
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
     </style>
-</head>
-<body>
-    <br>
-    <br>
-    <?php if (!empty($declined)) : ?>
-        <?php
-        // Define the number of reservations per page
-        $reservationsPerPage = 10;
+    <div class="wrapper">
+        <div class="tabs">
+            <div class="tab">
+                <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
+                <label for="tab-1" class="tab-label">
+                    <h2>Declined</h2>
+                </label>
+                <div class="tab-content">
+                    <table id="myTable" class="display table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Reserve ID</th>
+                                <th>Reserved Datetime</th>
+                                <th>Created on</th>
+                                <th>Status</th>
+                                <th>Sport</th>
+                                <th>Court</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($declined as $row): ?>
+                                <tr>
+                                    <td>
+                                        <?= $row->id ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->reserved_datetime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->created_at ?>
+                                    </td>
+                                    <td class="status-<?= strtolower($row->status) ?>">
+                                        <?= $row->status ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->sport ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->court ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
 
-        // Calculate the total number of pages
-        $totalPages = ceil(count($declined) / $reservationsPerPage);
-
-        // Get the current page from the URL parameter
-        $currentPage = isset($_GET['page']) ? max(1, min((int)$_GET['page'], $totalPages)) : 1;
-
-        // Calculate the starting index for displaying reservations on the current page
-        $startIndex = ($currentPage - 1) * $reservationsPerPage;
-
-        // Create a subset of declined reservations to display on the current page
-        $displayDeclined = array_slice($declined, $startIndex, $reservationsPerPage);
-        ?>
-        <br>
-        <h2>Declined</h2>
-        <table class="table-hover" width="600" border="0" cellspacing="5" cellpadding="5">
-            <tr style="background:#CCC">
-                <th>Reserve ID</th>
-                <th>Reserved Datetime</th>
-                <th>Created on</th>
-                <th>Court</th>
-                <th>Sport</th>
-                <th>Status</th>
-            </tr>
-            <?php foreach ($displayDeclined as $row) : ?>
-                <tr>
-                    <td><?= $row->id ?></td>
-                    <td><?= $row->reserved_datetime ?></td>
-                    <td><?= $row->created_at ?></td>
-                    <td><?= $row->court ?></td>
-                    <td><?= $row->sport ?></td>
-                    <td><?= $row->status ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-
-        <!-- Pagination links -->
-        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <?php
-                                $previousPage = $currentPage - 1;
-                                $nextPage = $currentPage + 1;
-
-                                if ($currentPage > 1) {
-                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $previousPage . '">Previous</a></li>';
-                                }
-
-                                for ($i = 1; $i <= $totalPages; $i++) {
-                                    $activeClass = ($i === $currentPage) ? 'active' : '';
-                                    echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
-                                }
-
-                                if ($currentPage < $totalPages) {
-                                    echo '<li class="page-item"><a class="page-link" href="?page=' . $nextPage . '">Next</a></li>';
-                                }
-                                ?>
-                            </ul>
-                        </nav>
-    <?php else : ?>
-        <p class="no-reservations">No declined reservations available.</p>
-    <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script>
+                $(document).ready(function () {
+                    $('#myTable').DataTable();
+                });
+            </script>
 </body>
+
 </html>

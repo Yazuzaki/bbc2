@@ -75,6 +75,10 @@
     <!-- Sidebar content goes here -->
     <ul>
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Manage</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
     </ul>
   </div>
 </body>
