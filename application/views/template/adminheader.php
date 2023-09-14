@@ -76,9 +76,9 @@
     <ul>
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Manage</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Placeholder</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/presentreservation'); ?>"></a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
     </ul>
   </div>
 </body>

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -200,8 +201,10 @@
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel"
-                                            data-id="<?= $row->id ?>" class="btn btn-danger">Cancel</a>
+                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel"
+                                            data-id="<?= $row->id ?>" class="btn btn-danger"
+                                            onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
+
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
                                             data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
                                     </td>
@@ -250,8 +253,9 @@
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel"
-                                            data-id="<?= $row->id ?>" class="btn btn-danger">Cancel</a>
+                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel2"
+                                            data-id="<?= $row->id ?>" class="btn btn-danger"
+                                            onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
                                             data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
                                     </td>
@@ -284,21 +288,51 @@
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
             <script>
+
                 $(document).ready(function () {
                     $('#myTable').DataTable();
                     $('#myTable2').DataTable();
                     $('#myTable3').DataTable();
                 });
-                const cancelButtons = document.querySelectorAll(".btn-danger[data-action='cancel']");
 
-                cancelButtons.forEach(button => {
-                    button.addEventListener("click", function () {
-                        const reservationId = this.getAttribute("data-id");
-                        const reservationRow = this.closest("tr");
-                        const reservationDate = new Date(reservationRow.getAttribute("data-date"));
-                        performAction(reservationId, "cancel", reservationDate, reservationRow);
+
+                $(document).ready(function () {
+                    function cancelReservation(reservationId) {
+                        if (confirm("Are you sure you want to cancel this reservation?")) {
+                            // Send an AJAX request to your server
+                            $.ajax({
+                                url: `<?= base_url('Page/cancel_reservation') ?>${reservationId}`,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.status === "success") {
+                                        alert("Reservation canceled successfully.");
+                                        // You can add further actions here if needed
+                                        location.reload(); // Refresh the page
+                                    } else {
+                                        alert("Failed to cancel reservation: " + data.message);
+                                    }
+                                },
+                                error: function (error) {
+                                    console.error("Error:", error);
+                                }
+                            });
+                        }
+                    }
+
+                    $('#cancel').click(function () {
+                        var reservationId = $(this).data('id');
+                        cancelReservation(reservationId);
+                    });
+
+                    $('#cancel2').click(function () {
+                        var reservationId = $(this).data('id');
+                        cancelReservation(reservationId);
                     });
                 });
+
+
 
                 document.addEventListener("DOMContentLoaded", function () {
                     const responseModal = document.getElementById('responseModal');
@@ -306,6 +340,9 @@
 
                     const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
                     const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
+
+                  
+                    const reschedButtons = document.querySelectorAll(".btn-warning[data-action='resched']");
 
 
                     approveButtons.forEach(button => {
@@ -323,38 +360,53 @@
                             performAction(reservationId, "decline");
                         });
                     });
+
+                    cancelButtons.forEach(button => {
+                        button.addEventListener("click", function () {
+                            console.log("Cancel button clicked"); // Add this line for debugging
+                            const reservationId = this.getAttribute("data-id");
+                            const reservationRow = this.closest("tr");
+                            const reservationDate = new Date(reservationRow.getAttribute("data-date"));
+                            console.log("Reservation ID:", reservationId); // Add this line for debugging
+                            console.log("Reservation Date:", reservationDate); // Add this line for debugging
+                            performAction(reservationId, "cancel", reservationDate, reservationRow);
+                        });
+                    });
+
+                    // Inside your performAction function
                     function performAction(reservationId, action, reservationDate, reservationRow) {
                         fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
                             method: "GET",
                         })
                             .then(response => response.json())
                             .then(data => {
+                                console.log(data);
                                 if (data.status === "success") {
-                                    responseBody.innerText = "Reservation has been " + action + "d.";
+                                    responseBody.innerText = "Reservation " + action + " success";
+
+
+                                    reservationRow.remove();
 
 
                                     if (isToday(reservationDate)) {
-
                                         if (action === 'approve') {
-                                            reservationRow.remove();
+
                                             const todayTable = document.getElementById('today');
                                             todayTable.appendChild(reservationRow);
                                         } else if (action === 'decline') {
-
                                             reservationRow.remove();
+
                                         }
                                     } else {
-
                                         if (action === 'approve') {
-                                            reservationRow.remove();
+
                                             const futureTable = document.getElementById('future');
                                             futureTable.appendChild(reservationRow);
                                         } else if (action === 'decline') {
-
                                             reservationRow.remove();
+
                                         }
                                     }
-
 
                                     refreshReservationTable();
                                 } else {
@@ -363,10 +415,20 @@
                                 $('#responseModal').modal('show');
                             })
                             .catch(error => {
-                                console.error(error);
+
                             });
                     }
 
+                    responseModal.addEventListener('hidden.bs.modal', function () {
+                        responseBody.innerText = '';
+                        location.reload();
+                    });
+
+                    responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
+                        responseBody.innerText = '';
+                        $('#responseModal').modal('hide');
+                        location.reload();
+                    });
 
                     // Function to determine if the date is today
                     function isToday(date) {

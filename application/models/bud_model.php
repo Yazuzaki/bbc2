@@ -171,6 +171,7 @@ class bud_model extends CI_Model
         $this->db->where('id', $reservationId);
         $this->db->delete('reservations');
     }
+
     public function updateTodayStatus($reservedDatetime, $status)
     {
         $this->db->where('reserved_datetime', $reservedDatetime);
@@ -303,17 +304,41 @@ class bud_model extends CI_Model
         $query = $this->db->get('future');
         return $query->result();
     }
-    public function cancel_reservation($reservationId)
+    public function cancel_and_move_reservation($reservationId)
     {
-        // Assuming you have a "reservations" table with fields "id" and "status"
-        $data = array('status' => 'canceled');
+        $this->load->database();
 
-        // Update the status where reservationId matches
-        $this->db->where('id', $reservationId);
-        $this->db->update('reservations', $data);
+        // Get reservation data from 'ongoing' table
+        $reservation_data = $this->db->get_where('ongoing', array('id' => $reservationId))->row_array();
 
-        return $this->db->affected_rows() > 0;
+        if (!$reservation_data) {
+            // Reservation not found, return false or handle the error as needed.
+            return false;
+        }
+
+        // Remove the 'id' key from the reservation data
+        unset($reservation_data['id']);
+
+        $reservation_data['status'] = 'canceled';
+
+        $this->db->insert('canceled', $reservation_data);
+
+        // Check if the insertion was successful
+        if ($this->db->affected_rows() > 0) {
+            // Delete the reservation from the 'ongoing' table
+            $this->db->where('id', $reservationId);
+            $this->db->delete('ongoing');
+
+            return true;
+        }
+
+        return false;
     }
+    public function rescheduleReservation($reservationId)
+    {
+        $updatedData = $this->db->where('id', $reservationId)->get('ongoing')->row();
 
+        return $updatedData;
+    }
 
 }
