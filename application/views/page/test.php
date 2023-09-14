@@ -205,8 +205,7 @@
                                             data-id="<?= $row->id ?>" class="btn btn-danger"
                                             onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
 
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
-                                            data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
+                                      
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -256,8 +255,7 @@
                                         <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel"
                                             data-id="<?= $row->id ?>" class="btn btn-danger"
                                             onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
-                                            data-id="<?= $row->id ?>" class="btn btn-success">ReSched</a>
+                                        
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
