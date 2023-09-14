@@ -341,7 +341,7 @@
                     const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
                     const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
 
-                  
+                    const cancelButtons = document.querySelectorAll(".btn-danger[data-action='cancel']");
                     const reschedButtons = document.querySelectorAll(".btn-warning[data-action='resched']");
 
 
