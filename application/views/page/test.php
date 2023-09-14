@@ -201,7 +201,7 @@
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel"
+                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel" id="cancel"
                                             data-id="<?= $row->id ?>" class="btn btn-danger"
                                             onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
 
@@ -253,7 +253,7 @@
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel2"
+                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel"
                                             data-id="<?= $row->id ?>" class="btn btn-danger"
                                             onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="resched"
@@ -296,41 +296,9 @@
                 });
 
 
-                $(document).ready(function () {
-                    function cancelReservation(reservationId) {
-                        if (confirm("Are you sure you want to cancel this reservation?")) {
-                            // Send an AJAX request to your server
-                            $.ajax({
-                                url: `<?= base_url('Page/cancel_reservation') ?>${reservationId}`,
-                                type: "GET",
-                                dataType: "json",
-                                success: function (data) {
-                                    console.log(data);
-                                    if (data.status === "success") {
-                                        alert("Reservation canceled successfully.");
-                                        // You can add further actions here if needed
-                                        location.reload(); // Refresh the page
-                                    } else {
-                                        alert("Failed to cancel reservation: " + data.message);
-                                    }
-                                },
-                                error: function (error) {
-                                    console.error("Error:", error);
-                                }
-                            });
-                        }
-                    }
 
-                    $('#cancel').click(function () {
-                        var reservationId = $(this).data('id');
-                        cancelReservation(reservationId);
-                    });
 
-                    $('#cancel2').click(function () {
-                        var reservationId = $(this).data('id');
-                        cancelReservation(reservationId);
-                    });
-                });
+
 
 
 
@@ -372,11 +340,37 @@
                             performAction(reservationId, "cancel", reservationDate, reservationRow);
                         });
                     });
+                    function cancelReservation(reservationId) {
+                            $.ajax({
+                                url: `<?= base_url('Page/cancel_reservation') ?>${reservationId}`,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.status === "success") {
+                                        alert("Reservation canceled successfully.");
+                                        // You can add further actions here if needed
+                                        location.reload(); // Refresh the page
+                                    } else {
+                                        alert("Failed to cancel reservation: " + data.message);
+                                    }
+                                },
+                                error: function (error) {
+                                    console.error("Error:", error);
+                                }
+                            });
+                        
+                    }
+
+                    $('#cancel').click(function () {
+                        var reservationId = $(this).data('id');
+                        cancelReservation(reservationId);
+                    });
 
                     // Inside your performAction function
                     function performAction(reservationId, action, reservationDate, reservationRow) {
                         fetch(`<?= base_url('Page/') ?>${action}_reservation/${reservationId}`, {
-                            method: "GET",
+                            method: "POST",
                         })
                             .then(response => response.json())
                             .then(data => {
