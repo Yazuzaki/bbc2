@@ -309,7 +309,7 @@ class bud_model extends CI_Model
         $this->load->database();
 
         // Get reservation data from 'ongoing' table
-        $reservation_data = $this->db->get_where('ongoing', array('id' => $reservationId))->row_array();
+        $reservation_data = $this->db->get_where('future', array('id' => $reservationId))->row_array();
 
         if (!$reservation_data) {
             // Reservation not found, return false or handle the error as needed.
@@ -327,7 +327,7 @@ class bud_model extends CI_Model
         if ($this->db->affected_rows() > 0) {
             // Delete the reservation from the 'ongoing' table
             $this->db->where('id', $reservationId);
-            $this->db->delete('ongoing');
+            $this->db->delete('future');
 
             return true;
         }

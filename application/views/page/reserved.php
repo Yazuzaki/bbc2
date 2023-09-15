@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
@@ -130,12 +130,13 @@
             }
         }
     </style>
-     <div class="wrapper">
+    <div class="wrapper">
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
-                <label for="tab-1" class="tab-label">Declined</label>
+                <label for="tab-1" class="tab-label">Reservations</label>
                 <div class="tab-content">
+
                     <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
                             <tr>
@@ -145,10 +146,11 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($declined as $row): ?>
+                            <?php foreach ($future_reservations as $row): ?>
                                 <tr>
                                     <td>
                                         <?= $row->id ?>
@@ -168,6 +170,12 @@
                                     <td>
                                         <?= $row->court ?>
                                     </td>
+                                    <td>
+                                        <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
+                                            data-target="#responseModal" data-action="cancel"
+                                            data-id="<?= $row->id ?>">Cancel</a>
+                                    </td>
+
                                 </tr>
                             <?php endforeach; ?>
 
@@ -175,7 +183,7 @@
                     </table>
                 </div>
             </div>
-            </div>
+
             <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -198,10 +206,47 @@
 
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
             <script>
                 $(document).ready(function () {
                     $('#myTable').DataTable();
+                });
+
+                $(document).ready(function () {
+                    $('.cancel-button').click(function (e) {
+                        e.preventDefault();
+
+                        var reservationId = $(this).data('id');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo base_url('page/cancel_reservation'); ?>',
+                            data: { reservationId: reservationId },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    // Handle success, e.g., update the UI or show a success message
+                                    $('#responseBody').html('Reservation canceled successfully.');
+                                } else {
+                                    // Handle error, e.g., show an error message
+                                    $('#responseBody').html('Failed to cancel reservation.');
+                                }
+
+                                // Show the response modal
+                                $('#responseModal').modal('show');
+                            },
+                            error: function () {
+                                // Handle AJAX error
+                                $('#responseBody').html('An error occurred during the request.');
+                                $('#responseModal').modal('show');
+                            }
+                        });
+                    });
+
+                    // Add an event listener to the close button of the modal
+                    $('#responseModal').on('hidden.bs.modal', function () {
+                        $('#responseBody').empty(); // Clear the response body text
+                        location.reload(); // Reload the page
+                    });
                 });
             </script>
 </body>

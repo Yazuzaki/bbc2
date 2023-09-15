@@ -14,54 +14,94 @@
 
 <body>
   <style>
+    .sidebar,
+    .main-content {
+      transition: margin 0.3s;
+      /* Add a smooth transition effect */
+    }
 
     .sidebar {
-        width: 250px;
-        height: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: #333;
-        padding-top: 20px;
+      width: 250px;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #333;
+      padding-top: 20px;
+      z-index: 1;
+      /* Ensure sidebar is above the main content */
     }
 
     .sidebar ul {
-        list-style-type: none;
-        padding: 0;
+      list-style-type: none;
+      padding: 0;
     }
 
     .sidebar li {
-        margin-bottom: 10px;
+      margin-bottom: 10px;
     }
 
     .sidebar a {
-        color: white;
-        text-decoration: none; 
-        padding: 10px;
-        display: block;
-        transition: background-color 0.3s;
+      color: white;
+      text-decoration: none;
+      padding: 10px;
+      display: block;
+      transition: background-color 0.3s;
     }
 
     .sidebar a:hover {
-        background-color: #555;
+      background-color: #555;
     }
 
     .main-content {
-        margin-left: 250px;
-        padding: 20px;
+      padding: 20px;
+      margin-left: 0;
+      /* Initially, no margin on the left */
     }
 
     .logo {
-        text-align: center;
-        margin-bottom: 20px;
+      text-align: center;
+      margin-bottom: 20px;
     }
 
     .logo img {
-        width: 150px;
-        height: auto;
+      width: 150px;
+      height: auto;
     }
 
+    /* Media query for mobile devices */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        /* Collapse the sidebar initially */
+      }
 
+      .sidebar.active {
+        width: 250px;
+        /* Show sidebar when active */
+      }
+
+      .sidebar ul {
+        text-align: center;
+        /* Center-align menu items */
+      }
+
+      .sidebar li {
+        margin: 0;
+      }
+
+      .sidebar a {
+        padding: 15px 0;
+        /* Increase padding for touch-friendly buttons */
+        display: inline-block;
+        /* Menu items in a row */
+      }
+
+      .main-content {
+        margin-left: 0;
+        /* No margin on the left */
+      }
+    }
   </style>
 
   <!-- Sidebar -->
@@ -74,13 +114,22 @@
     </div>
     <!-- Sidebar content goes here -->
     <ul>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Manage</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Pending Reservations</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/presentreservation'); ?>"></a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
     </ul>
   </div>
+
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+
+    sidebarToggle.addEventListener("click", function () {
+      sidebar.classList.toggle("active");
+    });
+  </script>
 </body>
 
 </html>

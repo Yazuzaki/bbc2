@@ -109,6 +109,21 @@
         .modal-content {
             color: black;
         }
+        @media (max-width: 768px) {
+            .tab-label {
+                font-size: 14px; /* Reduce font size for tab labels */
+            }
+
+            .tab-content {
+                top: 3.5em; /* Adjust the top position of tab content */
+                padding: 1rem; /* Increase padding for tab content */
+            }
+
+            .modal-content {
+                color: black;
+                font-size: 14px; /* Reduce font size for modal content */
+            }
+        }
     </style>
     <div class="wrapper">
         <div class="tabs">
@@ -135,7 +150,7 @@
                                     <td>
                                         <?= $row->id ?>
                                     </td>
-                                    <td>
+                                    <td> 
                                         <?= $row->reserved_datetime ?>
                                     </td>
                                     <td>
@@ -159,106 +174,6 @@
                                 </tr>
                             <?php endforeach; ?>
 
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="tab">
-                <input type="radio" name="css-tabs" id="tab-2" class="tab-switch">
-                <label for="tab-2" class="tab-label">Today's Reservations</label>
-                <div class="tab-content">
-                    <table id="myTable2" class="display table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Reserve ID</th>
-                                <th>Reserved Datetime</th>
-                                <th>Created on</th>
-                                <th>Status</th>
-                                <th>Sport</th>
-                                <th>Court</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($ongoing_reservations as $row): ?>
-                                <tr>
-                                    <td>
-                                        <?= $row->id ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->reserved_datetime ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->created_at ?>
-                                    </td>
-                                    <td class="status-<?= strtolower($row->status) ?>">
-                                        <?= $row->status ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->sport ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->court ?>
-                                    </td>
-                                    <td>
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="cancel" id="cancel"
-                                            data-id="<?= $row->id ?>" class="btn btn-danger"
-                                            onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
-
-                                      
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="tab">
-                <input type="radio" name="css-tabs" id="tab-3" class="tab-switch">
-                <label for="tab-3" class="tab-label">Upcoming Reservations</label>
-                <div class="tab-content">
-                    <table id="myTable3" class="display table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Reserve ID</th>
-                                <th>Reserved Datetime</th>
-                                <th>Created on</th>
-                                <th>Status</th>
-                                <th>Sport</th>
-                                <th>Court</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($future_reservations as $row): ?>
-                                <tr>
-                                    <td>
-                                        <?= $row->id ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->reserved_datetime ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->created_at ?>
-                                    </td>
-                                    <td class="status-<?= strtolower($row->status) ?>">
-                                        <?= $row->status ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->sport ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->court ?>
-                                    </td>
-                                    <td>
-                                        <a href="#" data-toggle="modal" data-target="" data-action="cancel" id="cancel"
-                                            data-id="<?= $row->id ?>" class="btn btn-danger"
-                                            onclick="cancelReservation('<?= $row->id ?>');">Cancel</a>
-                                        
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -287,29 +202,38 @@
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
             <script>
 
+                function cancelReservation(reservationId) {
+                    $.ajax({
+                        url: `<?= base_url('Page/cancel_reservation') ?>/${encodeURIComponent(reservationId)}`,
+                        type: "GET",
+                        dataType: "json",
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            if (data.status === "success") {
+                                alert("Reservation canceled successfully.");
+                                location.reload();
+                            } else {
+                                alert("Failed to cancel reservation: " + data.message);
+                            }
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.error("AJAX Error:", errorThrown);
+                        });
+                }
+
+
                 $(document).ready(function () {
                     $('#myTable').DataTable();
-                    $('#myTable2').DataTable();
-                    $('#myTable3').DataTable();
+
                 });
 
-
-
-
-
-
-
-
                 document.addEventListener("DOMContentLoaded", function () {
-                    const responseModal = document.getElementById('responseModal');
-                    const responseBody = document.getElementById('responseBody');
+                    // Initialize variables and event listeners here
 
                     const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
                     const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
-
-                    const cancelButtons = document.querySelectorAll(".btn-danger[data-action='cancel']");
-                    const reschedButtons = document.querySelectorAll(".btn-warning[data-action='resched']");
-
+                 
 
                     approveButtons.forEach(button => {
                         button.addEventListener("click", function () {
@@ -325,44 +249,6 @@
                             const reservationId = this.getAttribute("data-id");
                             performAction(reservationId, "decline");
                         });
-                    });
-
-                    cancelButtons.forEach(button => {
-                        button.addEventListener("click", function () {
-                            console.log("Cancel button clicked"); // Add this line for debugging
-                            const reservationId = this.getAttribute("data-id");
-                            const reservationRow = this.closest("tr");
-                            const reservationDate = new Date(reservationRow.getAttribute("data-date"));
-                            console.log("Reservation ID:", reservationId); // Add this line for debugging
-                            console.log("Reservation Date:", reservationDate); // Add this line for debugging
-                            performAction(reservationId, "cancel", reservationDate, reservationRow);
-                        });
-                    });
-                    function cancelReservation(reservationId) {
-                            $.ajax({
-                                url: `<?= base_url('Page/cancel_reservation') ?>${reservationId}`,
-                                type: "GET",
-                                dataType: "json",
-                                success: function (data) {
-                                    console.log(data);
-                                    if (data.status === "success") {
-                                        alert("Reservation canceled successfully.");
-                                        // You can add further actions here if needed
-                                        location.reload(); // Refresh the page
-                                    } else {
-                                        alert("Failed to cancel reservation: " + data.message);
-                                    }
-                                },
-                                error: function (error) {
-                                    console.error("Error:", error);
-                                }
-                            });
-                        
-                    }
-
-                    $('#cancel').click(function () {
-                        var reservationId = $(this).data('id');
-                        cancelReservation(reservationId);
                     });
 
                     // Inside your performAction function
@@ -431,6 +317,11 @@
                     }
 
                 });
+
+
+
+
+
             </script>
 </body>
 

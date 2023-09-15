@@ -20,12 +20,10 @@ class Page extends CI_Controller
     {
 
         $this->load->model('bud_model');
-        $data['declined'] = $this->bud_model->get_all_declined();
-        $data['reservations'] = $this->bud_model->get_all_reservations();
-        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
-        $data['future_reservations'] = $this->bud_model->getFutureReservations();
-        $this->load->view('page/history', $data);
         $this->load->view('template/adminheader');
+        $data['declined'] = $this->bud_model->get_all_declined();
+        $this->load->view('page/history', $data);
+
 
     }
     public function reserve()
@@ -62,13 +60,22 @@ class Page extends CI_Controller
 
 
     }
+    public function reserved()
+    {
+        $this->load->model('bud_model');
+        $this->load->view('template/adminheader');
+        $data['future_reservations'] = $this->bud_model->getFutureReservations();
+
+        $this->load->view('page/reserved', $data);
+
+    }
     public function presentreservation()
     {
 
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
-       
-        
+
+
         $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
 
 
@@ -187,8 +194,8 @@ class Page extends CI_Controller
                 'start' => $reservation->reserved_datetime,
                 'color' => $randomColor,
                 'popoverHtml' => 'Reservation Details:<br>' .
-                'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
-                'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
+                    'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
+                    'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
 
             ];
         }
@@ -425,11 +432,10 @@ class Page extends CI_Controller
         $this->load->view('page/filtered_reservations', $data);
         $this->load->view('template/adminheader');
     }
-
-    public function cancel_reservation($reservationId)
+    public function cancel_reservation()
     {
+        $reservationId = $this->input->post('reservationId');
         $this->load->model('bud_model');
-
 
         $cancellation_status = $this->bud_model->cancel_and_move_reservation($reservationId);
 
@@ -439,9 +445,10 @@ class Page extends CI_Controller
             echo json_encode(array('status' => 'error'));
         }
     }
+
     public function reschedule_reservation($reservationId)
     {
-      
+
         $updatedData = $this->bud_model->rescheduleReservation($reservationId);
 
         if ($updatedData) {
