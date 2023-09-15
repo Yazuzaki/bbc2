@@ -113,20 +113,20 @@
         @media (max-width: 768px) {
             .tab-label {
                 font-size: 14px;
-                /* Reduce font size for tab labels */
+
             }
 
             .tab-content {
                 top: 3.5em;
-                /* Adjust the top position of tab content */
+
                 padding: 1rem;
-                /* Increase padding for tab content */
+
             }
 
             .modal-content {
                 color: black;
                 font-size: 14px;
-                /* Reduce font size for modal content */
+
             }
         }
     </style>
@@ -174,8 +174,14 @@
                                         <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
                                             data-target="#responseModal" data-action="cancel"
                                             data-id="<?= $row->id ?>">Cancel</a>
-                                    </td>
 
+                                        <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
+                                            data-target="#rescheduleModal" data-action="reschedule"
+                                            data-id="<?= $row->id ?>"
+                                            data-reserved-datetime="<?= $row->reserved_datetime ?>">Reschedule</a>
+
+
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
 
@@ -183,7 +189,6 @@
                     </table>
                 </div>
             </div>
-
             <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -204,9 +209,64 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
+                aria-labelledby="rescheduleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Reservation</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="reservationForm">
+                                <input type="hidden" name="reservationId" id="reservationId" value="">
+                                <div class="form-group">
+                                    <label for="currentReservationId">Current Reservation ID:</label>
+                                    <input type="text" id="currentReservationId" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newReservedDatetime">New Reserved Datetime:</label>
+                                    <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="sport" class="form-label">Select Sport:</label>
+                                    <select id="sport" name="sport" class="form-select" required>
+                                        <?php foreach ($sports as $sport): ?>
+                                            <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="court" class="form-label">Select Court:</label>
+                                    <select id="court" name="court" class="form-select" required>
+                                        <?php foreach ($courts as $court): ?>
+                                            <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="submitReschedule">Reschedule</button>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+
+
+
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
             <script>
+
+
+
+
                 $(document).ready(function () {
                     $('#myTable').DataTable();
                 });
@@ -224,30 +284,119 @@
                             dataType: 'json',
                             success: function (response) {
                                 if (response.status === 'success') {
-                                    // Handle success, e.g., update the UI or show a success message
                                     $('#responseBody').html('Reservation canceled successfully.');
                                 } else {
-                                    // Handle error, e.g., show an error message
                                     $('#responseBody').html('Failed to cancel reservation.');
                                 }
 
-                                // Show the response modal
+
                                 $('#responseModal').modal('show');
                             },
                             error: function () {
-                                // Handle AJAX error
+
                                 $('#responseBody').html('An error occurred during the request.');
                                 $('#responseModal').modal('show');
                             }
                         });
                     });
 
-                    // Add an event listener to the close button of the modal
+
                     $('#responseModal').on('hidden.bs.modal', function () {
-                        $('#responseBody').empty(); // Clear the response body text
-                        location.reload(); // Reload the page
+                        $('#responseBody').empty();
+                        location.reload();
                     });
                 });
+
+                $('.reschedule-button').click(function (e) {
+                    e.preventDefault();
+
+                    var reservationId = $(this).data('id');
+                    var reservedDatetime = $(this).data('reserved-datetime');
+
+             
+                    $('#reservationId').val(reservationId);
+                    $('#currentReservationId').val(reservationId);
+                    $('#currentReservedDatetime').val(reservedDatetime);
+                    $('#newReservedDatetime').val(reservedDatetime);
+
+
+                    $('#rescheduleModal').modal('show');
+                });
+
+
+
+                $('#submitReschedule').click(function () {
+                    // Serialize the form data
+                    var formData = $('#reservationForm').serialize();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url('page/reschedule_reservation'); ?>',
+                        data: formData,
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                $('#responseBody').html('Reservation rescheduled successfully.');
+                            } else {
+                                $('#responseBody').html('Failed to reschedule reservation.');
+                            }
+
+                            // Hide the reschedule modal
+                            $('#rescheduleModal').modal('hide');
+
+                            // Show the response modal
+                            $('#responseModal').modal('show');
+                        },
+                        error: function () {
+                            $('#responseBody').html('An error occurred during the request.');
+
+                            // Hide the reschedule modal
+                            $('#rescheduleModal').modal('hide');
+
+                            // Show the response modal
+                            $('#responseModal').modal('show');
+                        }
+                    });
+                });
+
+                $.ajax({
+                    type: 'GET',
+                    url: '<?php echo site_url("Page/get_court_choices"); ?>',
+                    dataType: 'json',
+                    success: function (courts) {
+                        var courtSelect = document.getElementById('court');
+
+
+                        courts.forEach(function (court) {
+                            var option = document.createElement('option');
+                            option.value = court.court_number;
+                            option.text = court.court_number;
+                            courtSelect.appendChild(option);
+                        });
+                    },
+                    error: function () {
+                        alert('Error fetching court choices');
+                    }
+                });
+                $.ajax({
+                    type: 'GET',
+                    url: '<?php echo site_url("Page/get_sport_choices"); ?>',
+                    dataType: 'json',
+                    success: function (sports) {
+                        var sportSelect = document.getElementById('sport');
+
+                        sports.forEach(function (sport) {
+                            var option = document.createElement('option');
+                            option.value = sport.sport_name;
+                            option.text = sport.sport_name;
+                            sportSelect.appendChild(option);
+                        });
+                    },
+                    error: function () {
+                        alert('Error fetching sport choices');
+                    }
+                });
+
             </script>
 </body>
 

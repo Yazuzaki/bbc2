@@ -69,21 +69,7 @@ class Page extends CI_Controller
         $this->load->view('page/reserved', $data);
 
     }
-    public function presentreservation()
-    {
 
-        $this->load->model('bud_model');
-        $this->load->view('template/adminheader');
-
-
-        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
-
-
-
-        $this->load->view('page/presentreservation', $data);
-
-
-    }
     public function register_form()
     {
         $this->load->model('bud_model');
@@ -160,15 +146,7 @@ class Page extends CI_Controller
         $this->load->view('page/timetable', $data);
         $this->load->view('template/adminheader');
     }
-    public function filtered_reservations()
-    {
-        $this->load->model('bud_model');
-        $data['reservations'] = $this->bud_model->get_reservations_by_date_range();
-        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
-        $data['future_reservations'] = $this->bud_model->getFutureReservations();
-        $this->load->view('page/filtered_reservations', $data);
-        $this->load->view('template/adminheader');
-    }
+
     public function approved()
     {
         $this->load->model('bud_model');
@@ -297,25 +275,7 @@ class Page extends CI_Controller
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
-    public function fetch_reservations()
-    {
-        $this->load->model('bud_model');
 
-        $start_date_str = $this->input->post('start_date');
-        $end_date_str = $this->input->post('end_date');
-
-        if (!empty($start_date_str) && !empty($end_date_str)) {
-            $start_date = new DateTime($start_date_str);
-            $end_date = new DateTime($end_date_str);
-
-            $data['reservations'] = $this->bud_model->get_reservations_by_date_range($start_date, $end_date);
-        } else {
-            $data['reservations'] = $this->bud_model->get_all_reservations();
-        }
-
-        $this->load->view('page/filtered_reservations', $data);
-        $this->load->view('template/adminheader');
-    }
     public function get_court_choices()
     {
         $this->load->database();
@@ -446,25 +406,28 @@ class Page extends CI_Controller
         }
     }
 
-    public function reschedule_reservation($reservationId)
+    public function reschedule_reservation()
     {
+        $this->load->model('bud_model');
 
-        $updatedData = $this->bud_model->rescheduleReservation($reservationId);
+        // Retrieve form data
+        $reservationId = $this->input->post('reservationId');
+        $newReservedDatetime = $this->input->post('newReservedDatetime');
+        $newCourt = $this->input->post('court');
+        $newSport = $this->input->post('sport');
 
-        if ($updatedData) {
-            $response = array(
-                'status' => 'success',
-                'reservation' => $updatedData
-            );
+        // Call the model to update the reservation
+        $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newCourt, $newSport);
+
+        if ($result) {
+            $response = array('status' => 'success');
         } else {
-            $response = array(
-                'status' => 'error',
-                'message' => 'Failed to reschedule reservation.'
-            );
+            $response = array('status' => 'error');
         }
 
         echo json_encode($response);
     }
+
 
 
 }

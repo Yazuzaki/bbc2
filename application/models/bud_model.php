@@ -334,11 +334,19 @@ class bud_model extends CI_Model
 
         return false;
     }
-    public function rescheduleReservation($reservationId)
+    public function updateReservation($reservationId, $newReservedDatetime, $newCourt, $newSport)
     {
-        $updatedData = $this->db->where('id', $reservationId)->get('ongoing')->row();
+        $data = array(
+            'reserved_datetime' => $newReservedDatetime,
+            'court' => $newCourt,
+            'sport' => $newSport
+        );
 
-        return $updatedData;
+        $this->db->where('id', $reservationId);
+        $this->db->update('future', $data);
+
+        return $this->db->affected_rows() > 0;
     }
+
 
 }
