@@ -152,7 +152,17 @@ class bud_model extends CI_Model
     public function getReservation($reservationId)
     {
         $this->db->where('id', $reservationId);
-        return $this->db->get('reservations')->row();
+        $reservation = $this->db->get('reservations')->row();
+
+        if ($reservation) {
+            $reservation->popoverHtml = 'Reservation Details:<br>' .
+                'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
+                'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)) . '<br>' .
+                'Court: ' . $reservation->court . '<br>' .
+                'Sport: ' . $reservation->sport;
+        }
+
+        return $reservation;
     }
 
     public function transferToToday($reservation)
@@ -347,6 +357,76 @@ class bud_model extends CI_Model
 
         return $this->db->affected_rows() > 0;
     }
+   public function checkCourtSportAvailability($court, $sport, $date, $time)
+{
+    // Check if there are any reservations for the specified court, sport, date, and time
+    $query = $this->db->query("SELECT COUNT(*) as count FROM today WHERE court = ? AND sport = ? AND reserved_datetime = ?", array($court, $sport, $date . ' ' . $time));
 
+    $result = $query->row_array();
 
+    // Retrieve the list of times for reservations on the specified date
+    $this->db->select('DATE_FORMAT(reserved_datetime, "%H:%i") as time');
+    $this->db->where('DATE(reserved_datetime)', $date);
+    $query = $this->db->get('today');
+    $times = $query->result_array();
+
+    // Create a response array to return both availability status and times
+    $response = array(
+        'availability' => ($result['count'] > 0) ? false : true,
+        'times' => $times
+    );
+
+    return $response;
+}
+
+    public function moveReservationsToOngoing($currentDate)
+    {
+        // Query to move reservations
+        $sql = "INSERT INTO ongoing (reserved_datetime, created_at, court, sport)
+                SELECT reserved_datetime, created_at, court, sport
+                FROM future
+                WHERE DATE(reserved_datetime) = ?";
+
+        $this->db->query($sql, array($currentDate));
+
+        // Check if reservations were moved
+        if ($this->db->affected_rows() > 0) {
+            // Delete the moved reservations from the future table
+            $this->db->query("DELETE FROM future WHERE DATE(reserved_datetime) = ?", array($currentDate));
+
+            return true; // Reservations moved successfully
+        } else {
+            return false; // Failed to move reservations
+        }
+    }
+    public function getAllReservations() {
+        $query = $this->db->get('reservations');
+        
+       
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return array(); 
+        }
+    }
+    public function getReservationsWithinTimeFrame($court, $sport, $date, $startTime, $endTime)
+    {
+        // Calculate the end time to be one hour ahead of the selected time
+        $endHour = date('H', strtotime($startTime)) + 1;
+        $endTime = date('Y-m-d H:i:s', strtotime("$date $endHour:00:00"));
+    
+        // Query to retrieve reservations within the specified time frame
+        $this->db->select('*');
+        $this->db->from('today');
+        $this->db->where('court', $court);
+        $this->db->where('sport', $sport);
+        $this->db->where('reserved_datetime >=', date('Y-m-d H:i:s', strtotime($startTime)));
+        $this->db->where('reserved_datetime <', $endTime);
+        
+        // Execute the query and return the results as an array
+        $query = $this->db->get();
+        
+        return $query->result_array();
+    }
+    
 }

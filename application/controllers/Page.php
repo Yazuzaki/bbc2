@@ -105,6 +105,12 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
         $this->bud_model->logout();
     }
+    public function canceled()
+    {
+        $this->load->model('bud_model');
+        $this->load->view('template/header');
+        $this->load->view('page/canceled');
+    }
 
 
     public function submit_reserve()
@@ -150,11 +156,11 @@ class Page extends CI_Controller
     public function approved()
     {
         $this->load->model('bud_model');
-        $data['today'] = $this->bud_model->get_all_approved();
-        $this->load->view('page/approved', $data);
         $this->load->view('template/adminheader');
-    }
+        $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
+        $this->load->view('page/approved', $data);
 
+    }
 
 
     public function get_reservations()
@@ -168,19 +174,22 @@ class Page extends CI_Controller
             $randomColor = $this->generateRandomColor();
 
             $events[] = [
-                'title' => 'Reserved',
+                'title' => $reservation->court . ' ' . $reservation->sport,
                 'start' => $reservation->reserved_datetime,
                 'color' => $randomColor,
-                'popoverHtml' => 'Reservation Details:<br>' .
-                    'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
-                    'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)),
-
+                'description' => 'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
+                    'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)) . '<br>' .
+                    'Court: ' . $reservation->court . '<br>' . // Include court information
+                    'Sport: ' . $reservation->sport,
+                // Include sport information
             ];
         }
 
         header('Content-Type: application/json');
         echo json_encode($events);
     }
+
+
 
     // Function to generate a random color
     private function generateRandomColor()
@@ -213,6 +222,49 @@ class Page extends CI_Controller
         echo json_encode($reservations);
     }
 
+    public function make_reservation()
+{
+    $selectedDate = $this->input->post('date');
+    $selectedTime = $this->input->post('time');
+    $selectedCourtId = $this->input->post('court');
+    $selectedSportId = $this->input->post('sport');
+
+    // Fetch reservations for the selected date and time
+    $reservations = $this->bud_model->getReservationsWithinTimeFrame($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime, $selectedTime);
+
+    // Check if there are any existing reservations within the allowed time frame
+    if (!empty($reservations)) {
+        echo 'existing_reservation';
+        return;
+    }
+
+    // Check if the selected court and sport combination is available
+    $availability = $this->bud_model->checkCourtSportAvailability($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime);
+
+    if ($availability) {
+        // Proceed with the reservation
+        $reservationData = [
+            'reserved_datetime' => $selectedDate . ' ' . $selectedTime,
+            'court' => $selectedCourtId,
+            'sport' => $selectedSportId,
+            // Add other reservation data as needed
+        ];
+
+        // Insert the reservation data into the database
+        $inserted = $this->bud_model->insertReservation($reservationData);
+
+        if ($inserted) {
+            echo 'success';
+        } else {
+            echo 'error';
+        }
+    } else {
+        echo 'not_available';
+    }
+}
+
+    
+
     public function approve_reservation($reservationId)
     {
         $this->load->model('bud_model');
@@ -224,10 +276,10 @@ class Page extends CI_Controller
             $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
 
             if ($reservationDate === $today) {
-                // If it's today, update status to 'ongoing' and transfer to the "ongoing" table
                 $this->bud_model->updateStatus($reservationId, 'approved');
-                $this->bud_model->transferToOngoing($reservation);
                 $this->bud_model->transferToToday($reservation);
+
+
             } else {
                 // If it's in the future, update status to 'approved' and transfer to the "future" table
                 $this->bud_model->updateStatus($reservationId, 'approved');
@@ -411,6 +463,7 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
 
         // Retrieve form data
+    
         $reservationId = $this->input->post('reservationId');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
         $newCourt = $this->input->post('court');
@@ -427,7 +480,72 @@ class Page extends CI_Controller
 
         echo json_encode($response);
     }
+    public function check_court_sport_availability()
+    {
+        // Get the selected court, sport, date, and time from the AJAX request
+        $court = $this->input->post('court');
+        $sport = $this->input->post('sport');
+        $date = $this->input->post('date');
+        $time = $this->input->post('time');
+    
+        // Calculate the current time
+        $current_time = strtotime('now');
+    
+        // Convert the selected time to a timestamp
+        $selected_time = strtotime($date . ' ' . $time);
+    
+        // Calculate the time difference in seconds
+        $time_difference = $selected_time - $current_time;
+    
+        // Check if the time difference is at least 1 hour (3600 seconds) or more
+        if ($time_difference >= 3600) {
+            // Call the model method to check availability
+            $availability = $this->bud_model->checkCourtSportAvailability($court, $sport, $date, $time);
+    
+            // Return the availability status as a response to the AJAX request
+            if ($availability) {
+                echo 'available';
+            } else {
+    
+                echo 'not_available';
+            }
+        } else {
+            // The selected time is less than 1 hour from the current time, so it's not allowed
+            echo 'not_allowed';
+        }
+    }
+    
+    
+    
+    public function moveReservations() {
+        // Get the current date
+        $currentDate = date('Y-m-d');
 
+        // Call the model method to move reservations
+        $reservationsMoved = $this->bud_model->moveReservationsToOngoing($currentDate);
+
+        if ($reservationsMoved) {
+            // Log successful execution or perform other actions
+            log_message('info', 'Reservations moved successfully.');
+        } else {
+            // Log the error or perform error handling
+            log_message('error', 'Failed to move reservations.');
+        }
+    }
+    public function getReservations() {
+        $this->load->model('bud_model');
+        $reservations = $this->bud_model->getAllReservations();
+
+        // Prepare the data to be returned as JSON
+        $data = array(
+            'data' => $reservations
+        );
+
+        // Send the data as JSON
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 
 
 }

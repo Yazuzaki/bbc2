@@ -117,18 +117,18 @@
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Pending Reservations</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/approved'); ?>">Today's Reservations</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
     </ul>
   </div>
+   <!-- Page Content  -->
+   <div id="content">
+
+   
+    <div>
 
   <script>
-    const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-
-    sidebarToggle.addEventListener("click", function () {
-      sidebar.classList.toggle("active");
-    });
+   
   </script>
 </body>
 

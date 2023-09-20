@@ -234,7 +234,8 @@
                                     <label for="sport" class="form-label">Select Sport:</label>
                                     <select id="sport" name="sport" class="form-select" required>
                                         <?php foreach ($sports as $sport): ?>
-                                            <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?>
+                                            <option value="<?php echo $sport['sport_id']; ?>">
+                                                <?php echo $sport['sport_name']; ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -243,7 +244,8 @@
                                     <label for="court" class="form-label">Select Court:</label>
                                     <select id="court" name="court" class="form-select" required>
                                         <?php foreach ($courts as $court): ?>
-                                            <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?>
+                                            <option value="<?php echo $court['court_id']; ?>">
+                                                <?php echo $court['court_number']; ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -271,41 +273,33 @@
                     $('#myTable').DataTable();
                 });
 
-                $(document).ready(function () {
-                    $('.cancel-button').click(function (e) {
-                        e.preventDefault();
+                // Replace the existing cancel-button click event code with this event delegation code.
+                $(document).on('click', '.cancel-button', function (e) {
+                    e.preventDefault();
 
-                        var reservationId = $(this).data('id');
+                    var reservationId = $(this).data('id');
 
-                        $.ajax({
-                            type: 'POST',
-                            url: '<?php echo base_url('page/cancel_reservation'); ?>',
-                            data: { reservationId: reservationId },
-                            dataType: 'json',
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    $('#responseBody').html('Reservation canceled successfully.');
-                                } else {
-                                    $('#responseBody').html('Failed to cancel reservation.');
-                                }
-
-
-                                $('#responseModal').modal('show');
-                            },
-                            error: function () {
-
-                                $('#responseBody').html('An error occurred during the request.');
-                                $('#responseModal').modal('show');
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url('Page/cancel_reservation'); ?>',
+                        data: { reservationId: reservationId },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                $('#responseBody').html('Reservation canceled successfully.');
+                            } else {
+                                $('#responseBody').html('Failed to cancel reservation.');
                             }
-                        });
-                    });
 
-
-                    $('#responseModal').on('hidden.bs.modal', function () {
-                        $('#responseBody').empty();
-                        location.reload();
+                            $('#responseModal').modal('show');
+                        },
+                        error: function () {
+                            $('#responseBody').html('An error occurred during the request.');
+                            $('#responseModal').modal('show');
+                        }
                     });
                 });
+
 
                 $('.reschedule-button').click(function (e) {
                     e.preventDefault();
@@ -313,7 +307,7 @@
                     var reservationId = $(this).data('id');
                     var reservedDatetime = $(this).data('reserved-datetime');
 
-             
+
                     $('#reservationId').val(reservationId);
                     $('#currentReservationId').val(reservationId);
                     $('#currentReservedDatetime').val(reservedDatetime);
@@ -325,13 +319,14 @@
 
 
 
+
                 $('#submitReschedule').click(function () {
                     // Serialize the form data
                     var formData = $('#reservationForm').serialize();
 
                     $.ajax({
                         type: 'POST',
-                        url: '<?php echo base_url('page/reschedule_reservation'); ?>',
+                        url: '<?php echo base_url('Page/reschedule_reservation'); ?>',
                         data: formData,
                         dataType: 'json',
                         success: function (response) {
@@ -358,6 +353,17 @@
                         }
                     });
                 });
+                responseModal.addEventListener('hidden.bs.modal', function () {
+                    responseBody.innerText = '';
+                    location.reload();
+                });
+
+                responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
+                    responseBody.innerText = '';
+                    $('#responseModal').modal('hide');
+                    location.reload();
+                });
+
 
                 $.ajax({
                     type: 'GET',

@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css">
     <link rel="icon" type="image/png" href="images\BBCLOGO.jpg">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
     <title>Reservation</title>
     <style>
         body {
@@ -27,31 +23,23 @@
         }
 
         #calendar {
-            max-width: 70%;
-            margin: 40px auto;
-            padding: 0 10px;
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .modal-dialog {
+            max-width: 90%;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            color: #333;
+            border-radius: 10px;
         }
 
         .fc-day {
             cursor: pointer;
-        }
-
-        #top {
-            background: #eee;
-            border-bottom: 1px solid #ddd;
-            padding: 0 10px;
-            line-height: 40px;
-            font-size: 12px;
-        }
-
-        #loading {
-            display: none;
-        }
-
-        #calendar {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 10px;
         }
 
         .past-date {
@@ -69,284 +57,286 @@
             background-color: #DAF7A6;
         }
 
-        .modal-dialog {
-            max-width: 75%;
-        }
-
         .fc-day:hover {
             background-color: #eee;
             cursor: pointer;
         }
 
-        a {
-            text-decoration: none;
-        }
-
-
-        .fc-day-number {
-            color: #000000;
-        }
-
-        .fc-col-header-cell-cushion {
-            color: #000000;
-        }
-
-        .fc-daygrid-day-number {
-            color: #000000;
-        }
-
         .btn-primary {
             background-color: #007BFF;
             border-color: #007BFF;
-
         }
 
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
-
-        .modal-content {
-            background-color: #fff;
-            color: #333;
-            border-radius: 10px;
-        }
     </style>
 </head>
-
 <body>
-
     <div class="container mt-5">
-        <div id="calendar"></div>
+        <div class="table-responsive">
+            <div id="calendar"></div>
+        </div>
     </div>
-</body>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            timeZone: 'UTC',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: ''
-            },
-            events: '<?php echo site_url("Page/get_reservations"); ?>',
-            eventTimeFormat: {
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
-            },
-
-            dateClick: function (info) {
-                var selectedDate = info.date;
-                var currentDate = new Date();
-                currentDate.setHours(0, 0, 0, 0);
-                selectedDate.setHours(0, 0, 0, 0);
-
-                if (selectedDate.getTime() < currentDate.getTime()) {
-                    alert('You clicked on a past date.');
-                } else {
-                    selectedDate.setHours(selectedDate.getHours() + 8);
-                    var formattedDate = selectedDate.toISOString().split('T')[0];
-
-                    var formModal = new bootstrap.Modal(document.getElementById('reservationFormModal'));
-                    formModal.show();
-
-                    var datetimePicker = document.getElementById('datetimePicker');
-                    datetimePicker.value = formattedDate;
-                }
-            },
-            dayCellClassNames: function (e) {
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);
-                var cellDate = e.date;
-                cellDate.setHours(0, 0, 0, 0);
-
-                if (cellDate.getTime() < today.getTime()) {
-                    return ['past-date'];
-                } else if (cellDate.getTime() === today.getTime()) {
-                    return ['present-date'];
-                } else {
-                    return ['future-date'];
-                }
-            }
-
-        });
-
-        calendar.render();
-    });
-
-
-</script>
-
-<div class="modal fade" id="reservationFormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Make Reservation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="reservationForm">
-                    <div class="mb-3">
-                        <label for="datetimePicker" class="form-label">Select Date:</label>
-                        <input type="text" id="datetimePicker" name="datetime" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="timePicker" class="form-label">Select Time:</label>
-                        <input type="time" id="timePicker" name="time" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sport" class="form-label">Select Sport:</label>
-                        <select id="sport" name="sport" class="form-select" required>
-                            <?php foreach ($sports as $sport): ?>
-                                <option value="<?php echo $sport['sport_id']; ?>"><?php echo $sport['sport_name']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="court" class="form-label">Select Court:</label>
-                        <select id="court" name="court" class="form-select" required>
-                            <?php foreach ($courts as $court): ?>
-                                <option value="<?php echo $court['court_id']; ?>"><?php echo $court['court_number']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="submitReservation">Make Reservation</button>
+    <div class="modal fade" id="reservationFormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Make Reservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reservationForm">
+                        <div class="mb-3">
+                            <label for="datetimePicker" class="form-label">Select Date:</label>
+                            <input type="text" id="datetimePicker" name="datetime" class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="timePicker" class="form-label">Select Time:</label>
+                            <input type="time" id="timePicker" name="time" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sport" class="form-label">Select Sport:</label>
+                            <select id="sport" name="sport" class="form-select" required>
+                                <?php foreach ($sports as $sport): ?>
+                                    <option value="<?php echo $sport['sport_id']; ?>">
+                                        <?php echo $sport['sport_name']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="court" class="form-label">Select Court:</label>
+                            <select id="court" name="court" class="form-select" required>
+                                <?php foreach ($courts as $court): ?>
+                                    <option value="<?php echo $court['court_id']; ?>">
+                                        <?php echo $court['court_number']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitReservation">Make Reservation</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    var datetimePicker = document.getElementById('datetimePicker');
-    var timePicker = document.getElementById('timePicker');
-    var submitButton = document.getElementById('submitReservation');
-    var courtElement = document.getElementById('court');
-    var sportElement = document.getElementById('sport');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                timeZone: 'UTC',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                events: '<?php echo site_url("Page/get_reservations"); ?>',
+                eventTimeFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                },
+                dateClick: function (info) {
+                    var selectedDate = info.date;
+                    var currentDate = new Date();
+                    currentDate.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
 
+                    if (selectedDate.getTime() < currentDate.getTime()) {
+                        alert('You clicked on a past date.');
+                    } else if (selectedDate.getTime() === currentDate.getTime()) {
+                        alert('Reservations for the same day are not permitted.');
+                    } else {
+                        selectedDate.setHours(selectedDate.getHours() + 8);
+                        var formattedDate = selectedDate.toISOString().split('T')[0];
 
+                        var formModal = new bootstrap.Modal(document.getElementById('reservationFormModal'));
+                        formModal.show();
 
-
-
-    submitButton.addEventListener('click', function () {
-        var selectedDate = datetimePicker.value;
-        var selectedTime = timePicker.value;
-        var selectedCourtId = courtElement.value;
-        var selectedSportId = sportElement.value;
-        console.log('Selected Court ID:', selectedCourtId);
-        console.log('Selected Sport ID:', selectedSportId);
-        console.log('Button clicked');
-
-
-
-        // Fetch reservations for the selected date
-        $.ajax({
-            type: 'POST',
-            url: 'get_reservations_for_date',
-            data: { date: selectedDate },
-            success: function (reservations) {
-                var isTimeSlotAvailable = checkTimeSlotAvailability(reservations, selectedTime);
-
-                if (!isTimeSlotAvailable) {
-                    alert('Selected time slot is already reserved.');
-                    return;
-                }
-
-                var reservationData = {
-                    datetime: selectedDate + ' ' + selectedTime,
-                    court: selectedCourtId,
-                    sport: selectedSportId,
-
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'submit_reserve',
-                    data: reservationData,
-                    success: function (response) {
-                        alert('Reservation pending for ' + selectedDate + ' At ' + selectedTime);
-                        $('#reservationFormModal').modal('hide');
-                        $('#calendar').fullCalendar('refetchEvents');
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('XHR status: ' + status);
-                        console.log('Error: ' + error);
-                        alert('Error creating reservation');
+                        var datetimePicker = document.getElementById('datetimePicker');
+                        datetimePicker.value = formattedDate;
                     }
+                },
+                dayCellClassNames: function (e) {
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    var cellDate = e.date;
+                    cellDate.setHours(0, 0, 0, 0);
+
+                    if (cellDate.getTime() < today.getTime()) {
+                        return ['past-date'];
+                    } else if (cellDate.getTime() === today.getTime()) {
+                        return ['present-date'];
+                    } else {
+                        return ['future-date'];
+                    }
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+
+
+    </script>
+
+    
+
+    <script>
+        var datetimePicker = document.getElementById('datetimePicker');
+        var timePicker = document.getElementById('timePicker');
+        var submitButton = document.getElementById('submitReservation');
+        var courtElement = document.getElementById('court');
+        var sportElement = document.getElementById('sport');
+
+
+
+
+
+        submitButton.addEventListener('click', function () {
+            var selectedDate = datetimePicker.value;
+            var selectedTime = timePicker.value;
+            var selectedCourtId = courtElement.value;
+            var selectedSportId = sportElement.value;
+            console.log('Selected Court ID:', selectedCourtId);
+            console.log('Selected Sport ID:', selectedSportId);
+            console.log('Button clicked');
+
+            // Fetch reservations for the selected date and time
+            $.ajax({
+                type: 'POST',
+                url: 'get_reservations_for_date',
+                data: { date: selectedDate },
+                success: function (reservations) {
+                    var isTimeSlotAvailable = checkTimeSlotAvailability(reservations, selectedTime);
+
+                    if (!isTimeSlotAvailable) {
+                        alert('Selected time slot is already reserved.');
+                        return;
+                    }
+
+                    // Check if the selected court and sport combination is available
+                    $.ajax({
+                        type: 'POST',
+                        url: 'check_court_sport_availability',
+                        data: {
+                            court: selectedCourtId,
+                            sport: selectedSportId,
+                            date: selectedDate,
+                            time: selectedTime
+                        },
+                        success: function (availability) {
+                            if (availability === 'available') {
+                                var reservationData = {
+                                    datetime: selectedDate + ' ' + selectedTime,
+                                    court: selectedCourtId,
+                                    sport: selectedSportId,
+                                };
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'submit_reserve',
+                                    data: reservationData,
+                                    success: function (response) {
+                                        alert('Reservation pending for ' + selectedDate + ' At ' + selectedTime);
+                                        $('#reservationFormModal').modal('hide');
+                                        $('#calendar').fullCalendar('refetchEvents');
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log('XHR status: ' + status);
+                                        console.log('Error: ' + error);
+                                        alert('Error creating reservation');
+                                    }
+                                });
+                            } else {
+                                alert('Reservation is not available for the selected court and sport combination. Please choose another court or sport.');
+                            }
+                        },
+                        error: function () {
+                            alert('Error checking court and sport availability');
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Error fetching reservations');
+                }
+            });
+        });
+
+
+        function checkTimeSlotAvailability(reservations, selectedTime) {
+            var selectedDateTime = new Date('2023-08-23 ' + selectedTime);
+
+            for (var i = 0; i < reservations.length; i++) {
+                var reservationTime = new Date('2023-08-23 ' + reservations[i].time);
+
+
+                var timeDifference = selectedDateTime - reservationTime;
+
+
+                if (Math.abs(timeDifference) < 60 * 60 * 1000) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: '<?php echo site_url("Page/get_court_choices"); ?>',
+            dataType: 'json',
+            success: function (courts) {
+                var courtSelect = document.getElementById('court');
+
+
+                courts.forEach(function (court) {
+                    var option = document.createElement('option');
+                    option.value = court.court_number;
+                    option.text = court.court_number;
+                    courtSelect.appendChild(option);
                 });
             },
             error: function () {
-                alert('Error fetching reservations');
+                alert('Error fetching court choices');
             }
         });
-    });
+        $.ajax({
+            type: 'GET',
+            url: '<?php echo site_url("Page/get_sport_choices"); ?>',
+            dataType: 'json',
+            success: function (sports) {
+                var sportSelect = document.getElementById('sport');
 
-    function checkTimeSlotAvailability(reservations, selectedTime) {
-        var selectedDateTime = new Date('2023-08-23 ' + selectedTime);
-
-        for (var i = 0; i < reservations.length; i++) {
-            var reservationTime = new Date('2023-08-23 ' + reservations[i].time);
-
-
-            var timeDifference = selectedDateTime - reservationTime;
-
-
-            if (Math.abs(timeDifference) < 60 * 60 * 1000) {
-                return false;
+                sports.forEach(function (sport) {
+                    var option = document.createElement('option');
+                    option.value = sport.sport_name;
+                    option.text = sport.sport_name;
+                    sportSelect.appendChild(option);
+                });
+            },
+            error: function () {
+                alert('Error fetching sport choices');
             }
-        }
-
-        return true;
-    }
-
-    $.ajax({
-        type: 'GET',
-        url: '<?php echo site_url("Page/get_court_choices"); ?>',
-        dataType: 'json',
-        success: function (courts) {
-            var courtSelect = document.getElementById('court');
-
-
-            courts.forEach(function (court) {
-                var option = document.createElement('option');
-                option.value = court.court_number;
-                option.text = court.court_number;
-                courtSelect.appendChild(option);
-            });
-        },
-        error: function () {
-            alert('Error fetching court choices');
-        }
-    });
-    $.ajax({
-        type: 'GET',
-        url: '<?php echo site_url("Page/get_sport_choices"); ?>',
-        dataType: 'json',
-        success: function (sports) {
-            var sportSelect = document.getElementById('sport');
-
-            sports.forEach(function (sport) {
-                var option = document.createElement('option');
-                option.value = sport.sport_name;
-                option.text = sport.sport_name;
-                sportSelect.appendChild(option);
-            });
-        },
-        error: function () {
-            alert('Error fetching sport choices');
-        }
-    });
+        });
 
 
 
-</script>
+    </script>
+</body>
 
 </html>

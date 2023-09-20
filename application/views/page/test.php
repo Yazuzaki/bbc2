@@ -10,7 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <title>Document</title>
+    <title>Reservation Management</title>
 </head>
 
 <body>
@@ -109,19 +109,24 @@
         .modal-content {
             color: black;
         }
+
         @media (max-width: 768px) {
             .tab-label {
-                font-size: 14px; /* Reduce font size for tab labels */
+                font-size: 14px;
+                /* Reduce font size for tab labels */
             }
 
             .tab-content {
-                top: 3.5em; /* Adjust the top position of tab content */
-                padding: 1rem; /* Increase padding for tab content */
+                top: 3.5em;
+                /* Adjust the top position of tab content */
+                padding: 1rem;
+                /* Increase padding for tab content */
             }
 
             .modal-content {
                 color: black;
-                font-size: 14px; /* Reduce font size for modal content */
+                font-size: 14px;
+                /* Reduce font size for modal content */
             }
         }
     </style>
@@ -150,7 +155,7 @@
                                     <td>
                                         <?= $row->id ?>
                                     </td>
-                                    <td> 
+                                    <td>
                                         <?= $row->reserved_datetime ?>
                                     </td>
                                     <td>
@@ -227,13 +232,15 @@
                     $('#myTable').DataTable();
 
                 });
+               
+
 
                 document.addEventListener("DOMContentLoaded", function () {
                     // Initialize variables and event listeners here
 
                     const approveButtons = document.querySelectorAll(".btn-success[data-action='approve']");
                     const declineButtons = document.querySelectorAll(".btn-danger[data-action='decline']");
-                 
+
 
                     approveButtons.forEach(button => {
                         button.addEventListener("click", function () {
