@@ -97,6 +97,10 @@ class bud_model extends CI_Model
     {
         return $this->db->get('reservations')->result();
     }
+    public function get_all_canceled_reservations()
+    {
+        return $this->db->get('canceled')->result();
+    }
     public function get_all_reservations_ongoing()
     {
         return $this->db->get('ongoing')->result();

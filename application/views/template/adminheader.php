@@ -118,7 +118,7 @@
       <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved</a></li>
       <li><a class="nav-link" href="<?php echo base_url('page/approved'); ?>">Today's Reservations</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>"></a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/canceled'); ?>">Canceled Reservations</a></li>
     </ul>
   </div>
    <!-- Page Content  -->

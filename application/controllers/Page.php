@@ -108,8 +108,9 @@ class Page extends CI_Controller
     public function canceled()
     {
         $this->load->model('bud_model');
-        $this->load->view('template/header');
-        $this->load->view('page/canceled');
+        $data['canceled'] = $this->bud_model->get_all_canceled_reservations();
+        $this->load->view('template/adminheader');
+        $this->load->view('page/canceled', $data);
     }
 
 
