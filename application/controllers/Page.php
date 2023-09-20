@@ -30,6 +30,7 @@ class Page extends CI_Controller
     {
         $this->load->view('template/header');
         $this->load->view('page/reserve');
+        
 
     }
 
@@ -472,6 +473,28 @@ class Page extends CI_Controller
 
         // Call the model to update the reservation
         $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newCourt, $newSport);
+
+        if ($result) {
+            $response = array('status' => 'success');
+        } else {
+            $response = array('status' => 'error');
+        }
+
+        echo json_encode($response);
+    }
+    public function finalize_reservation()
+    {
+        $this->load->model('bud_model');
+
+        // Retrieve form data
+    
+        $reservationId = $this->input->post('reservationId');
+        $newReservedDatetime = $this->input->post('newReservedDatetime');
+        $newCourt = $this->input->post('court');
+        $newSport = $this->input->post('sport');
+
+        // Call the model to update the reservation
+        $result = $this->bud_model->updateReservation_for_reservation($reservationId, $newReservedDatetime, $newCourt, $newSport);
 
         if ($result) {
             $response = array('status' => 'success');

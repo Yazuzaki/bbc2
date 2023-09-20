@@ -175,10 +175,11 @@
                                             data-target="#responseModal" data-action="cancel"
                                             data-id="<?= $row->id ?>">Cancel</a>
 
-                                        <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
+                                            <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
-                                            data-reserved-datetime="<?= $row->reserved_datetime ?>">Reschedule</a>
+                                            data-reserved-datetime="<?= $row->reserved_datetime ?>"
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">Reschedule</a>
 
 
                                     </td>
@@ -305,13 +306,19 @@
                     e.preventDefault();
 
                     var reservationId = $(this).data('id');
-                    var reservedDatetime = $(this).data('reserved-datetime');
+                        var reservedDatetime = $(this).data('reserved-datetime');
+                        var sport = $(this).data('sport'); 
+                        var court = $(this).data('court'); 
 
+                        $('#reservationId').val(reservationId);
+                        $('#currentReservationId').val(reservationId);
+                        $('#currentReservedDatetime').val(reservedDatetime);
+                        $('#newReservedDatetime').val(reservedDatetime);
 
-                    $('#reservationId').val(reservationId);
-                    $('#currentReservationId').val(reservationId);
-                    $('#currentReservedDatetime').val(reservedDatetime);
-                    $('#newReservedDatetime').val(reservedDatetime);
+                       
+                        $('#sport').val(sport); 
+                        $('#court').val(court); 
+
 
 
                     $('#rescheduleModal').modal('show');

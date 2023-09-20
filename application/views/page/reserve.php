@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,11 +14,18 @@
     <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
     <title>Reservation</title>
     <style>
+        html,
         body {
-            font-family: Arial, sans-serif;
-            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
         }
 
+        #calendar {
+            max-width: 1100px;
+            margin: 40px auto;
+        }
         .reserved-slot {
             background-color: #FFCCCC;
         }
@@ -73,6 +81,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <div class="table-responsive">
@@ -80,7 +89,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="reservationFormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="reservationFormModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -130,7 +140,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
-            
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 timeZone: 'UTC',
                 headerToolbar: {
@@ -194,7 +204,7 @@
 
     </script>
 
-    
+
 
     <script>
         var datetimePicker = document.getElementById('datetimePicker');
