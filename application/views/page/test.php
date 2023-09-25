@@ -285,7 +285,7 @@
                         $('#court').val(court); // Set the selected court
 
 
-                        $('#rescheduleModal').modal('show');
+                        $('#responseModal').modal('hide');
                     });
                     
                     
@@ -301,15 +301,11 @@
                             dataType: 'json',
                             success: function (response) {
                                 if (response.status === 'success') {
-                                    $('#responseBody').html('Reservation rescheduled successfully.');
+                                    alert('Reservation rescheduled successfully.');
                                 } else {
-                                    $('#responseBody').html('Failed to reschedule reservation.');
+                                    alert('Failed to reschedule reservation.');
                                 }
-                                // Hide the reschedule modal
-                                $('#rescheduleModal').modal('hide');
-
-                                // Show the response modal
-                                $('#responseModal').modal('show');
+                              
 
                             },
                             error: function () {

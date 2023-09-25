@@ -26,6 +26,7 @@
             max-width: 1100px;
             margin: 40px auto;
         }
+
         .reserved-slot {
             background-color: #FFCCCC;
         }
@@ -126,6 +127,10 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="referenceNum" class="form-label">Reference Number:</label>
+                            <input type="input" id="referenceNum" name="referenceNum" class="form-control" required>
                         </div>
                     </form>
                 </div>
