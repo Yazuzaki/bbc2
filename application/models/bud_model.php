@@ -458,5 +458,23 @@ class bud_model extends CI_Model
         $this->db->where('id', $reservationId);
         return $this->db->update('reservations', $data);
     }
+    public function get_reservations()
+    {
+
+        $query = $this->db->get('reservations');
+        return $query->result();
+    }
+    public function getReservationsForDateTime($date, $time)
+    {
+        // Adjust the table and column names as per your database schema
+        $this->db->where('reserved_datetime', $date . ' ' . $time);
+        return $this->db->get('today')->result();
+    }
+    public function get_all_courts()
+    {
+        $query = $this->db->get('courts');
+        return $query->result(); // Return the result as an array of objects
+    }
+
 
 }

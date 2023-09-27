@@ -3,135 +3,218 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
-  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet" /><!-- MDB -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
   <title>Document</title>
 </head>
 
 <body>
   <style>
-    .sidebar,
-    .main-content {
-      transition: margin 0.3s;
-      /* Add a smooth transition effect */
+    body {
+      background-color: #fbfbfb;
     }
 
+    @media (min-width: 991.98px) {
+      main {
+        padding-left: 240px;
+      }
+    }
+
+    /* Sidebar */
     .sidebar {
-      width: 250px;
-      height: 100%;
       position: fixed;
       top: 0;
+      bottom: 0;
       left: 0;
-      background-color: #333;
-      padding-top: 20px;
-      z-index: 1;
-      /* Ensure sidebar is above the main content */
+      padding: 58px 0 0;
+      /* Height of navbar */
+      box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
+      width: 240px;
+      z-index: 600;
     }
 
-    .sidebar ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .sidebar li {
-      margin-bottom: 10px;
-    }
-
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      padding: 10px;
-      display: block;
-      transition: background-color 0.3s;
-    }
-
-    .sidebar a:hover {
-      background-color: #555;
-    }
-
-    .main-content {
-      padding: 20px;
-      margin-left: 0;
-      /* Initially, no margin on the left */
-    }
-
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .logo img {
-      width: 150px;
-      height: auto;
-    }
-
-    /* Media query for mobile devices */
-    @media (max-width: 768px) {
+    @media (max-width: 991.98px) {
       .sidebar {
-        width: 0;
-        /* Collapse the sidebar initially */
+        width: 100%;
       }
+    }
 
-      .sidebar.active {
-        width: 250px;
-        /* Show sidebar when active */
-      }
+    .sidebar .active {
+      border-radius: 5px;
+      box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+    }
 
-      .sidebar ul {
-        text-align: center;
-        /* Center-align menu items */
-      }
-
-      .sidebar li {
-        margin: 0;
-      }
-
-      .sidebar a {
-        padding: 15px 0;
-        /* Increase padding for touch-friendly buttons */
-        display: inline-block;
-        /* Menu items in a row */
-      }
-
-      .main-content {
-        margin-left: 0;
-        /* No margin on the left */
-      }
+    .sidebar-sticky {
+      position: relative;
+      top: 0;
+      height: calc(100vh - 48px);
+      padding-top: 0.5rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+      /* Scrollable contents if viewport is shorter than content. */
     }
   </style>
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-3 mt-4">
+          <a href="<?php echo base_url('page/test'); ?>" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class=""></i><span>Main dashboard</span>
+          </a>
+          <a href="<?php echo base_url('page/history'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple">
+            <i class=""></i><span>Webiste traffic</span>
+          </a>
+          <a href="<?php echo base_url('page/reserved'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Password</span></a>
+          <a href="<?php echo base_url('page/approved'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Analytics</span></a>
+          <a href="<?php echo base_url('page/canceled'); ?>" class="list-group-item list-group-item-action py-2 ripple">
+            <i class=""></i><span>SEO</span>
+          </a>
+          <a href="<?php echo base_url('page/court_status'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Orders</span></a>
+          <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+              class=""></i><span>International</span></a>
+          <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+              class=""></i><span>Partners</span></a>
+          <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+              class=""></i><span>Calendar</span></a>
+          <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Users</span></a>
+          <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Sales</span></a>
+        </div>
+      </div>
+    </nav>
+    <!-- Sidebar -->
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <!-- Logo -->
-    <div class="logo">
-      <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" alt="Logo"
-        height="30">
+    <!-- Navbar -->
+    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+      <!-- Container wrapper -->
+      <div class="container-fluid">
+        <!-- Toggle button -->
+        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+          aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
 
-    </div>
-    <!-- Sidebar content goes here -->
-    <ul>
-      <li><a class="nav-link" href="<?php echo base_url('page/test'); ?>">Pending Reservations</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/approved'); ?>">Today's Reservations</a></li>
-      <li><a class="nav-link" href="<?php echo base_url('page/canceled'); ?>">Canceled Reservations</a></li>
-    </ul>
-  </div>
-   <!-- Page Content  -->
-   <div id="content">
+        <!-- Brand -->
+        <a class="navbar-brand" href="#">
+          <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="50"
+            alt="" loading="lazy" />
+        </a>
+        <!-- Search form -->
+       
 
-   
-    <div>
+        <!-- Right links -->
+        <ul class="navbar-nav ms-auto d-flex flex-row">
+          <!-- Notification dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link me-3 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink"
+              role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-bell"></i>
+              <span class="badge rounded-pill badge-notification bg-danger">1</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+              <li><a class="dropdown-item" href="#">Some news</a></li>
+              <li><a class="dropdown-item" href="#">Another news</a></li>
+              <li>
+                <a class="dropdown-item" href="#">Something else here</a>
+              </li>
+            </ul>
+          </li>
 
-  <script>
-   
-  </script>
+          <!-- Icon -->
+          <li class="nav-item">
+            <a class="nav-link me-3 me-lg-0" href="#">
+              <i class="fas fa-fill-drip"></i>
+            </a>
+          </li>
+          <!-- Icon -->
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="#">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+
+          <!-- Icon dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link me-3 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdown" role="button"
+              data-mdb-toggle="dropdown" aria-expanded="false">
+              <i class="united kingdom flag m-0"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li>
+                <a class="dropdown-item" href="#"><i class="united kingdom flag"></i>English
+                  <i class="fa fa-check text-success ms-2"></i></a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="poland flag"></i>Polski</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="china flag"></i>中文</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="japan flag"></i>日本語</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="germany flag"></i>Deutsch</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="france flag"></i>Français</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="spain flag"></i>Español</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="russia flag"></i>Русский</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="portugal flag"></i>Português</a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Avatar -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+              id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+              <img src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg" class="rounded-circle" height="22"
+                alt="" loading="lazy" />
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+              <li><a class="dropdown-item" href="#">My profile</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+  </header>
+  <!--Main Navigation-->
+  <br>
+  <br>
 </body>
-
 </html>
-
-

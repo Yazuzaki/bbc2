@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css">
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
     <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.css">
     <title>Reservation</title>
     <style>
         html,
@@ -22,20 +24,51 @@
             font-size: 14px;
         }
 
-        #calendar {
-            max-width: 1100px;
-            margin: 40px auto;
+
+
+
+        .table-responsive {
+            overflow: auto;
+        }
+
+
+        @media (max-width: 768px) {
+
+            #calendar {
+                font-size: 14px;
+            }
         }
 
         .reserved-slot {
             background-color: #FFCCCC;
         }
 
+        /* Base calendar styles */
         #calendar {
             max-width: 100%;
-            margin: 20px auto;
+            margin: 20px 0;
             padding: 0 20px;
         }
+
+        /* Responsive styles */
+        @media (max-width: 767px) {
+
+            /* Adjust calendar styles for screens smaller than 768px (e.g., mobile phones) */
+            #calendar {
+                padding: 0 10px;
+                /* Decrease horizontal padding */
+            }
+        }
+
+        @media (max-width: 992px) {
+
+            /* Adjust calendar styles for screens smaller than 992px (e.g., tablets) */
+            #calendar {
+                padding: 0 15px;
+                /* Decrease horizontal padding */
+            }
+        }
+
 
         .modal-dialog {
             max-width: 90%;
@@ -101,12 +134,16 @@
                 <div class="modal-body">
                     <form id="reservationForm">
                         <div class="mb-3">
-                            <label for="datetimePicker" class="form-label">Select Date:</label>
+                            <label for="datetimePicker" class="form-label">Selected Date:</label>
                             <input type="text" id="datetimePicker" name="datetime" class="form-control" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="timePicker" class="form-label">Select Time:</label>
                             <input type="time" id="timePicker" name="time" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hours" class="form-label">Input Hours:</label>
+                            <input type="number" name="hours" id="hours" class="form-control" min="1" max="12" required>
                         </div>
                         <div class="mb-3">
                             <label for="sport" class="form-label">Select Sport:</label>
@@ -127,6 +164,11 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <div id="reservationDetails">
+                                <p id="displayHours"></p>
+                                <p id="displayTotalPrice"></p>
+                            </div>
+
                         </div>
                         <div class="mb-3">
                             <label for="referenceNum" class="form-label">Reference Number:</label>
@@ -141,6 +183,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -159,6 +202,7 @@
                     minute: '2-digit',
                     meridiem: 'short'
                 },
+
                 dateClick: function (info) {
                     var selectedDate = info.date;
                     var currentDate = new Date();
@@ -227,10 +271,30 @@
             var selectedTime = timePicker.value;
             var selectedCourtId = courtElement.value;
             var selectedSportId = sportElement.value;
+            var referenceNum = document.getElementById('referenceNum').value;
             console.log('Selected Court ID:', selectedCourtId);
             console.log('Selected Sport ID:', selectedSportId);
             console.log('Button clicked');
 
+            // Check if any of the form fields are empty
+            if (
+                selectedDate === '' ||
+                selectedTime === '' ||
+                selectedCourtId === '' ||
+                selectedSportId === '' ||
+                referenceNum === ''
+            ) {
+                alert('Please fill in all the required fields.');
+                return;
+            }
+
+
+
+            var selectedMinutes = new Date('2023-08-23 ' + selectedTime).getMinutes();
+            if (selectedMinutes !== 0) {
+                alert('Please select a reservation time at the exact hour (e.g., 8:00, 9:00).');
+                return;
+            }
             // Fetch reservations for the selected date and time
             $.ajax({
                 type: 'POST',
@@ -244,7 +308,31 @@
                         return;
                     }
 
-                    // Check if the selected court and sport combination is available
+                    function updateReservationDetails() {
+                        var selectedDate = $('#datetimePicker').val();
+                        var selectedTime = $('#timePicker').val();
+                        var selectedHours = $('#hours').val();
+                        var selectedCourtId = $('#court').val();
+                        var selectedSportId = $('#sport').val();
+
+
+                        var calculatedHours = selectedHours;
+                        var calculatedTotalPrice = calculatedHours * 10;
+
+
+                        $('#displayHours').html('Hours: ' + calculatedHours);
+                        $('#displayTotalPrice').html('Total Price: $' + calculatedTotalPrice);
+                    }
+
+
+                    $('#datetimePicker, #timePicker, #hours, #court, #sport').on('change', function () {
+                        updateReservationDetails();
+                    });
+
+
+                    updateReservationDetails();
+
+
                     $.ajax({
                         type: 'POST',
                         url: 'check_court_sport_availability',

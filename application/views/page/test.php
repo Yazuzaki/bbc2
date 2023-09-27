@@ -10,7 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <title>Reservation Management</title>
+    <title>Reservation manager</title>
 </head>
 
 <body>
@@ -212,7 +212,7 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Reservation</h5>
+                            <h5 class="modal-title" id="rescheduleModalLabel">Finalize Reservation</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -252,7 +252,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" id="submitReschedule">Update</button>
-                            <button type="button" class="btn btn-primary" id="finalizeButton">Approve</button>
+                            <button type="button" class="btn btn-success" id="finalizeButton">Approve</button>
                         </div>
                     </div>
                     </form>
@@ -265,6 +265,8 @@
 
                 $(document).ready(function () {
                     $('#myTable').DataTable();
+
+                   
                 });
 
                     $('.reschedule-button').click(function (e) {
@@ -286,8 +288,7 @@
 
 
                         $('#responseModal').modal('hide');
-                    });
-                    
+                    });                 
                     
 
                     $('#submitReschedule').click(function () {

@@ -14,7 +14,7 @@ class Page extends CI_Controller
 
         $this->load->view('template/header');
         $this->load->view('page/landing_page');
-        $this->load->view('template/footer');
+
     }
     public function history()
     {
@@ -96,9 +96,21 @@ class Page extends CI_Controller
     {
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/admin', $data);
-        $this->load->view('template/adminheader');
-    }
 
+    }
+    public function gallery()
+    {
+        $this->load->model('bud_model');
+        $this->load->view('template/header');
+        $this->load->view('page/gallery');
+
+    }
+    public function court_status() {
+        $this->load->model('bud_model');
+        $this->load->view('template/adminheader');
+        $data['courts'] = $this->bud_model->get_all_courts();
+        $this->load->view('page/court_status', $data);
+    }
 
 
     public function logout()
@@ -190,6 +202,17 @@ class Page extends CI_Controller
         header('Content-Type: application/json');
         echo json_encode($events);
     }
+    public function get_reservations_for_date_time()
+{
+    $date = $this->input->post('date');
+    $time = $this->input->post('time');
+
+    $this->load->model('bud_model');
+    $reservations = $this->bud_model->getReservationsForDateTime($date, $time);
+
+    header('Content-Type: application/json');
+    echo json_encode($reservations);
+}
 
 
 
@@ -569,6 +592,32 @@ class Page extends CI_Controller
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
+    }
+    public function get_updated_data() {
+        // Load the updated data from the model
+        $updatedData = $this->bud_model->get_reservations();
+        echo json_encode($updatedData);
+    }
+    public function calculate_hours_and_price() {
+        // Get data from the form
+        $selectedDate = $this->input->post('datetime');
+        $selectedTime = $this->input->post('time');
+        $hours = $this->input->post('hours');
+
+        // Perform your calculations here (e.g., calculate price based on hours)
+        // For example, you can assume a fixed price per hour and calculate the total price
+        $pricePerHour = 10; // Replace with your actual price per hour
+        $totalPrice = $hours * $pricePerHour;
+
+        // Return the result as a JSON response
+        $response = [
+            'hours' => $hours,
+            'totalPrice' => $totalPrice
+        ];
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
     }
    
 }
