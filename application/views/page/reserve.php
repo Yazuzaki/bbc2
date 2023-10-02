@@ -139,8 +139,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="timePicker" class="form-label">Select Time:</label>
-                            <input type="time" id="timePicker" name="time" class="form-control" required>
+                            <select id="timePicker" name="time" class="form-select" required>
+                            </select>
                         </div>
+
+
                         <div class="mb-3">
                             <label for="hours" class="form-label">Input Hours:</label>
                             <input type="number" name="hours" id="hours" class="form-control" min="1" max="12" required>
@@ -380,6 +383,21 @@
             });
         });
 
+        function generateSharpTimeOptions() {
+        for (var hour = 0; hour < 24; hour++) {
+            var hourString = (hour < 10) ? '0' + hour : hour.toString();
+            var sharpTime = hourString + ':00';
+
+            var option = document.createElement('option');
+            option.value = sharpTime;
+            option.text = sharpTime;
+
+            timePicker.appendChild(option);
+        }
+    }
+
+    // Call the function to generate sharp time options
+    generateSharpTimeOptions();
 
         function checkTimeSlotAvailability(reservations, selectedTime) {
             var selectedDateTime = new Date('2023-08-23 ' + selectedTime);

@@ -129,7 +129,7 @@
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
-                <label for="tab-1" class="tab-label">Pending Reservations</label>
+                <label for="tab-1" class="tab-label">Today's Reservation</label>
                 <div class="tab-content">
 
                     <table id="myTable" class="display table table-striped table-bordered">

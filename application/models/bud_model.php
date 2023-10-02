@@ -475,6 +475,20 @@ class bud_model extends CI_Model
         $query = $this->db->get('courts');
         return $query->result(); // Return the result as an array of objects
     }
+    public function update_status($court_id, $new_status)
+    {
+        // Update the court status in the database based on $court_id
+        $data = array('status' => $new_status);
+        $this->db->where('id', $court_id);
+        $this->db->update('courts', $data);
+    }
+    public function add_court($data)
+{
+    // Insert a new court into the database
+    $this->db->insert('courts', $data);
+}
+
+
 
 
 }

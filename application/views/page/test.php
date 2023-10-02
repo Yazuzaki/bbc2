@@ -10,6 +10,8 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <title>Reservation manager</title>
 </head>
 
@@ -259,89 +261,91 @@
                 </div>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
             <script>
 
                 $(document).ready(function () {
                     $('#myTable').DataTable();
 
-                   
+
                 });
 
-                    $('.reschedule-button').click(function (e) {
-                        e.preventDefault();
+                $('.reschedule-button').click(function (e) {
+                    e.preventDefault();
 
-                        var reservationId = $(this).data('id');
-                        var reservedDatetime = $(this).data('reserved-datetime');
-                        var sport = $(this).data('sport'); // Get the sport data
-                        var court = $(this).data('court'); // Get the court data
+                    var reservationId = $(this).data('id');
+                    var reservedDatetime = $(this).data('reserved-datetime');
+                    var sport = $(this).data('sport'); // Get the sport data
+                    var court = $(this).data('court'); // Get the court data
 
-                        $('#reservationId').val(reservationId);
-                        $('#currentReservationId').val(reservationId);
-                        $('#currentReservedDatetime').val(reservedDatetime);
-                        $('#newReservedDatetime').val(reservedDatetime);
+                    $('#reservationId').val(reservationId);
+                    $('#currentReservationId').val(reservationId);
+                    $('#currentReservedDatetime').val(reservedDatetime);
+                    $('#newReservedDatetime').val(reservedDatetime);
 
-                        // Populate the "sport" and "court" select elements in the modal
-                        $('#sport').val(sport); // Set the selected sport
-                        $('#court').val(court); // Set the selected court
+                    // Populate the "sport" and "court" select elements in the modal
+                    $('#sport').val(sport); // Set the selected sport
+                    $('#court').val(court); // Set the selected court
 
 
-                        $('#responseModal').modal('hide');
-                    });                 
-                    
+                    $('#responseModal').modal('hide');
+                });
 
-                    $('#submitReschedule').click(function () {
-                        // Serialize the form data
-                        var formData = $('#reservationForm').serialize();
 
-                        $.ajax({
-                            type: 'POST',
-                            url: '<?php echo base_url('Page/finalize_reservation'); ?>',
-                            data: formData,
-                            dataType: 'json',
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    alert('Reservation rescheduled successfully.');
-                                } else {
-                                    alert('Failed to reschedule reservation.');
-                                }
-                              
+                $('#submitReschedule').click(function () {
+                    // Serialize the form data
+                    var formData = $('#reservationForm').serialize();
 
-                            },
-                            error: function () {
-                                $('#responseBody').html('An error occurred during the request.');
-
-                                // Show the response modal
-                                $('#responseModal').modal('show');
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url('Page/finalize_reservation'); ?>',
+                        data: formData,
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                alert('Reservation rescheduled successfully.');
+                            } else {
+                                alert('Failed to reschedule reservation.');
                             }
-                        });
+
+
+                        },
+                        error: function () {
+                            $('#responseBody').html('An error occurred during the request.');
+
+                            // Show the response modal
+                            $('#responseModal').modal('show');
+                        }
                     });
+                });
 
-                    $("#finalizeButton").click(function () {
-                        // Retrieve the reservationId
-                        var reservationId = $('#reservationId').val();
+                $("#finalizeButton").click(function () {
+                    // Retrieve the reservationId
+                    var reservationId = $('#reservationId').val();
 
-                        $.ajax({
-                            url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
-                            type: "GET",
-                            dataType: "json",
-                            success: function (data) {
-                                if (data.status === "success") {
-                                    $("#responseBody").text("Reservation approved successfully.");
-                                } else {
-                                    $("#responseBody").text("Failed to approve reservation: " + data.message);
-                                }
-
-                                $('#rescheduleModal').modal('hide');
-                                $('#responseModal').modal('show');
-                            },
-                            error: function (xhr, status, error) {
-                                console.error("AJAX Error:", error);
+                    $.ajax({
+                        url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.status === "success") {
+                                $("#responseBody").text("Reservation approved successfully.");
+                            } else {
+                                $("#responseBody").text("Failed to approve reservation: " + data.message);
                             }
-                        });
+
+                            // Hide the reschedule modal
+                            $('#rescheduleModal').modal('hide');
+
+                            // Show the response modal
+                            $('#responseModal').modal('show');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("AJAX Error:", error);
+                        }
                     });
-             
+                });
+
 
 
 

@@ -134,7 +134,7 @@
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
-                <label for="tab-1" class="tab-label">Pending Reservations</label>
+                <label for="tab-1" class="tab-label">Available Reservations</label>
                 <div class="tab-content">
 
                     <table id="myTable" class="display table table-striped table-bordered">
@@ -142,7 +142,7 @@
                             <tr>
                                 <th>Court Number</th>
                                 <th>Status</th>
-                              
+
                             </tr>
                         </thead>
                         <tbody>
@@ -152,11 +152,19 @@
                                         <?= $court->court_number ?>
                                     </td>
                                     <td>
-                                        <?= $court->status ?>
+                                        <form action="<?= base_url('courts/update_status/' . $court->court_id) ?>" method="post">
+                                            <select name="status">
+                                                <option value="Available" <?= ($court->status == 'Available') ? 'selected' : '' ?>>
+                                                    Available</option>
+                                                <option value="Unavailable" <?= ($court->status == 'Unavailable') ? 'selected' : '' ?>>Unavailable</option>
+                                                <option value="Rejected" <?= ($court->status == 'Rejected') ? 'selected' : '' ?>>Rejected</option>
+                                            </select>
+                                            <button type="submit">Update Status</button>
+                                        </form>
                                     </td>
-                                    
                                 </tr>
                             <?php endforeach; ?>
+
                         </tbody>
                     </table>
 
@@ -181,6 +189,11 @@
                     </div>
                 </div>
             </div>
+            <form action="<?= base_url('courts/add') ?>" method="post">
+                <input type="text" name="court_number" placeholder="Court Number" required>
+                <!-- Add more fields as needed -->
+                <button type="submit">Add Court</button>
+            </form>
 
 
 
@@ -192,7 +205,7 @@
                     $('#myTable').DataTable();
                 });
 
-           
+
             </script>
 </body>
 

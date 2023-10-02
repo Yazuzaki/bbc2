@@ -30,7 +30,7 @@ class Page extends CI_Controller
     {
         $this->load->view('template/header');
         $this->load->view('page/reserve');
-        
+
 
     }
 
@@ -94,6 +94,7 @@ class Page extends CI_Controller
 
     public function admin()
     {
+        $this->load->view('template/adminheader');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/admin', $data);
 
@@ -105,7 +106,8 @@ class Page extends CI_Controller
         $this->load->view('page/gallery');
 
     }
-    public function court_status() {
+    public function court_status()
+    {
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['courts'] = $this->bud_model->get_all_courts();
@@ -203,16 +205,16 @@ class Page extends CI_Controller
         echo json_encode($events);
     }
     public function get_reservations_for_date_time()
-{
-    $date = $this->input->post('date');
-    $time = $this->input->post('time');
+    {
+        $date = $this->input->post('date');
+        $time = $this->input->post('time');
 
-    $this->load->model('bud_model');
-    $reservations = $this->bud_model->getReservationsForDateTime($date, $time);
+        $this->load->model('bud_model');
+        $reservations = $this->bud_model->getReservationsForDateTime($date, $time);
 
-    header('Content-Type: application/json');
-    echo json_encode($reservations);
-}
+        header('Content-Type: application/json');
+        echo json_encode($reservations);
+    }
 
 
 
@@ -248,47 +250,47 @@ class Page extends CI_Controller
     }
 
     public function make_reservation()
-{
-    $selectedDate = $this->input->post('date');
-    $selectedTime = $this->input->post('time');
-    $selectedCourtId = $this->input->post('court');
-    $selectedSportId = $this->input->post('sport');
+    {
+        $selectedDate = $this->input->post('date');
+        $selectedTime = $this->input->post('time');
+        $selectedCourtId = $this->input->post('court');
+        $selectedSportId = $this->input->post('sport');
 
-    // Fetch reservations for the selected date and time
-    $reservations = $this->bud_model->getReservationsWithinTimeFrame($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime, $selectedTime);
+        // Fetch reservations for the selected date and time
+        $reservations = $this->bud_model->getReservationsWithinTimeFrame($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime, $selectedTime);
 
-    // Check if there are any existing reservations within the allowed time frame
-    if (!empty($reservations)) {
-        echo 'existing_reservation';
-        return;
-    }
-
-    // Check if the selected court and sport combination is available
-    $availability = $this->bud_model->checkCourtSportAvailability($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime);
-
-    if ($availability) {
-        // Proceed with the reservation
-        $reservationData = [
-            'reserved_datetime' => $selectedDate . ' ' . $selectedTime,
-            'court' => $selectedCourtId,
-            'sport' => $selectedSportId,
-            // Add other reservation data as needed
-        ];
-
-        // Insert the reservation data into the database
-        $inserted = $this->bud_model->insertReservation($reservationData);
-
-        if ($inserted) {
-            echo 'success';
-        } else {
-            echo 'error';
+        // Check if there are any existing reservations within the allowed time frame
+        if (!empty($reservations)) {
+            echo 'existing_reservation';
+            return;
         }
-    } else {
-        echo 'not_available';
-    }
-}
 
-    
+        // Check if the selected court and sport combination is available
+        $availability = $this->bud_model->checkCourtSportAvailability($selectedCourtId, $selectedSportId, $selectedDate, $selectedTime);
+
+        if ($availability) {
+            // Proceed with the reservation
+            $reservationData = [
+                'reserved_datetime' => $selectedDate . ' ' . $selectedTime,
+                'court' => $selectedCourtId,
+                'sport' => $selectedSportId,
+                // Add other reservation data as needed
+            ];
+
+            // Insert the reservation data into the database
+            $inserted = $this->bud_model->insertReservation($reservationData);
+
+            if ($inserted) {
+                echo 'success';
+            } else {
+                echo 'error';
+            }
+        } else {
+            echo 'not_available';
+        }
+    }
+
+
 
     public function approve_reservation($reservationId)
     {
@@ -488,7 +490,7 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
 
         // Retrieve form data
-    
+
         $reservationId = $this->input->post('reservationId');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
         $newCourt = $this->input->post('court');
@@ -510,7 +512,7 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
 
         // Retrieve form data
-    
+
         $reservationId = $this->input->post('reservationId');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
         $newCourt = $this->input->post('court');
@@ -534,26 +536,26 @@ class Page extends CI_Controller
         $sport = $this->input->post('sport');
         $date = $this->input->post('date');
         $time = $this->input->post('time');
-    
+
         // Calculate the current time
         $current_time = strtotime('now');
-    
+
         // Convert the selected time to a timestamp
         $selected_time = strtotime($date . ' ' . $time);
-    
+
         // Calculate the time difference in seconds
         $time_difference = $selected_time - $current_time;
-    
+
         // Check if the time difference is at least 1 hour (3600 seconds) or more
         if ($time_difference >= 3600) {
             // Call the model method to check availability
             $availability = $this->bud_model->checkCourtSportAvailability($court, $sport, $date, $time);
-    
+
             // Return the availability status as a response to the AJAX request
             if ($availability) {
                 echo 'available';
             } else {
-    
+
                 echo 'not_available';
             }
         } else {
@@ -561,10 +563,11 @@ class Page extends CI_Controller
             echo 'not_allowed';
         }
     }
-    
-    
-    
-    public function moveReservations() {
+
+
+
+    public function moveReservations()
+    {
         // Get the current date
         $currentDate = date('Y-m-d');
 
@@ -579,7 +582,8 @@ class Page extends CI_Controller
             log_message('error', 'Failed to move reservations.');
         }
     }
-    public function getReservations() {
+    public function getReservations()
+    {
         $this->load->model('bud_model');
         $reservations = $this->bud_model->getAllReservations();
 
@@ -593,12 +597,14 @@ class Page extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
-    public function get_updated_data() {
+    public function get_updated_data()
+    {
         // Load the updated data from the model
         $updatedData = $this->bud_model->get_reservations();
         echo json_encode($updatedData);
     }
-    public function calculate_hours_and_price() {
+    public function calculate_hours_and_price()
+    {
         // Get data from the form
         $selectedDate = $this->input->post('datetime');
         $selectedTime = $this->input->post('time');
@@ -619,5 +625,31 @@ class Page extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($response));
     }
-   
+    public function update_status($court_id)
+    {
+        $new_status = $this->input->post('status');
+        // Perform validation on $new_status if needed
+
+        // Update the court status in your database
+        $this->bud_model->update_status($court_id, $new_status);
+
+        // Redirect back to the page displaying the courts
+        redirect('courts');
+    }
+    public function add()
+{
+    // Retrieve form data and perform validation as needed
+
+    // Insert the new court into the database
+    $data = array(
+        'court_number' => $this->input->post('court_number'),
+        'status' => 'available' // Set the initial status as needed
+    );
+    $this->bud_model->add_court($data);
+
+    // Redirect back to the page displaying the courts
+    redirect('courts');
+}
+
+
 }
