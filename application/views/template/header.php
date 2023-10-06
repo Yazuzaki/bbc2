@@ -63,9 +63,20 @@
           </ul>
 
           <ul class="navbar-nav d-flex flex-row">
-              <li class="nav-item me-3 me-lg-0">
-                <a class="nav-link" href="<?php echo base_url('page/loginview'); ?>">Sign In</a>
-              </li>
+          <?php
+// Check if the user is logged in
+if ($this->session->userdata('id')) {
+    // If logged in, show the "Logout" link
+    echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="'.base_url('page/logout').'">Logout</a>
+          </li>';
+} else {
+    // If not logged in, show the "Sign In" link
+    echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="'.base_url('page/loginview').'">Sign In</a>
+          </li>';
+}
+?>
               <li class="nav-item me-3 me-lg-0">
                 <a class="nav-link" href="<?php echo base_url('page/register'); ?>">Register</a>
               </li>

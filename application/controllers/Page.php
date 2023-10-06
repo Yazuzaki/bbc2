@@ -38,10 +38,16 @@ class Page extends CI_Controller
     }
     public function reserve()
     {
-        $data['user_signed_in'] = $this->session->userdata('user_signed_in');
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
 
-        // Load the login view and pass the $data array to it
-        $this->load->view('template/header', $data);
+
+
+      
+        $this->load->view('template/header');
         $this->load->view('page/reserve');
 
 
@@ -68,7 +74,21 @@ class Page extends CI_Controller
 
     public function test()
     {
-
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+    
+        // Get the user's role from the session
+        $user_role = $this->session->userdata('role');
+    
+        // Check if the user's role is 'admin'
+        if ($user_role !== 'admin') {
+            // If the user is not an admin, redirect them to a different page
+            redirect('page/landing_page'); // Redirect to a landing page for regular users
+        } 
+        // This part of the code is not executed if the user is redirected
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['reservations'] = $this->bud_model->get_all_reservations();
@@ -76,11 +96,25 @@ class Page extends CI_Controller
         $data['future_reservations'] = $this->bud_model->getFutureReservations();
 
         $this->load->view('page/test', $data);
-
-
     }
+
+
     public function reserved()
     {
+       // Check if the user is logged in
+       if (!$this->session->userdata('id')) {
+        // If not logged in, redirect to the login page
+        redirect('page/loginview');
+    }
+
+    // Get the user's role from the session
+    $user_role = $this->session->userdata('role');
+
+    // Check if the user's role is 'admin'
+    if ($user_role !== 'admin') {
+        // If the user is not an admin, redirect them to a different page
+        redirect('page/landing_page'); // Redirect to a landing page for regular users
+    } 
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['future_reservations'] = $this->bud_model->getFutureReservations();
@@ -107,8 +141,10 @@ class Page extends CI_Controller
             $data = array(
                 'name' => $this->input->post('name'),
                 'email' => $this->input->post('email'),
-                'password' => $this->input->post('password'), // Store the plain password
-                'role' => 'user', // Default role for a new user
+                'password' => $this->input->post('password'),
+                // Store the plain password
+                'role' => 'user',
+                // Default role for a new user
             );
 
 
@@ -145,11 +181,27 @@ class Page extends CI_Controller
 
     public function admin()
     {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+    
+        // Get the user's role from the session
+        $user_role = $this->session->userdata('role');
+    
+        // Check if the user's role is 'admin'
+        if ($user_role !== 'admin') {
+            // If the user is not an admin, redirect them to a different page
+            redirect('page/landing_page'); // Redirect to a landing page for regular users
+        } 
+    
+        // If the user is an admin, load the admin page
         $this->load->view('template/adminheader');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/admin', $data);
-
     }
+    
     public function gallery()
     {
         $this->load->model('bud_model');
@@ -207,6 +259,26 @@ class Page extends CI_Controller
 
     public function timetable()
     {
+         // Check if the user is logged in
+         if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+
+        // Get the user's role from the session
+        $user_role = $this->session->userdata('role');
+
+        // Check if the user's role is 'admin'
+        if ($user_role === 'admin') {
+            // If the user is an admin, redirect them to the admin page
+            redirect('page/admin'); // Redirect to the admin page
+        } elseif ($user_role === 'user') {
+            // If the user is a regular user, redirect them to a landing page
+            redirect('page/landing_page'); // Redirect to a landing page for regular users
+        } else {
+            // Handle other cases as needed
+            redirect('page/access_denied'); // Redirect to an "Access Denied" page or handle it as needed
+        }
         $this->load->model('bud_model');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
@@ -686,7 +758,8 @@ class Page extends CI_Controller
         $data = [
             'username' => $this->input->post('username'),
             'email' => $this->input->post('email'),
-            'password' => $this->input->post('password'), PASSWORD_DEFAULT,
+            'password' => $this->input->post('password'),
+            PASSWORD_DEFAULT,
         ];
 
         $user_id = $this->bud_model->create_with_verification_token($data);
@@ -723,8 +796,10 @@ class Page extends CI_Controller
                 $data = array(
                     'name' => $this->input->post('name'),
                     'email' => $this->input->post('email'),
-                    'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT), // Hash the password
-                    'role' => 'user', // Default role for a new user
+                    'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+                    // Hash the password
+                    'role' => 'user',
+                    // Default role for a new user
                 );
 
                 $this->User_Model->register_user($data);
@@ -737,7 +812,7 @@ class Page extends CI_Controller
         // Load the registration view
         $this->load->view('page/register');
     }
-    
+
     public function sampleTestEmail()
     {
 
@@ -821,9 +896,9 @@ class Page extends CI_Controller
             $this->load->view('login');
         }
     }
-    public function process_login() {
+    public function process_login()
+    {
         // Validate login credentials here
-
         $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email');
         $this->form_validation->set_rules('password', 'Password', 'trim|required');
 
@@ -833,14 +908,26 @@ class Page extends CI_Controller
             $validate = $this->bud_model->index($email, $password);
 
             if ($validate) {
-                // Create a session for the user
-                $user_data = array(
-                    'id' => $validate->id,
-                    'name' => $validate->name
-                );
-                $this->session->set_userdata($user_data);
-
-                redirect('page/main'); // Redirect to the main page
+                // Check if the user is an admin or a regular user
+                if ($validate->role === 'admin') {
+                    // Admin, redirect to admin dashboard
+                    $user_data = array(
+                        'id' => $validate->id,
+                        'name' => $validate->name,
+                        'role' => 'admin' // Add role information to the session
+                    );
+                    $this->session->set_userdata($user_data);
+                    redirect('page/admin'); // Replace 'admin/dashboard' with your admin dashboard URL
+                } else {
+                    // Regular user, redirect to user dashboard or main page
+                    $user_data = array(
+                        'id' => $validate->id,
+                        'name' => $validate->name,
+                        'role' => 'user' // Add role information to the session
+                    );
+                    $this->session->set_userdata($user_data);
+                    redirect('page/main'); // Replace 'page/main' with your user dashboard or main page URL
+                }
             } else {
                 $this->session->set_flashdata('error', 'Invalid login details. Please try again.');
                 redirect('page/loginview');
@@ -849,6 +936,7 @@ class Page extends CI_Controller
             $this->load->view('page/loginview'); // Display the login view
         }
     }
+
 
 
 

@@ -204,7 +204,7 @@
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
               <li><a class="dropdown-item" href="#">My profile</a></li>
               <li><a class="dropdown-item" href="#">Settings</a></li>
-              <li><a class="dropdown-item" href="#">Logout</a></li>
+              <li><a class="dropdown-item" href="<?php echo base_url('page/logout'); ?>">Logout</a></li>
             </ul>
           </li>
         </ul>
