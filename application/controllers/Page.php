@@ -7,13 +7,23 @@ class Page extends CI_Controller
     {
         parent::__construct();
         $this->load->database();
+        $this->load->helper('url');
+        $this->load->library('form_validation');
+        $this->load->model('bud_model');
+        $this->load->library('session');
+
+
 
     }
     public function landing_page()
     {
 
-        $this->load->view('template/header');
+        // Load the view and pass the $data array to it
+        $this->load->view('template/header'); // Assuming the view file is located in 'application/views/template/header.php'
+        // Load other content for the landing page as needed
+
         $this->load->view('page/landing_page');
+
 
     }
     public function history()
@@ -28,7 +38,10 @@ class Page extends CI_Controller
     }
     public function reserve()
     {
-        $this->load->view('template/header');
+        $data['user_signed_in'] = $this->session->userdata('user_signed_in');
+
+        // Load the login view and pass the $data array to it
+        $this->load->view('template/header', $data);
         $this->load->view('page/reserve');
 
 
@@ -37,7 +50,10 @@ class Page extends CI_Controller
 
     public function register()
     {
-        $this->load->view('template/header');
+        $data['user_signed_in'] = $this->session->userdata('user_signed_in');
+
+        // Load the login view and pass the $data array to it
+        $this->load->view('template/header', $data);
         $this->load->view('page/register');
 
     }
@@ -46,8 +62,10 @@ class Page extends CI_Controller
     {
         $this->load->view('template/header');
         $this->load->view('page/loginview');
-
     }
+
+
+
     public function test()
     {
 
@@ -71,24 +89,57 @@ class Page extends CI_Controller
 
     }
 
+
     public function register_form()
     {
-        $this->load->model('bud_model');
-        $this->bud_model->user_registration();
+        $this->form_validation->set_error_delimiters('<div class="error"alert alert-dark"', '</div>');
+        // Form validation rules
+        $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
+        $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
+        $this->form_validation->set_rules('password', 'Password', 'trim|required');
+        $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
 
+        if ($this->form_validation->run() === FALSE) {
+            // Form validation failed, display the registration form again
+            $this->load->view('page/register');
+        } else {
+            // Form validation passed, proceed with user registration
+            $data = array(
+                'name' => $this->input->post('name'),
+                'email' => $this->input->post('email'),
+                'password' => $this->input->post('password'), // Store the plain password
+                'role' => 'user', // Default role for a new user
+            );
+
+
+            // Check if the email already exists
+            if ($this->bud_model->check_email_exist($data['email'])) {
+                $this->session->set_flashdata('error', 'Email already exists.');
+                redirect('page/register');
+            }
+
+            // Register the user
+            if ($this->bud_model->register_user($data)) {
+                $this->session->set_flashdata('success', 'Registered successfully.');
+                redirect('page/loginview');
+            } else {
+                $this->session->set_flashdata('error', 'Registration failed.');
+                redirect('page/register');
+            }
+        }
     }
 
-    public function login_form()
-    {
-        $this->load->model('bud_model');
-        $this->bud_model->login_user();
-    }
 
     public function main()
     {
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
         $this->load->model('bud_model');
         $this->load->view('template/header');
-        $this->load->view('page/index');
+        $data['name'] = $this->session->userdata('name');
+        $this->load->view('page/index', $data);
         $this->load->view('template/footer');
     }
 
@@ -115,11 +166,6 @@ class Page extends CI_Controller
     }
 
 
-    public function logout()
-    {
-        $this->load->model('bud_model');
-        $this->bud_model->logout();
-    }
     public function canceled()
     {
         $this->load->model('bud_model');
@@ -452,25 +498,6 @@ class Page extends CI_Controller
         echo json_encode(array('status' => 'success'));
     }
 
-    public function fetch_current_reservations()
-    {
-        $this->load->model('bud_model');
-
-        $start_date_str = $this->input->post('start_date');
-        $end_date_str = $this->input->post('end_date');
-
-        if (!empty($start_date_str) && !empty($end_date_str)) {
-            $start_date = new DateTime($start_date_str);
-            $end_date = new DateTime($end_date_str);
-
-            $data['ongoing'] = $this->bud_model->get_reservations_by_date_range_ongoing($start_date, $end_date);
-        } else {
-            $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
-        }
-
-        $this->load->view('page/filtered_reservations', $data);
-        $this->load->view('template/adminheader');
-    }
     public function cancel_reservation()
     {
         $reservationId = $this->input->post('reservationId');
@@ -637,19 +664,199 @@ class Page extends CI_Controller
         redirect('courts');
     }
     public function add()
-{
-    // Retrieve form data and perform validation as needed
+    {
+        // Retrieve form data and perform validation as needed
 
-    // Insert the new court into the database
-    $data = array(
-        'court_number' => $this->input->post('court_number'),
-        'status' => 'available' // Set the initial status as needed
-    );
-    $this->bud_model->add_court($data);
+        // Insert the new court into the database
+        $data = array(
+            'court_number' => $this->input->post('court_number'),
+            'status' => 'available' // Set the initial status as needed
+        );
+        $this->bud_model->add_court($data);
 
-    // Redirect back to the page displaying the courts
-    redirect('courts');
-}
+        // Redirect back to the page displaying the courts
+        redirect('courts');
+    }
 
+    public function signup()
+    {
+        // Handle user registration here
+        // Validation, form submission, user creation, etc.
+
+        $data = [
+            'username' => $this->input->post('username'),
+            'email' => $this->input->post('email'),
+            'password' => $this->input->post('password'), PASSWORD_DEFAULT,
+        ];
+
+        $user_id = $this->bud_model->create_with_verification_token($data);
+
+        if ($user_id) {
+            // Send an email with a verification link containing the token
+            $verification_link = site_url('auth/verify/' . $data['email_verification_token']);
+            // Send email with $verification_link to the user
+            // Example: You can use CodeIgniter's Email Library for sending emails.
+        }
+    }
+    public function verify($token)
+    {
+        if ($this->bud_model->verify_email($token)) {
+            // Email verified successfully, show a success message
+            // You can also automatically log the user in here if needed
+        } else {
+            // Invalid or expired token, show an error message
+        }
+
+
+    }
+    public function registe()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Form validation rules
+            $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
+            $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
+            $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
+            $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
+
+            if ($this->form_validation->run()) {
+                // Form validation passed, insert the user into the database
+                $data = array(
+                    'name' => $this->input->post('name'),
+                    'email' => $this->input->post('email'),
+                    'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT), // Hash the password
+                    'role' => 'user', // Default role for a new user
+                );
+
+                $this->User_Model->register_user($data);
+
+                // Optionally, you can add a success message here
+                redirect('page/loginview'); // Redirect to the login page after successful registration
+            }
+        }
+
+        // Load the registration view
+        $this->load->view('page/register');
+    }
+    
+    public function sampleTestEmail()
+    {
+
+        $First_Name = $this->session->userdata('First_Name');
+        $Middle_Name = $this->session->userdata('Middle_Name');
+        $Last_Name = $this->session->userdata('Last_Name');
+        //$Course = $this->session->userdata('Course');
+        //$YearLevel = $this->session->userdata('YearLevel');
+        $Address_No = $this->session->userdata('Address_No');
+        $Address_Street = $this->session->userdata('Address_Street');
+        $Address_Subdivision = $this->session->userdata('Address_Subdivision');
+        $Address_Barangay = $this->session->userdata('Address_Barangay');
+        $Address_City = $this->session->userdata('Address_City');
+        $Address_Province = $this->session->userdata('Address_Province');
+        $Email = $this->session->userdata('Email');
+        $Cp_No = $this->session->userdata('Cp_No');
+        $Tel_No = $this->session->userdata('Tel_No');
+        $Student_Number = $this->session->userdata('Student_Number');
+        //$logged_in = $this->session->userdata('logged_in');
+
+
+        $cart_data = $this->Cart_model->getProductsInPayment($Student_Number);
+
+        // Initialize an array to store product names
+        //$product_names = array();
+        //$product_quantities = array();
+        //$product_totals = array();
+
+        // Iterate through products and extract product names
+        foreach ($cart_data as $product) {
+            $cID = $product['c_id'];
+            $product_names[$cID] = $product['transactionItem'];
+            $product_quantities[$cID] = $product['quantity'];
+            $product_totals[$cID] = $product['total_price'];
+        }
+
+        $address = array(
+            'Address_No' => $this->session->userdata('Address_No'),
+            'Address_Street' => $this->session->userdata('Address_Street'),
+            'Address_Subdivision' => $this->session->userdata('Address_Subdivision'),
+            'Address_Barangay' => $this->session->userdata('Address_Barangay'),
+            'Address_City' => $this->session->userdata('Address_City'),
+            'Address_Province' => $this->session->userdata('Address_Province')
+        );
+
+        $final_price = array_sum($product_totals); // Calculate the sum of product_totals
+
+        $student_name = $First_Name . '' . $Middle_Name . ' ' . $Last_Name;
+        $from = 'jfabregas@sdca.edu.ph';
+        $from_name = 'ICT';
+        $send_to = $Email;
+        $subject = 'Test Email';
+        // $message = 'This is a test email';
+        $message = 'email/test';
+        $add_data = array(
+            'first_name' => $First_Name,
+            'middle_name' => $Middle_Name,
+            'last_name' => $Last_Name,
+            'address' => $address,
+            'product_names' => $product_names,
+            'product_quantities' => $product_quantities,
+            'product_totals' => $product_totals,
+            'final_price' => $final_price
+
+        );
+        $this->sdca_mailer->send_email($student_name, $from, $from_name, $send_to, $subject, $message, $add_data);
+    }
+
+    public function testemail()
+    {
+        $this->load->view('page/nohtml');
+    }
+    public function index()
+    {
+        // Check if the user is already logged in
+        if ($this->session->userdata('user_id')) {
+            // User is already logged in, redirect to their dashboard
+            redirect('dashboard');
+        } else {
+            // User is not logged in, load the login view
+            $this->load->view('login');
+        }
+    }
+    public function process_login() {
+        // Validate login credentials here
+
+        $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email');
+        $this->form_validation->set_rules('password', 'Password', 'trim|required');
+
+        if ($this->form_validation->run()) {
+            $email = $this->input->post('email');
+            $password = $this->input->post('password');
+            $validate = $this->bud_model->index($email, $password);
+
+            if ($validate) {
+                // Create a session for the user
+                $user_data = array(
+                    'id' => $validate->id,
+                    'name' => $validate->name
+                );
+                $this->session->set_userdata($user_data);
+
+                redirect('page/main'); // Redirect to the main page
+            } else {
+                $this->session->set_flashdata('error', 'Invalid login details. Please try again.');
+                redirect('page/loginview');
+            }
+        } else {
+            $this->load->view('page/loginview'); // Display the login view
+        }
+    }
+
+
+
+    public function logout()
+    {
+        $this->session->unset_userdata('user_id');
+        $this->session->sess_destroy();
+        redirect('page/loginview');
+    }
 
 }

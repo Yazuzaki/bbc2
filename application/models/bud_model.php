@@ -11,36 +11,16 @@ class bud_model extends CI_Model
         $this->load->library('session');
     }
 
-    public function user_registration()
-    {
-        $password = $this->input->post('password');
-        $con_password = $this->input->post('con_password');
-        $email = $this->input->post('email');
+    public function register_user($data) {
+        // Insert the user data into the database
+        return $this->db->insert('users', $data);
+    }
 
-        // Check if the email is already in use
+    public function check_email_exist($email) {
+        // Check if the email already exists in the database
         $this->db->where('email', $email);
-        $existing_user = $this->db->get('users')->row();
-
-        if ($existing_user) {
-            $this->session->set_flashdata('error', 'This email is already in use.');
-            redirect('page/register');
-        } elseif ($password != $con_password) {
-            $this->session->set_flashdata('error', 'The passwords do not match.');
-            redirect('page/register');
-        } else {
-            // Hash the password
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-            $data = array(
-                "name" => $this->input->post('name'),
-                "email" => $email,
-                "password" => $hashed_password // Store the hashed password
-            );
-
-            $this->db->insert('users', $data);
-            $this->session->set_flashdata('success', 'Registered successfully.');
-            redirect('page/loginview');
-        }
+        $query = $this->db->get('users');
+        return $query->num_rows() > 0;
     }
 
 
@@ -72,6 +52,8 @@ class bud_model extends CI_Model
 
 
     }
+
+
     public function logout()
     {
         $this->session->unset_userdata('email');
@@ -483,12 +465,83 @@ class bud_model extends CI_Model
         $this->db->update('courts', $data);
     }
     public function add_court($data)
-{
-    // Insert a new court into the database
-    $this->db->insert('courts', $data);
-}
+    {
+        // Insert a new court into the database
+        $this->db->insert('courts', $data);
+    }
+    public function create($data)
+    {
+        $this->db->insert('users', $data);
+        return $this->db->insert_id();
+    }
 
+    public function get_by_email($email)
+    {
+        return $this->db->get_where('users', ['email' => $email])->row_array();
+    }
 
+    public function is_admin($user_id)
+    {
+        return $this->db->get_where('users', ['id' => $user_id, 'role' => 'admin'])->row() !== null;
+    }
+    public function create_with_verification_token($data) {
+        $data['email_verification_token'] = bin2hex(random_bytes(32)); // Generate a unique token
+        $this->db->insert('users', $data);
+        return $this->db->insert_id();
+    }
+
+    public function verify_email($token) {
+        $this->db->set('email_verified', 1);
+        $this->db->where('email_verification_token', $token);
+        return $this->db->update('users');
+    }
+    public function validate_user($email, $password)
+    {
+        // Validate user's credentials against the database
+        $query = $this->db->get_where('users', array('email' => $email, 'password' => md5($password)));
+
+        if ($query->num_rows() === 1) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+
+    public function get_user_by_id($user_id)
+    {
+        // Retrieve user data by user ID
+        $query = $this->db->get_where('users', array('id' => $user_id));
+
+        if ($query->num_rows() === 1) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+
+    public function get_user_by_email($email) {
+        // Query the database to retrieve user data based on email
+        return $this->db->get_where('users', ['email' => $email])->row();
+    }
+    public function determineUserRole($email) {
+        $user = $this->db->where('email', $email)->get('users')->row();
+
+        if ($user && $user->role === 'admin') {
+            return 'admin';
+        } else {
+            return 'user';
+        }
+    }
+    public function index($email,$password){
+        $data=array(
+        'email'=>$email,
+        'password'=>$password);
+        $query=$this->db->where($data);
+        $login=$this->db->get('users');
+         if($login!=NULL){
+        return $login->row();
+         }  
+        }
 
 
 }

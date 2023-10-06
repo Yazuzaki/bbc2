@@ -189,7 +189,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -205,6 +205,21 @@
                     minute: '2-digit',
                     meridiem: 'short'
                 },
+                initialView: 'dayGridMonth', // Set the initial view to month on larger screens
+
+                // Add more view options based on screen size
+                views: {
+                    timeGridDay: {
+                        type: 'timeGrid',
+                        dayHeaderFormat: { weekday: 'long' }
+                    },
+                    timeGridWeek: {
+                        type: 'timeGrid',
+                        dayHeaderFormat: { weekday: 'long' }
+                    },
+                    // Add more view options as needed
+                },
+                
 
                 dateClick: function (info) {
                     var selectedDate = info.date;
@@ -227,6 +242,7 @@
                         datetimePicker.value = formattedDate;
                     }
                 },
+                
                 dayCellClassNames: function (e) {
                     var today = new Date();
                     today.setHours(0, 0, 0, 0);
