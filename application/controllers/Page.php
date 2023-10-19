@@ -11,6 +11,7 @@ class Page extends CI_Controller
         $this->load->library('form_validation');
         $this->load->model('bud_model');
         $this->load->library('session');
+        $this->load->library('email');
 
 
 
@@ -18,10 +19,8 @@ class Page extends CI_Controller
     public function landing_page()
     {
 
-        // Load the view and pass the $data array to it
-        $this->load->view('template/header'); // Assuming the view file is located in 'application/views/template/header.php'
-        // Load other content for the landing page as needed
 
+        $this->load->view('template/header');
         $this->load->view('page/landing_page');
 
 
@@ -46,7 +45,7 @@ class Page extends CI_Controller
 
 
 
-      
+
         $this->load->view('template/header');
         $this->load->view('page/reserve');
 
@@ -79,15 +78,15 @@ class Page extends CI_Controller
             // If not logged in, redirect to the login page
             redirect('page/loginview');
         }
-    
+
         // Get the user's role from the session
         $user_role = $this->session->userdata('role');
-    
+
         // Check if the user's role is 'admin'
         if ($user_role !== 'admin') {
             // If the user is not an admin, redirect them to a different page
             redirect('page/landing_page'); // Redirect to a landing page for regular users
-        } 
+        }
         // This part of the code is not executed if the user is redirected
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
@@ -101,20 +100,20 @@ class Page extends CI_Controller
 
     public function reserved()
     {
-       // Check if the user is logged in
-       if (!$this->session->userdata('id')) {
-        // If not logged in, redirect to the login page
-        redirect('page/loginview');
-    }
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
 
-    // Get the user's role from the session
-    $user_role = $this->session->userdata('role');
+        // Get the user's role from the session
+        $user_role = $this->session->userdata('role');
 
-    // Check if the user's role is 'admin'
-    if ($user_role !== 'admin') {
-        // If the user is not an admin, redirect them to a different page
-        redirect('page/landing_page'); // Redirect to a landing page for regular users
-    } 
+        // Check if the user's role is 'admin'
+        if ($user_role !== 'admin') {
+            // If the user is not an admin, redirect them to a different page
+            redirect('page/landing_page'); // Redirect to a landing page for regular users
+        }
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['future_reservations'] = $this->bud_model->getFutureReservations();
@@ -126,37 +125,38 @@ class Page extends CI_Controller
 
     public function register_form()
     {
-        $this->form_validation->set_error_delimiters('<div class="error"alert alert-dark"', '</div>');
-        // Form validation rules
+        $this->form_validation->set_error_delimiters('<div class="error alert alert-dark">', '</div');
+    
         $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
         $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
-        $this->form_validation->set_rules('password', 'Password', 'trim|required');
+        $this->form_validation->set_message('is_unique', 'The Email is already taken. Please choose a different Email');
+        $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[10]');
         $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
-
+    
         if ($this->form_validation->run() === FALSE) {
-            // Form validation failed, display the registration form again
             $this->load->view('page/register');
         } else {
-            // Form validation passed, proceed with user registration
             $data = array(
                 'name' => $this->input->post('name'),
                 'email' => $this->input->post('email'),
                 'password' => $this->input->post('password'),
-                // Store the plain password
                 'role' => 'user',
-                // Default role for a new user
+                'email_verified' => 0,
+                'email_verification_token' => md5(uniqid(rand(), true))
             );
-
-
-            // Check if the email already exists
+    
             if ($this->bud_model->check_email_exist($data['email'])) {
                 $this->session->set_flashdata('error', 'Email already exists.');
                 redirect('page/register');
             }
-
-            // Register the user
+    
             if ($this->bud_model->register_user($data)) {
-                $this->session->set_flashdata('success', 'Registered successfully.');
+                // Pass the email and verification token to the sendVerificationEmail function
+                $this->sendVerificationEmail($data['email'], $data['email_verification_token']);
+    
+                $successMessage = 'Registered successfully. Check your email for verification.';
+                echo "<script>showSuccessToast('$successMessage');</script>";
+                
                 redirect('page/loginview');
             } else {
                 $this->session->set_flashdata('error', 'Registration failed.');
@@ -164,7 +164,19 @@ class Page extends CI_Controller
             }
         }
     }
-
+    
+    public function sendVerificationEmail($email, $verificationToken)
+    {
+        $subject = 'Email Verification';
+        $message = 'Click the following link to verify your email address: ' . base_url('verification?token=' . $verificationToken);
+        $from_name = "Budz Badminton Court";
+        $from = "patrickjeri.garcia@sdca.edu.ph";
+        $add_data = array();
+    
+        // Now, you can use the provided email and verification token to send the verification email
+        $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
+    }
+    
 
     public function main()
     {
@@ -186,22 +198,22 @@ class Page extends CI_Controller
             // If not logged in, redirect to the login page
             redirect('page/loginview');
         }
-    
+
         // Get the user's role from the session
         $user_role = $this->session->userdata('role');
-    
+
         // Check if the user's role is 'admin'
         if ($user_role !== 'admin') {
             // If the user is not an admin, redirect them to a different page
             redirect('page/landing_page'); // Redirect to a landing page for regular users
-        } 
-    
+        }
+
         // If the user is an admin, load the admin page
         $this->load->view('template/adminheader');
         $data['reservations'] = $this->bud_model->get_all_reservations();
         $this->load->view('page/admin', $data);
     }
-    
+
     public function gallery()
     {
         $this->load->model('bud_model');
@@ -232,9 +244,12 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
 
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
+            $name = $this->session->userdata('name');
+            $email = $this->session->userdata('email');
             $userDateTime = $this->input->post('datetime');
             $court = $this->input->post('court');
             $sport = $this->input->post('sport');
+            
 
 
             $userTimezone = new DateTimeZone('Asia/Manila');
@@ -244,7 +259,9 @@ class Page extends CI_Controller
             $data = array(
                 'reserved_datetime' => $utcDatetime,
                 'court' => $court,
-                'sport' => $sport
+                'sport' => $sport,
+                'user_name' => $name,
+                'user_email' => $email,
             );
 
             if ($this->db->insert('reservations', $data)) {
@@ -254,13 +271,57 @@ class Page extends CI_Controller
             }
         }
     }
-
-
-
-    public function timetable()
+   
+    
+    public function upload_reference_num()
     {
-         // Check if the user is logged in
-         if (!$this->session->userdata('id')) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_FILES['referenceNum'])) {
+                // Load CodeIgniter's file upload library
+                $this->load->library('upload');
+
+                // Configuration for the upload
+                $config['upload_path'] = './payment/'; // Set your upload directory path
+                $config['allowed_types'] = 'gif|jpg|jpeg|png'; // Specify allowed file types
+                $config['max_size'] = 2048; // Specify the maximum file size (in KB)
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('referenceNum')) {
+                    // File upload was successful
+                    $image_data = $this->upload->data();
+
+                    // Insert $image_data['file_name'] into the database
+                    $this->load->model('bud_model'); // Load your model
+
+                    $data = array(
+                        'image' => $image_data['file_name']
+                    );
+
+                    $this->bud_model->insert_image($data); // Replace with your actual model function
+                    echo "Image uploaded and inserted into the database successfully.";
+                } else {
+                    // File upload failed
+                    echo $this->upload->display_errors();
+                }
+            } else {
+                echo "No image file received.";
+            }
+        } else {
+            echo "Invalid request method.";
+        }
+    }
+
+
+
+
+
+
+
+    public function approved()
+    {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
             // If not logged in, redirect to the login page
             redirect('page/loginview');
         }
@@ -269,26 +330,13 @@ class Page extends CI_Controller
         $user_role = $this->session->userdata('role');
 
         // Check if the user's role is 'admin'
-        if ($user_role === 'admin') {
-            // If the user is an admin, redirect them to the admin page
-            redirect('page/admin'); // Redirect to the admin page
-        } elseif ($user_role === 'user') {
-            // If the user is a regular user, redirect them to a landing page
+        if ($user_role !== 'admin') {
+            // If the user is not an admin, redirect them to a different page
             redirect('page/landing_page'); // Redirect to a landing page for regular users
-        } else {
-            // Handle other cases as needed
-            redirect('page/access_denied'); // Redirect to an "Access Denied" page or handle it as needed
         }
-        $this->load->model('bud_model');
-        $data['reservations'] = $this->bud_model->get_all_reservations();
-        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
-        $data['future_reservations'] = $this->bud_model->getFutureReservations();
-        $this->load->view('page/timetable', $data);
-        $this->load->view('template/adminheader');
-    }
 
-    public function approved()
-    {
+
+
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['ongoing'] = $this->bud_model->get_all_reservations_ongoing();
@@ -479,6 +527,25 @@ class Page extends CI_Controller
 
 
         $query = $this->db->get('courts');
+
+
+        if ($query->num_rows() > 0) {
+
+            $courts = $query->result_array();
+
+
+            echo json_encode($courts);
+        } else {
+
+            echo json_encode([]);
+        }
+    }
+    public function get_court_special_courts()
+    {
+        $this->load->database();
+
+
+        $query = $this->db->get('special courts');
 
 
         if ($query->num_rows() > 0) {
@@ -724,17 +791,7 @@ class Page extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($response));
     }
-    public function update_status($court_id)
-    {
-        $new_status = $this->input->post('status');
-        // Perform validation on $new_status if needed
 
-        // Update the court status in your database
-        $this->bud_model->update_status($court_id, $new_status);
-
-        // Redirect back to the page displaying the courts
-        redirect('courts');
-    }
     public function add()
     {
         // Retrieve form data and perform validation as needed
@@ -747,139 +804,13 @@ class Page extends CI_Controller
         $this->bud_model->add_court($data);
 
         // Redirect back to the page displaying the courts
-        redirect('courts');
+        redirect('page/court_status');
     }
 
-    public function signup()
-    {
-        // Handle user registration here
-        // Validation, form submission, user creation, etc.
-
-        $data = [
-            'username' => $this->input->post('username'),
-            'email' => $this->input->post('email'),
-            'password' => $this->input->post('password'),
-            PASSWORD_DEFAULT,
-        ];
-
-        $user_id = $this->bud_model->create_with_verification_token($data);
-
-        if ($user_id) {
-            // Send an email with a verification link containing the token
-            $verification_link = site_url('auth/verify/' . $data['email_verification_token']);
-            // Send email with $verification_link to the user
-            // Example: You can use CodeIgniter's Email Library for sending emails.
-        }
-    }
-    public function verify($token)
-    {
-        if ($this->bud_model->verify_email($token)) {
-            // Email verified successfully, show a success message
-            // You can also automatically log the user in here if needed
-        } else {
-            // Invalid or expired token, show an error message
-        }
 
 
-    }
-    public function registe()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Form validation rules
-            $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
-            $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
-            $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]');
-            $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
+    
 
-            if ($this->form_validation->run()) {
-                // Form validation passed, insert the user into the database
-                $data = array(
-                    'name' => $this->input->post('name'),
-                    'email' => $this->input->post('email'),
-                    'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
-                    // Hash the password
-                    'role' => 'user',
-                    // Default role for a new user
-                );
-
-                $this->User_Model->register_user($data);
-
-                // Optionally, you can add a success message here
-                redirect('page/loginview'); // Redirect to the login page after successful registration
-            }
-        }
-
-        // Load the registration view
-        $this->load->view('page/register');
-    }
-
-    public function sampleTestEmail()
-    {
-
-        $First_Name = $this->session->userdata('First_Name');
-        $Middle_Name = $this->session->userdata('Middle_Name');
-        $Last_Name = $this->session->userdata('Last_Name');
-        //$Course = $this->session->userdata('Course');
-        //$YearLevel = $this->session->userdata('YearLevel');
-        $Address_No = $this->session->userdata('Address_No');
-        $Address_Street = $this->session->userdata('Address_Street');
-        $Address_Subdivision = $this->session->userdata('Address_Subdivision');
-        $Address_Barangay = $this->session->userdata('Address_Barangay');
-        $Address_City = $this->session->userdata('Address_City');
-        $Address_Province = $this->session->userdata('Address_Province');
-        $Email = $this->session->userdata('Email');
-        $Cp_No = $this->session->userdata('Cp_No');
-        $Tel_No = $this->session->userdata('Tel_No');
-        $Student_Number = $this->session->userdata('Student_Number');
-        //$logged_in = $this->session->userdata('logged_in');
-
-
-        $cart_data = $this->Cart_model->getProductsInPayment($Student_Number);
-
-        // Initialize an array to store product names
-        //$product_names = array();
-        //$product_quantities = array();
-        //$product_totals = array();
-
-        // Iterate through products and extract product names
-        foreach ($cart_data as $product) {
-            $cID = $product['c_id'];
-            $product_names[$cID] = $product['transactionItem'];
-            $product_quantities[$cID] = $product['quantity'];
-            $product_totals[$cID] = $product['total_price'];
-        }
-
-        $address = array(
-            'Address_No' => $this->session->userdata('Address_No'),
-            'Address_Street' => $this->session->userdata('Address_Street'),
-            'Address_Subdivision' => $this->session->userdata('Address_Subdivision'),
-            'Address_Barangay' => $this->session->userdata('Address_Barangay'),
-            'Address_City' => $this->session->userdata('Address_City'),
-            'Address_Province' => $this->session->userdata('Address_Province')
-        );
-
-        $final_price = array_sum($product_totals); // Calculate the sum of product_totals
-
-        $student_name = $First_Name . '' . $Middle_Name . ' ' . $Last_Name;
-        $from = 'jfabregas@sdca.edu.ph';
-        $from_name = 'ICT';
-        $send_to = $Email;
-        $subject = 'Test Email';
-        // $message = 'This is a test email';
-        $message = 'email/test';
-        $add_data = array(
-            'first_name' => $First_Name,
-            'middle_name' => $Middle_Name,
-            'last_name' => $Last_Name,
-            'address' => $address,
-            'product_names' => $product_names,
-            'product_quantities' => $product_quantities,
-            'product_totals' => $product_totals,
-            'final_price' => $final_price
-
-        );
-        $this->sdca_mailer->send_email($student_name, $from, $from_name, $send_to, $subject, $message, $add_data);
-    }
 
     public function testemail()
     {
@@ -906,6 +837,7 @@ class Page extends CI_Controller
             $email = $this->input->post('email');
             $password = $this->input->post('password');
             $validate = $this->bud_model->index($email, $password);
+           
 
             if ($validate) {
                 // Check if the user is an admin or a regular user
@@ -914,19 +846,21 @@ class Page extends CI_Controller
                     $user_data = array(
                         'id' => $validate->id,
                         'name' => $validate->name,
-                        'role' => 'admin' // Add role information to the session
+                        'email' => $email,
+                        'role' => 'admin' 
                     );
                     $this->session->set_userdata($user_data);
-                    redirect('page/admin'); // Replace 'admin/dashboard' with your admin dashboard URL
+                    redirect('page/admin'); 
                 } else {
                     // Regular user, redirect to user dashboard or main page
                     $user_data = array(
                         'id' => $validate->id,
                         'name' => $validate->name,
-                        'role' => 'user' // Add role information to the session
+                        'email' => $email,
+                        'role' => 'user' 
                     );
                     $this->session->set_userdata($user_data);
-                    redirect('page/main'); // Replace 'page/main' with your user dashboard or main page URL
+                    redirect('page/main'); 
                 }
             } else {
                 $this->session->set_flashdata('error', 'Invalid login details. Please try again.');
@@ -946,5 +880,140 @@ class Page extends CI_Controller
         $this->session->sess_destroy();
         redirect('page/loginview');
     }
+    public function courts_data()
+    {
+        $data['court_status'] = $this->bud_model->get_all_courtss();
+        $this->load->view('court_status', $data);
+    }
 
+    public function update_status($court_id)
+    {
+        // Get the new status from the form
+        $new_status = $this->input->post('status');
+
+        // Load the model
+        $this->load->model('bud_model'); // Assuming you have a model named CourtModel
+
+        // Call a method in the model to update the status
+        $result = $this->bud_model->update_court_status($court_id, $new_status);
+
+        // Check the result and show a response (e.g., success or failure message)
+        if ($result) {
+            $response = "Status updated successfully!";
+        } else {
+            $response = "Failed to update status.";
+        }
+
+        // You can send the response back to the view using JSON or any other method you prefer
+        echo json_encode(array('message' => $response));
+    }
+
+    public function get_status_options()
+    {
+        $status_options = $this->bud_model->get_distinct_status_options();
+        echo json_encode($status_options);
+    }
+    public function get_court_status()
+    {
+        // Load the database library if it's not already loaded.
+        $this->load->database();
+
+        // Assuming you have a model named 'Court_model' to handle database operations.
+        $this->load->model('bud_model');
+
+        // Fetch court choices from your model.
+        $court_choices = $this->bud_model->get_court_choices();
+
+        // Return the court choices as a JSON response.
+        echo json_encode($court_choices);
+    }
+
+    // In your controller
+    public function user_management()
+    {
+        // Load the user data from your model
+        $data['users'] = $this->bud_model->getUsers(); // Replace with your actual model and method
+
+        // Load the view and pass the data
+        $this->load->view('page/user_management', $data);
+    }
+
+    public function blocktime()
+    {
+        $this->load->model('bud_model'); // Load the model
+
+        // Fetch the blocked times data
+        $blockedTimesData = $this->bud_model->getBlockedTimes(); // You need to create this method in your model
+
+        // Pass the data to your view
+        $data['blockedTimes'] = $blockedTimesData;
+
+        $this->load->view('template/adminheader');
+        $this->load->view('page/blocktime', $data); // Pass the data to your view
+    }
+    public function testrsrv()
+    {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+
+
+
+
+        $this->load->view('template/header');
+        $this->load->view('page/testrsrv');
+
+
+    }
+    public function qrcodetest()
+    {
+
+
+        $this->load->view('template/header');
+        $this->load->view('page/qrcodetest');
+
+
+    }
+    //mailer
+    public function webmailer_config()
+    {
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'ssl://smtp.gmail.com',
+            'smtp_port' => '465',
+            'smtp_timeout' => '7',
+            'SMTPDebug' => '1',
+            'SMTPAuth' => true,
+            'smtp_user' => 'ojtweb_mailer@sdca.edu.ph',
+            'smtp_pass' => 'sdca2022',
+            'charset' => 'utf-8',
+            'newline' => '\r\n',
+            'mailtype' => 'html',
+            'validation' => true
+        );
+        $this->email->initialize($config);
+    }
+    public function mailer_withhtml($from, $from_name, $send_to, $subject, $message)
+    {
+        /*  $from = 'patrickjeri.garcia@sdca.edu.ph'; */
+       $this->load->library('email'); 
+        $this->webmailer_config();
+        $this->email->set_newline("\r\n");
+        $this->email->from($from, $from_name);
+        $this->email->to($send_to);
+        $this->email->subject($subject);
+        $this->email->message($message);
+        if ($this->email->send()) {
+            echo '<pre>' . print_r(array('status' => 'success', 'msg' => 'Email has been sent to ' . $send_to . ' (' . $send_to . ')'), 1) . '</pre>';
+        } else {
+            show_error($this->email->print_debugger());
+            echo '<pre>' . print_r(array('status' => 'error', 'msg' => 'Failed to send Email : ' . $send_to), 1) . '</pre>';
+        }
+    }
+    public function nohtml(){
+        $this->load->view('page/nohtml');
+    }
+   
 }

@@ -292,7 +292,7 @@ class bud_model extends CI_Model
             $this->db->where('start_date <=', $dateRange['end_date']);
             $this->db->where('end_date >=', $dateRange['start_date']);
         }
-        $query = $this->db->get('ongoing'); // Assuming 'ongoing' is your database table name
+        $query = $this->db->get('ongoing'); 
         return $query->result();
     }
     public function getFutureReservations()
@@ -448,14 +448,14 @@ class bud_model extends CI_Model
     }
     public function getReservationsForDateTime($date, $time)
     {
-        // Adjust the table and column names as per your database schema
+       
         $this->db->where('reserved_datetime', $date . ' ' . $time);
         return $this->db->get('today')->result();
     }
     public function get_all_courts()
     {
         $query = $this->db->get('courts');
-        return $query->result(); // Return the result as an array of objects
+        return $query->result(); 
     }
     public function update_status($court_id, $new_status)
     {
@@ -542,6 +542,102 @@ class bud_model extends CI_Model
         return $login->row();
          }  
         }
+        protected $table = 'courts'; 
 
+        public function get_all_courtss() {
+            return $this->db->get($this->table)->result();
+        }
+    
+        public function update_court_status($court_id, $new_status) {
+            // Update the status in the 'courts' table
+            $data = array('status' => $new_status);
+            $this->db->where('court_id', $court_id);
+            $this->db->update('courts', $data);
+        
+            // Check if the update was successful
+            return $this->db->affected_rows() > 0;
+        }
+        
+    
+        public function get_distinct_status_options() {
+            $this->db->distinct()->select('status');
+            $query = $this->db->get($this->table);
+    
+            $status_options = [];
+            foreach ($query->result() as $row) {
+                $status_options[] = $row->status;
+            }
+    
+            return $status_options;
+        }
+        public function get_court_choices() {
+            
+            $query = $this->db->select('status')->from('courts')->get();
+    
+           
+            return $query->result();
+        }
+        public function insert_image($data) {
+            $this->db->insert('reservations', $data);
+        }
 
+     
+
+    public function getUsers() {
+        $query = $this->db->get('users');
+        return $query->result(); 
+    }
+
+    public function getBlockedTimes() {
+        $this->db->select('*');
+        $this->db->from('blocked_times');
+        $query = $this->db->get();
+        return $query->result(); 
+    }
+
+    public function getUserByVerificationCode($verificationCode) {
+        $this->db->select('*');
+        $this->db->from('users');
+        $this->db->where('email_verification_token', $verificationCode);
+
+        $query = $this->db->get();
+
+        if ($query->num_rows() > 0) {
+            return $query->row_array();
+        } else {
+            return false;
+        }
+    }
+    public function getReservationqr($reservationId) {
+        // Assuming you have a 'reservations' table in your database
+        // Modify the query according to your database schema
+        $this->db->where('id', $reservationId);
+        $query = $this->db->get('reservations');
+
+        // Check if a reservation with the given ID exists
+        if ($query->num_rows() == 1) {
+            // Return the reservation data as an object
+            return $query->row();
+        } else {
+            // Reservation not found
+            return null;
+        }
+    }
+    public function getQRCodeDataURI($reservation_id) {
+        // Replace 'reservations' with your actual table name
+        $query = $this->db->select('qr_code')->where('id', $reservation_id)->get('reservations');
+
+        if ($query->num_rows() > 0) {
+            $result = $query->row();
+            return $result->qr_code;
+        }
+
+        return null;
+    }
+    public function create_reservation($data) {
+        // Insert the data into the 'reservations' table
+        return $this->db->insert('reservations', $data);
+    }
 }
+
+        

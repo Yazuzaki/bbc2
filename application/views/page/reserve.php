@@ -13,7 +13,8 @@
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
     <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <title>Reservation</title>
     <style>
         html,
@@ -132,7 +133,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="reservationForm">
+                    <form id="reservationForm" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="datetimePicker" class="form-label">Selected Date:</label>
                             <input type="text" id="datetimePicker" name="datetime" class="form-control" readonly>
@@ -141,12 +142,6 @@
                             <label for="timePicker" class="form-label">Select Time:</label>
                             <select id="timePicker" name="time" class="form-select" required>
                             </select>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="hours" class="form-label">Input Hours:</label>
-                            <input type="number" name="hours" id="hours" class="form-control" min="1" max="12" required>
                         </div>
                         <div class="mb-3">
                             <label for="sport" class="form-label">Select Sport:</label>
@@ -157,6 +152,14 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+
+
+                            <div class="mb-3">
+                                <label for="hours" class="form-label">Input Hours:</label>
+                                <input type="number" name="hours" id="hours" class="form-control" min="1" max="12"
+                                    required>
+                            </div>
+
                         </div>
                         <div class="mb-3">
                             <label for="court" class="form-label">Select Court:</label>
@@ -175,22 +178,27 @@
                         </div>
                         <div class="mb-3">
                             <label for="referenceNum" class="form-label">Reference Number:</label>
-                            <input type="input" id="referenceNum" name="referenceNum" class="form-control" required>
+                            <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="submitReservation">Make Reservation</button>
+
                 </div>
             </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
 
     <script>
-         document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
+            var timePicker = document.getElementById('timePicker');
+            var hours = document.getElementById('hours');
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 timeZone: 'UTC',
@@ -205,9 +213,7 @@
                     minute: '2-digit',
                     meridiem: 'short'
                 },
-                initialView: 'dayGridMonth', // Set the initial view to month on larger screens
-
-                // Add more view options based on screen size
+                initialView: 'dayGridMonth',
                 views: {
                     timeGridDay: {
                         type: 'timeGrid',
@@ -216,11 +222,8 @@
                     timeGridWeek: {
                         type: 'timeGrid',
                         dayHeaderFormat: { weekday: 'long' }
-                    },
-                    // Add more view options as needed
+                    }
                 },
-                
-
                 dateClick: function (info) {
                     var selectedDate = info.date;
                     var currentDate = new Date();
@@ -240,9 +243,26 @@
 
                         var datetimePicker = document.getElementById('datetimePicker');
                         datetimePicker.value = formattedDate;
+                        var selectedTime = timePicker.value;
+                        var selectedHours = hours.value;
+
+                        // Fetch reservations for the selected date
+                        $.ajax({
+                            type: 'POST',
+                            url: 'get_reservations_for_date',
+                            data: { date: selectedDate },
+                            success: function (reservations) {
+                                // Check if the selected time slot is available
+                                var isTimeSlotAvailable = checkTimeSlotAvailability(reservations, selectedTime, selectedHours);
+
+                                if (!isTimeSlotAvailable) {
+                                    alert('Selected time slot is already reserved.');
+                                    return;
+                                }
+                            },
+                        });
                     }
                 },
-                
                 dayCellClassNames: function (e) {
                     var today = new Date();
                     today.setHours(0, 0, 0, 0);
@@ -258,16 +278,18 @@
                     }
                 }
             });
+            console.log('FullCalendar initialized successfully');
 
             calendar.render();
         });
+
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+
 
 
     </script>
@@ -275,11 +297,15 @@
 
 
     <script>
+
         var datetimePicker = document.getElementById('datetimePicker');
         var timePicker = document.getElementById('timePicker');
         var submitButton = document.getElementById('submitReservation');
         var courtElement = document.getElementById('court');
         var sportElement = document.getElementById('sport');
+        var referenceNum = document.getElementById('referenceNum');
+        var imageInput = document.getElementById('image');
+
 
 
 
@@ -290,7 +316,7 @@
             var selectedTime = timePicker.value;
             var selectedCourtId = courtElement.value;
             var selectedSportId = sportElement.value;
-            var referenceNum = document.getElementById('referenceNum').value;
+            var referenceNumInputId = referenceNum.value;
             console.log('Selected Court ID:', selectedCourtId);
             console.log('Selected Sport ID:', selectedSportId);
             console.log('Button clicked');
@@ -336,11 +362,11 @@
 
 
                         var calculatedHours = selectedHours;
-                        var calculatedTotalPrice = calculatedHours * 10;
+                        var calculatedTotalPrice = calculatedHours * 200;
 
 
                         $('#displayHours').html('Hours: ' + calculatedHours);
-                        $('#displayTotalPrice').html('Total Price: $' + calculatedTotalPrice);
+                        $('#displayTotalPrice').html('Total Price: ₱' + calculatedTotalPrice);
                     }
 
 
@@ -399,21 +425,45 @@
             });
         });
 
-        function generateSharpTimeOptions() {
-        for (var hour = 0; hour < 24; hour++) {
-            var hourString = (hour < 10) ? '0' + hour : hour.toString();
-            var sharpTime = hourString + ':00';
+        function triggerReservation() {
 
-            var option = document.createElement('option');
-            option.value = sharpTime;
-            option.text = sharpTime;
+            $('#submitReservation').click();
 
-            timePicker.appendChild(option);
+
+            $.ajax({
+                type: 'POST',
+                url: 'Page/upload_reference_num',
+                data: new FormData($('#reservationForm')[0]),
+                processData: false,
+                contentType: false,
+                success: function (response) {
+
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+
+                    console.log('XHR status: ' + status);
+                    console.log('Error: ' + error);
+                }
+            });
         }
-    }
 
-    // Call the function to generate sharp time options
-    generateSharpTimeOptions();
+
+        function generateSharpTimeOptions() {
+            for (var hour = 0; hour < 24; hour++) {
+                var hourString = (hour < 10) ? '0' + hour : hour.toString();
+                var sharpTime = hourString + ':00';
+
+                var option = document.createElement('option');
+                option.value = sharpTime;
+                option.text = sharpTime;
+
+                timePicker.appendChild(option);
+            }
+        }
+
+
+        generateSharpTimeOptions();
 
         function checkTimeSlotAvailability(reservations, selectedTime) {
             var selectedDateTime = new Date('2023-08-23 ' + selectedTime);

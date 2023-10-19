@@ -54,8 +54,7 @@
               <a class="nav-link" aria-current="page" href="<?php echo base_url('page/landing_page'); ?>">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="" rel="nofollow"
-                target="_blank"></a>
+              <a class="nav-link" href="" rel="nofollow" target="_blank"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
@@ -66,20 +65,35 @@
           <?php
 // Check if the user is logged in
 if ($this->session->userdata('id')) {
-    // If logged in, show the "Logout" link
-    echo '<li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="'.base_url('page/logout').'">Logout</a>
-          </li>';
+    // Load the user's data from the database using the user ID
+    $user_id = $this->session->userdata('id');
+    $user = $this->db->get_where('users', array('id' => $user_id))->row();
+
+    if ($user) {
+        // If the user is an admin, show the "Admin" link
+        if ($user->role === 'admin') {
+            echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/admin') . '">Admin</a>
+            </li>';
+        }
+
+    
+        echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/logout') . '">Logout</a>
+            </li>';
+    }
 } else {
     // If not logged in, show the "Sign In" link
     echo '<li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="'.base_url('page/loginview').'">Sign In</a>
-          </li>';
+          <a class="nav-link" href="' . base_url('page/loginview') . '">Sign In</a>
+        </li>';
+      echo  '<li class="nav-item me-3 me-lg-0">
+        <a class="nav-link" href="' .base_url('page/register').'">Register</a>
+      </li>';
 }
 ?>
-              <li class="nav-item me-3 me-lg-0">
-                <a class="nav-link" href="<?php echo base_url('page/register'); ?>">Register</a>
-              </li>
+
+           
             <!-- Icons -->
             <li class="nav-item me-3 me-lg-0">
               <a class="nav-link" href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow"
@@ -106,9 +120,51 @@ if ($this->session->userdata('id')) {
         </div>
       </div>
     </nav>
+    <!-- Navbar for Mobile Phones -->
+    <nav class="navbar navbar-expand-lg navbar-dark d-lg-none" style="z-index: 2000;">
+      <div class="container-fluid">
+        <!-- Navbar brand -->
+        <a class="navbar-brand nav-link" target="_blank" href="https://mdbootstrap.com/docs/standard/">
+          <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="30"
+            alt="" loading="lazy" />
+        </a>
+        <!-- Add an id to the button for toggling the mobile navbar -->
+        <button id="mobileNavbarToggler" class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarExamplePhone" aria-controls="navbarExamplePhone" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarExamplePhone">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" aria-current="page" href="<?php echo base_url('page/landing_page'); ?>">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
   </header>
   <script>
-   
+    // JavaScript to close the mobile navbar when a navigation link is clicked
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get the mobileNavbarToggler button and the mobile navbar
+      var mobileNavbarToggler = document.getElementById("mobileNavbarToggler");
+      var mobileNavbar = document.getElementById("navbarExamplePhone");
+
+      // Add a click event listener to each navigation link
+      var navLinks = mobileNavbar.querySelectorAll(".nav-link");
+      navLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+          // Close the mobile navbar
+          if (mobileNavbar.classList.contains("show")) {
+            mobileNavbarToggler.click(); // Click the button to close the navbar
+          }
+        });
+      });
+    });
   </script>
 </body>
 

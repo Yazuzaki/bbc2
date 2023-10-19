@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+<title>Home</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" /> -->
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+  <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" /> -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <!-- MDB -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet" /><!-- MDB -->
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
     integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
     integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
 </head>
 
 <body>
@@ -72,6 +73,33 @@
       .navbar .nav-link {
         color: #fff !important;
       }
+      .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 20px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+  }
+
+  .image-modal img {
+    margin: auto;
+    max-width: 90%;
+    max-height: 90%;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
     </style>
 
 
@@ -118,9 +146,7 @@
           <div class="d-flex justify-content-center align-items-center h-100">
             <div class="text-black text-center">
               <h2>And cover it with any mask</h2>
-              <a class="btn btn-outline-light btn-lg m-2"
-                href="https://mdbootstrap.com/docs/standard/content-styles/masks/" target="_blank" role="button">Learn
-                about masks</a>
+              
             </div>
           </div>
         </div>
@@ -148,7 +174,7 @@
         <div class="row">
           <div class="col-md-6 gx-5 mb-4">
             <div class="bg-image hover-overlay ripple shadow-2-strong" data-mdb-ripple-color="light">
-              <img src="https://mdbootstrap.com/img/new/slides/031.jpg" class="img-fluid" />
+              <img src="https://mdbootstrap.com/img/new/slides/031.jpg" class="img-fluid"/>
               <a href="#!">
                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
               </a>
@@ -195,7 +221,7 @@
                   Some quick example text to build on the card title and make up the bulk of the
                   card's content.
                 </p>
-                <a href="#!" class="btn btn-primary">Button</a>
+             
               </div>
             </div>
           </div>
@@ -215,7 +241,7 @@
                   Some quick example text to build on the card title and make up the bulk of the
                   card's content.
                 </p>
-                <a href="#!" class="btn btn-primary">Button</a>
+             
               </div>
             </div>
           </div>
@@ -235,7 +261,7 @@
                   Some quick example text to build on the card title and make up the bulk of the
                   card's content.
                 </p>
-                <a href="#!" class="btn btn-primary">Button</a>
+                
               </div>
             </div>
           </div>
@@ -248,13 +274,30 @@
       <!--Section: Content-->
     </div>
   </main>
-  <!--Main layout-->
+  <div class="image-modal">
+  <span class="close-button">&times;</span>
+  <img id="modal-image" src="" alt="Enlarged Image">
+</div>
+
 
   <!--Footer-->
   <footer class="bg-light text-lg-start">
 
   </footer>
-  <!--Footer-->
+  <script>
+  // JavaScript for the image modal
+  $(document).ready(function () {
+    $(".image-clickable").click(function () {
+      var imageUrl = $(this).attr("src");
+      $("#modal-image").attr("src", imageUrl);
+      $(".image-modal").show();
+    });
+
+    $(".close-button").click(function () {
+      $(".image-modal").hide();
+    });
+  });
+</script>
   <!-- MDB -->
   <script type="text/javascript" src="js/mdb.min.js"></script>
   <!-- Custom scripts -->

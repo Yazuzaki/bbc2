@@ -9,6 +9,9 @@
 	<title>Bootstrap 5 Login Page</title>
 	<link rel="stylesheet" href="<?php echo site_url() ?>asset/all.css">
 	<link rel="stylesheet" href="<?php echo site_url() ?>asset/toast/toast.min.css">
+	<link rel="stylesheet" href="node_modules/izitoast/dist/css/iziToast.min.css">
+	<script src="node_modules/izitoast/dist/js/iziToast.min.js"></script>
+
 	<script src="<?php echo site_url() ?>asset/toast/jqm.js"></script>
 </head>
 <style>
@@ -77,8 +80,11 @@
 						<h1 class="fs-4 card-title fw-bold mb-4">Register</h1>
 
 						<?php echo validation_errors('<div class="alert alert-danger">', '</div>'); ?>
-						
-
+						<?php if (form_error('email')): ?>
+							<div class="alert alert-danger">
+								<?= form_error('email'); ?>
+							</div>
+						<?php endif; ?>
 						<?php echo form_open('Page/register_form') ?>
 						<form method="POST" class="needs-validation" novalidate="" autocomplete="off">
 							<div class="mb-3">
@@ -127,6 +133,17 @@
 		</div>
 	</section>
 	<?php echo form_close(); ?>
+
+	<script>
+    function showIziToastError(message) {
+        iziToast.error({
+            title: 'Error',
+            message: message,
+            position: 'topRight',
+        });
+    }
+</script>
+
 
 </body>
 

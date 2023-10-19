@@ -12,7 +12,10 @@
 	},
 	"require": {
 		"php": ">=5.3.7",
-		"phpmailer/phpmailer": "*"
+		"phpmailer/phpmailer": "*",
+		"endroid/qr-code": "*",
+		"bacon/bacon-qr-code": "*",
+		"chillerlan/php-qrcode": "*"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"

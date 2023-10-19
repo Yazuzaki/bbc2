@@ -62,7 +62,7 @@
 						<?php echo form_open('Page/process_login') ?>
 						<div class="mb-3">
 							<label class="mb-2 text-muted" for="email">E-Mail Address</label>
-							<input id="email" type="email" class="form-control" name="email" value="" required
+							<input id="email" type="text" class="form-control" name="email" value="" required
 								autofocus>
 
 						</div>

@@ -10,7 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <title>Reservation manager</title>
+    <title>Court manager</title>
 </head>
 
 <body>
@@ -136,77 +136,81 @@
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
                 <label for="tab-1" class="tab-label">Available Reservations</label>
                 <div class="tab-content">
-
                     <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
                             <tr>
+                                <th>Court ID</th>
                                 <th>Court Number</th>
                                 <th>Status</th>
-
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($courts as $court): ?>
                                 <tr>
+                                    <td><?= $court->court_id ?></td>
+                                    <td><?= $court->court_number ?></td>
                                     <td>
-                                        <?= $court->court_number ?>
+                                        <select class="status-select" id="court">
+                                            <?php foreach ($enumValues as $value): ?>
+                                                <option value="<?= $value ?>" <?php if ($value === $court->status) echo 'selected'; ?>>
+                                                    <?= $value ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </td>
                                     <td>
-                                        <form action="<?= base_url('courts/update_status/' . $court->court_id) ?>" method="post">
-                                            <select name="status">
-                                                <option value="Available" <?= ($court->status == 'Available') ? 'selected' : '' ?>>
-                                                    Available</option>
-                                                <option value="Unavailable" <?= ($court->status == 'Unavailable') ? 'selected' : '' ?>>Unavailable</option>
-                                                <option value="Rejected" <?= ($court->status == 'Rejected') ? 'selected' : '' ?>>Rejected</option>
-                                            </select>
-                                            <button type="submit">Update Status</button>
-                                        </form>
+                                        <button class="update-status" data-courtid="<?= $court->court_id ?>">
+                                            Update Status
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-
                         </tbody>
                     </table>
-
                 </div>
             </div>
-            <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="responseModalLabel">Response</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body" id="responseBody">
+            <!-- ... (your existing modal and add court form) ... -->
+        </div>
+    </div>
 
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <form action="<?= base_url('courts/add') ?>" method="post">
-                <input type="text" name="court_number" placeholder="Court Number" required>
-                <!-- Add more fields as needed -->
-                <button type="submit">Add Court</button>
-            </form>
+    <script>
+       $(document).ready(function () {
+    $('#myTable').DataTable();
 
+    // Handle the click event of the update status button
+    $(document).on('click', '.update-status', function () {
+        var row = $(this).closest('tr');
+        var statusSelect = row.find('.status-select');
+        var newStatus = statusSelect.val();
 
+        $.ajax({
+            type: 'GET',
+            url: '<?php echo site_url("Page/get_court_status"); ?>',
+            dataType: 'json',
+            success: function (courtChoices) {
+                // Assuming 'court' is the ID of the select element to populate
+                var courtSelect = $('#court');
 
-            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-            <script>
+                // Clear existing options
+                courtSelect.empty();
 
-                $(document).ready(function () {
-                    $('#myTable').DataTable();
+                // Populate options
+                courtChoices.forEach(function (court) {
+                    courtSelect.append($('<option>', {
+                        value: court.status,
+                        text: court.status
+                    }));
                 });
+            },
+            error: function () {
+                alert('Error fetching court choices');
+            }
+        });
+    });
+});
 
-
-            </script>
+    </script>
 </body>
 
 </html>
