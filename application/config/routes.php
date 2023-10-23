@@ -16,6 +16,9 @@ $route['Page/display_ongoing_reservations'] = 'Page/display_ongoing_reservations
 $route['page/index'] = 'Page/user_profile';
 $route['get-status-options'] = 'Page/getStatusOptions';
 $route['generate-qr-code/(:num)'] = 'Page/generateQrCode/$1';
+$route['Page/qrlogin/(:num)'] = 'Page/qrlogin/$1';
+
+
 
 
 

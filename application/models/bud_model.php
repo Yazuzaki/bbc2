@@ -638,6 +638,27 @@ class bud_model extends CI_Model
         // Insert the data into the 'reservations' table
         return $this->db->insert('reservations', $data);
     }
+    public function getUserData($userId) {
+        // Define the database table name
+        $table = 'users';
+        
+        // Build the query to fetch user data by user ID
+        $this->db->select('name, email'); // Select only 'name' and 'email' columns
+        $this->db->from($table);
+        $this->db->where('id', $userId); // Assuming 'id' is the primary key
+
+        // Execute the query and get the user data
+        $query = $this->db->get();
+        
+        // Check if a user with the specified user ID was found
+        if ($query->num_rows() > 0) {
+            // Return the user data as an associative array
+            return $query->row_array();
+        } else {
+            // If the user is not found, return false or handle the case as needed
+            return false;
+        }
+    }
 }
 
         

@@ -270,6 +270,7 @@ a {
     .invoice {
         width: 100% !important;
     }
+    
 }
         </style>
 <table class="body-wrap">
@@ -283,7 +284,9 @@ a {
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tbody><tr>
                                     <td class="content-block">
-                                        <h2>Thanks for using our app</h2>
+                                    <img id="imgCompany"
+						src="<?php echo site_url() ?>asset/299584772_435117378634124_6677388645313997495_n.png"
+						alt="logo" width="200">
                                     </td>
                                 </tr>
                                 <tr>
