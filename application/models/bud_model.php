@@ -659,6 +659,21 @@ class bud_model extends CI_Model
             return false;
         }
     }
+    public function getUserByQRCodeSecret($qrCodeSecret) {
+        $this->db->where('qr_code_secret', $qrCodeSecret);
+        $query = $this->db->get('users');
+        
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    public function get_data_by_unique_combination($unique_combination) {
+        $this->db->where('qr_code_secret', $unique_combination);
+        $query = $this->db->get('users');
+        return $query->row_array();
+    }
 }
 
         

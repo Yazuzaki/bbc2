@@ -872,6 +872,7 @@ class Page extends CI_Controller
             $this->load->view('page/loginview'); // Display the login view
         }
     }
+    
 
 
 
@@ -1008,6 +1009,29 @@ class Page extends CI_Controller
             echo 'User data not found';
         }
     }
+    public function generate_qrcode($unique_combination) {
+        $this->load->library('ciqrcode');
+        $this->load->model('Bud_model');
+    
+        // Check if the unique combination exists in the database
+        $data = $this->Bud_model->get_data_by_unique_combination($unique_combination);
+    
+        if ($data) {
+            // Generate the QR code
+            $params['data'] = json_encode($data);
+            $params['level'] = 'H';
+            $params['size'] = 10;
+            $params['savename'] = FCPATH . "uploads/qr_code_{$unique_combination}.jpg";
+            $this->ciqrcode->generate($params);
+    
+            // Return the data in that row
+            echo json_encode($data);
+        } else {
+            echo 'Unique combination not found.';
+        }
+    }
+    
+    
     
     //mailer
     public function webmailer_config()
