@@ -162,23 +162,34 @@
 
                         </div>
                         <div class="mb-3">
+                            <label for="category" class="form-label">Select Type:</label>
+                            <select id="category" name="category" class="form-select" required>
+                                <?php foreach ($price as $price): ?>
+                                    <option value="<?php echo $price['category']; ?>">
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="court" class="form-label">Select Court:</label>
-                            <select id="court" name="court" class="form-select" required>
+                            <select id="court" name="court" class="form-select" required onchange="categoryprice()">
                                 <?php foreach ($courts as $court): ?>
                                     <option value="<?php echo $court['court_id']; ?>">
                                         <?php echo $court['court_number']; ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <div id="reservationDetails">
-                                <p id="displayHours"></p>
-                                <p id="displayTotalPrice"></p>
-                            </div>
-
+                            <div id="price-category"></div>
                         </div>
+
                         <div class="mb-3">
                             <label for="referenceNum" class="form-label">Reference Number:</label>
                             <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
+                        </div>
+                        <div id="reservationDetails">
+                            <p id="displayHours"></p>
+                            <p id="displayTotalPrice"></p>
                         </div>
                     </form>
                 </div>
@@ -398,7 +409,9 @@
                                 $.ajax({
                                     type: 'POST',
                                     url: 'submit_reserve',
-                                    data: reservationData,
+                                    data: new FormData($('#reservationForm')[0]),
+                                    contentType: false,
+                                    processData: false,
                                     success: function (response) {
                                         alert('Reservation pending for ' + selectedDate + ' At ' + selectedTime);
                                         $('#reservationFormModal').modal('hide');
@@ -410,6 +423,7 @@
                                         alert('Error creating reservation');
                                     }
                                 });
+
                             } else {
                                 alert('Reservation is not available for the selected court and sport combination. Please choose another court or sport.');
                             }
@@ -502,6 +516,32 @@
                 alert('Error fetching court choices');
             }
         });
+        function categoryprice() {
+            var courtSelect = document.getElementById('court');
+            var priceCategoryDiv = document.getElementById('price-category');
+            var selectedCourtId = courtSelect.value;
+
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo site_url("Page/get_category_and_price"); ?>',
+                dataType: 'json',
+                data: { court_id: selectedCourtId },
+                success: function (data) {
+                    var priceCategoryText = document.createTextNode(
+                        'Court Price: ' + data.price + ', Court Category: ' + data.category
+                    );
+                    var priceCategoryP = document.createElement('p');
+                    priceCategoryP.appendChild(priceCategoryText);
+                    priceCategoryDiv.innerHTML = '';
+                    priceCategoryDiv.appendChild(priceCategoryP);
+                },
+                error: function () {
+                    alert('Error fetching court information');
+                }
+            });
+        }
+
+
         $.ajax({
             type: 'GET',
             url: '<?php echo site_url("Page/get_sport_choices"); ?>',
@@ -518,6 +558,19 @@
             },
             error: function () {
                 alert('Error fetching sport choices');
+            }
+        });
+        sportElement.addEventListener('change', function () {
+            var selectedSport = sportElement.value;
+            var courtSelect = document.getElementById('court');
+
+            if (selectedSport === 'dart' || selectedSport === 'pickleball') {
+                // If Dart or Pickleball is selected, set the court to "Court1"
+                courtSelect.value = 'Court1';
+                courtSelect.disabled = true; // Disable court selection
+            } else {
+                // If any other sport is selected, enable the court selection
+                courtSelect.disabled = false;
             }
         });
 

@@ -609,8 +609,7 @@ class bud_model extends CI_Model
         }
     }
     public function getReservationqr($reservationId) {
-        // Assuming you have a 'reservations' table in your database
-        // Modify the query according to your database schema
+       
         $this->db->where('id', $reservationId);
         $query = $this->db->get('reservations');
 
@@ -624,7 +623,7 @@ class bud_model extends CI_Model
         }
     }
     public function getQRCodeDataURI($reservation_id) {
-        // Replace 'reservations' with your actual table name
+        
         $query = $this->db->select('qr_code')->where('id', $reservation_id)->get('reservations');
 
         if ($query->num_rows() > 0) {
@@ -642,20 +641,18 @@ class bud_model extends CI_Model
         // Define the database table name
         $table = 'users';
         
-        // Build the query to fetch user data by user ID
-        $this->db->select('name, email'); // Select only 'name' and 'email' columns
+     
+        $this->db->select('name, email'); 
         $this->db->from($table);
-        $this->db->where('id', $userId); // Assuming 'id' is the primary key
-
-        // Execute the query and get the user data
+        $this->db->where('id', $userId); 
         $query = $this->db->get();
         
-        // Check if a user with the specified user ID was found
+        
         if ($query->num_rows() > 0) {
-            // Return the user data as an associative array
+            
             return $query->row_array();
         } else {
-            // If the user is not found, return false or handle the case as needed
+            
             return false;
         }
     }
@@ -674,6 +671,8 @@ class bud_model extends CI_Model
         $query = $this->db->get('users');
         return $query->row_array();
     }
+
+    
 }
 
         

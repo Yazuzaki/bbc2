@@ -142,6 +142,8 @@
                         <thead>
                             <tr>
                                 <th>Reserve ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
                                 <th>Reserved Datetime</th>
                                 <th>Created on</th>
                                 <th>Status</th>
@@ -156,6 +158,12 @@
                                 <tr>
                                     <td>
                                         <?= $row->id ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->user_name ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->user_email ?>
                                     </td>
                                     <td>
                                         <?= $row->reserved_datetime ?>
@@ -173,8 +181,10 @@
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                    <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100" height="100">
+                                        <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
+                                            height="100">
                                     </td>
+
                                     <td> <a href="#" class="btn btn-success reschedule-button" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
@@ -424,6 +434,7 @@
 
 
             </script>
+            
 </body>
 
 </html>

@@ -17,6 +17,8 @@ $route['page/index'] = 'Page/user_profile';
 $route['get-status-options'] = 'Page/getStatusOptions';
 $route['generate-qr-code/(:num)'] = 'Page/generateQrCode/$1';
 $route['Page/qrlogin/(:num)'] = 'Page/qrlogin/$1';
+$route['get_category_and_price'] = 'Page/get_category_and_price';
+
 
 
 

@@ -141,7 +141,7 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
-                             
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,6 +164,23 @@
                                     </td>
                                     <td>
                                         <?= $row->court ?>
+                                    </td>
+                                    <td>
+                                    <a href="#" class="btn btn-warning cancel-button" data-toggle="modal"
+                                            data-target="#responseModal" data-action="checkout"name="checkout"
+                                            data-id="<?= $row->id ?>">CheckOut</a>
+
+                                        <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
+                                            data-target="#responseModal" data-action="cancel"
+                                            data-id="<?= $row->id ?>">Cancel</a>
+
+                                            <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
+                                            data-target="#rescheduleModal" data-action="reschedule"
+                                            data-id="<?= $row->id ?>"
+                                            data-reserved-datetime="<?= $row->reserved_datetime ?>"
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">Reschedule</a>
+
+
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
