@@ -162,18 +162,8 @@
 
                         </div>
                         <div class="mb-3">
-                            <label for="category" class="form-label">Select Type:</label>
-                            <select id="category" name="category" class="form-select" required>
-                                <?php foreach ($price as $price): ?>
-                                    <option value="<?php echo $price['category']; ?>">
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
                             <label for="court" class="form-label">Select Court:</label>
-                            <select id="court" name="court" class="form-select" required onchange="categoryprice()">
+                            <select id="court" name="court" class="form-select" required>
                                 <?php foreach ($courts as $court): ?>
                                     <option value="<?php echo $court['court_id']; ?>">
                                         <?php echo $court['court_number']; ?>

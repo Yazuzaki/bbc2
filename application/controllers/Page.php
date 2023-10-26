@@ -1012,33 +1012,34 @@ class Page extends CI_Controller
     public function qrlogin($userId)
     {
         $this->load->library('ciqrcode');
-
+    
         // Load the User model to fetch data from the database
         $this->load->model('bud_model');
-
+    
         // Fetch user data from the database using the user ID
         $user_data = $this->bud_model->getUserData($userId);
-
+    
         if ($user_data) {
             // Define the data for the QR code using user data
             $data = "Name: {$user_data['name']}, Email: {$user_data['email']}";
-
+    
             // Configure QR code parameters
             $params['data'] = $data;
             $params['level'] = 'H'; // Error correction level (H for high)
             $params['size'] = 10; // Size of the QR code modules
-            $params['savename'] = FCPATH . "payment/qr_code_{$userId}.jpg"; // Save the QR code with a unique filename
-
+            $params['savename'] = FCPATH . "upload/qr_code_{$userId}.jpg"; // Save the QR code with a unique filename
+    
             // Generate the QR code as a JPEG image
             $this->ciqrcode->generate($params);
-
-            // Display the QR code as a JPEG image
-            echo '<img src="' . base_url() . "payment/qr_code_{$userId}.jpg" . '" />';
+    
+            // Redirect to a HTML page with basic template that shows the data of the user
+            redirect(base_url() . "page/testqr/{$userId}");
         } else {
             // Handle the case where the user data is not found in the database
             echo 'User data not found';
         }
     }
+    
     public function generate_qrcode($unique_combination)
     {
         $this->load->library('ciqrcode');
@@ -1093,7 +1094,25 @@ class Page extends CI_Controller
             echo json_encode(array("category" => "N/A", "price" => "N/A"));
         }
     }
+public function testqr(){
+    $this->load->view("page/testqr");
+}
+public function user_data($userId)
+{
+    // Load the User model to fetch data from the database
+    $this->load->model('bud_model');
 
+    // Fetch user data from the database using the user ID
+    $user_data = $this->bud_model->getUserData($userId);
+
+    if ($user_data) {
+        // Load the user_data view and pass the user data to it
+        $this->load->view('user_data', $user_data);
+    } else {
+        // Handle the case where the user data is not found in the database
+        echo 'User data not found';
+    }
+}
 
 
     //mailer

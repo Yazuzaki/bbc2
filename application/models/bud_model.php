@@ -267,6 +267,10 @@ class bud_model extends CI_Model
             'created_at' => date('Y-m-d H:i:s'),
             'court' => $reservation->court,
             'sport' => $reservation->sport,
+            'user_email'=> $reservation->user_email,
+            'user_name' => $reservation->user_name,
+            'image' => $reservation->image,
+            'hours' => $reservation->hours,
             'status' => 'ongoing'
         );
         $this->db->insert('ongoing', $data);
@@ -279,6 +283,10 @@ class bud_model extends CI_Model
             'created_at' => date('Y-m-d H:i:s'),
             'court' => $reservation->court,
             'sport' => $reservation->sport,
+            'user_email'=> $reservation->user_email,
+            'user_name' => $reservation->user_name,
+            'image' => $reservation->image,
+            'hours'=> $reservation->hours,
             'status' => 'approved'
         );
         $this->db->insert('future', $data);
@@ -642,7 +650,7 @@ class bud_model extends CI_Model
         $table = 'users';
         
      
-        $this->db->select('name, email'); 
+        $this->db->select('name, email, password'); 
         $this->db->from($table);
         $this->db->where('id', $userId); 
         $query = $this->db->get();
@@ -671,7 +679,9 @@ class bud_model extends CI_Model
         $query = $this->db->get('users');
         return $query->row_array();
     }
-
+    public function get_user_by_username($username) {
+        return $this->db->get_where('users2', array('username' => $username))->row();
+    }
     
 }
 

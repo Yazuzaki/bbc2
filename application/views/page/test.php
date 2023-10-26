@@ -147,6 +147,7 @@
                                 <th>Reserved Datetime</th>
                                 <th>Created on</th>
                                 <th>Status</th>
+                                <th>Hours</th>
                                 <th>Sport</th>
                                 <th>Court</th>
                                 <th>Img_Path</th>
@@ -175,15 +176,32 @@
                                         <?= $row->status ?>
                                     </td>
                                     <td>
+                                        <?= $row->hours ?>
+                                    </td>
+                                    <td>
                                         <?= $row->sport ?>
                                     </td>
                                     <td>
                                         <?= $row->court ?>
                                     </td>
                                     <td>
-                                        <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
-                                            height="100">
+                                        <a href="#" onclick="showImage('<?= base_url($row->image) ?>')">
+                                            <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
+                                                height="100">
+                                        </a>
                                     </td>
+
+                                    <script>
+                                        function showImage(src) {
+                                            var img = new Image();
+                                            img.onload = function () {
+                                                var w = window.open("", "_blank");
+                                                w.document.write("<img src='" + src + "' width='" + img.width + "' height='" + img.height + "'>");
+                                            };
+                                            img.src = src;
+                                        }
+                                    </script>
+
 
                                     <td> <a href="#" class="btn btn-success reschedule-button" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
@@ -434,7 +452,7 @@
 
 
             </script>
-            
+
 </body>
 
 </html>

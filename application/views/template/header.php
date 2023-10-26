@@ -40,7 +40,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block" style="z-index: 2000;">
       <div class="container-fluid">
         <!-- Navbar brand -->
-        <a class="navbar-brand nav-link" target="_blank" href="https://mdbootstrap.com/docs/standard/">
+        <a class="navbar-brand nav-link" href="<?php echo base_url('page/landing_page'); ?>">
           <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="30"
             alt="" loading="lazy" />
         </a>

@@ -141,6 +141,9 @@
                                 <th>Status</th>
                                 <th>Sport</th>
                                 <th>Court</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Ref num</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -165,6 +168,29 @@
                                     <td>
                                         <?= $row->court ?>
                                     </td>
+                                    <td>
+                                        <?= $row->user_name ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->user_email ?>
+                                    </td>
+                                    <td>
+                                        <a href="#" onclick="showImage('<?= base_url($row->image) ?>')">
+                                            <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
+                                                height="100">
+                                        </a>
+                                    </td>
+
+                                    <script>
+                                        function showImage(src) {
+                                            var img = new Image();
+                                            img.onload = function () {
+                                                var w = window.open("", "_blank");
+                                                w.document.write("<img src='" + src + "' width='" + img.width + "' height='" + img.height + "'>");
+                                            };
+                                            img.src = src;
+                                        }
+                                    </script>
                                     <td>
                                     <a href="#" class="btn btn-warning cancel-button" data-toggle="modal"
                                             data-target="#responseModal" data-action="checkout"name="checkout"
