@@ -142,6 +142,7 @@
                             <label for="timePicker" class="form-label">Select Time:</label>
                             <select id="timePicker" name="time" class="form-select" required>
                             </select>
+                            
                         </div>
                         <div class="mb-3">
                             <label for="sport" class="form-label">Select Sport:</label>

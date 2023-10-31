@@ -9,8 +9,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <title>Pending Reservation</title>
 </head>
 
@@ -291,7 +289,8 @@
                     </form>
                 </div>
             </div>
-
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
             <script>
 
@@ -358,18 +357,23 @@
                         url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
                         type: "GET",
                         dataType: "json",
-                        success: function (data) {
-                            if (data.status === "success") {
+                        success: function (response) {
+                           /*  if (data.status === "success") {
                                 $("#responseBody").text("Reservation approved successfully.");
                             } else {
                                 $("#responseBody").text("Failed to approve reservation: " + data.message);
+                            } */
+                            if (response.status === 'success') {
+                                alert('Reservation approved successfully.');
+                            } else {
+                                alert('Failed to approve reservation:');
                             }
 
                             // Hide the reschedule modal
-                            $('#rescheduleModal').modal('hide');
+                           /*  $('#rescheduleModal').modal('hide'); */
 
                             // Show the response modal
-                            $('#responseModal').modal('show');
+                           /*  $('#responseModal').modal('show'); */
                         },
                         error: function (xhr, status, error) {
                             console.error("AJAX Error:", error);

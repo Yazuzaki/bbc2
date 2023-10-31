@@ -250,6 +250,7 @@ class Page extends CI_Controller
             $userDateTime = $this->input->post('datetime');
             $court = $this->input->post('court');
             $sport = $this->input->post('sport');
+            $hours = $this->input->post('hours');
 
             // Get the uploaded image file
             $image = $_FILES['referenceNum'];
@@ -276,8 +277,9 @@ class Page extends CI_Controller
                 'sport' => $sport,
                 'user_name' => $name,
                 'user_email' => $email,
+                'hours' => $hours,
                 'image' => $filePath,
-                // Add the file path to the data array
+               
             );
 
             if ($this->db->insert('reservations', $data)) {
@@ -289,49 +291,7 @@ class Page extends CI_Controller
     }
 
 
-    public function upload_reference_num()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_FILES['referenceNum'])) {
-                // Load CodeIgniter's file upload library
-                $this->load->library('upload');
-
-                // Configuration for the upload
-                $config['upload_path'] = './payment/'; // Set your upload directory path
-                $config['allowed_types'] = 'gif|jpg|jpeg|png'; // Specify allowed file types
-                $config['max_size'] = 2048; // Specify the maximum file size (in KB)
-
-                $this->upload->initialize($config);
-
-                if ($this->upload->do_upload('referenceNum')) {
-                    // File upload was successful
-                    $image_data = $this->upload->data();
-
-                    // Insert $image_data['file_name'] into the database
-                    $this->load->model('bud_model'); // Load your model
-
-                    $data = array(
-                        'image' => $image_data['file_name']
-                    );
-
-                    $this->bud_model->insert_image($data); // Replace with your actual model function
-                    echo "Image uploaded and inserted into the database successfully.";
-                } else {
-                    // File upload failed
-                    echo $this->upload->display_errors();
-                }
-            } else {
-                echo "No image file received.";
-            }
-        } else {
-            echo "Invalid request method.";
-        }
-    }
-
-
-
-
-
+   
 
 
     public function approved()
@@ -1113,6 +1073,42 @@ public function user_data($userId)
         echo 'User data not found';
     }
 }
+public function calculate_fee($reservation_id) {
+    $this->load->database();
+
+    $this->db->select('courts.price * ongoing.hours AS total_fee');
+    $this->db->from('courts');
+    $this->db->join('ongoing', 'courts.court_number = ongoing.court');
+    $this->db->where('ongoing.id', $reservation_id);
+
+    $query = $this->db->get();
+    $result = $query->row();
+
+    $total_fee = $result ? $result->total_fee : 0;
+
+    // Load view with total fee
+    $data['total_fee'] = $total_fee;
+    $this->load->view('receipt_view', $data);
+}
+public function receipt_view($reservation_id){
+    $this->load->database();
+
+    $this->db->select('courts.price * ongoing.hours AS total_fee');
+    $this->db->from('courts');
+    $this->db->join('ongoing', 'courts.court_number = ongoing.court');
+    $this->db->where('ongoing.id', $reservation_id);
+
+    $query = $this->db->get();
+    $result = $query->row();
+
+    $total_fee = $result ? $result->total_fee : 0;
+
+    // Load view with total fee
+    $data['total_fee'] = $total_fee;
+    $this->load->view('receipt_view', $data);
+    $this->load->view('receipt_view');
+}
+
 
 
     //mailer

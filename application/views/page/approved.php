@@ -196,7 +196,7 @@
                                             data-target="#responseModal" data-action="checkout"name="checkout"
                                             data-id="<?= $row->id ?>">CheckOut</a>
 
-                                        <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
+                                      <!--   <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
                                             data-target="#responseModal" data-action="cancel"
                                             data-id="<?= $row->id ?>">Cancel</a>
 
@@ -204,7 +204,7 @@
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
                                             data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">Reschedule</a>
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">Reschedule</a -->
 
 
                                     </td>

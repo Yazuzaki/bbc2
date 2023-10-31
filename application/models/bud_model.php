@@ -682,6 +682,17 @@ class bud_model extends CI_Model
     public function get_user_by_username($username) {
         return $this->db->get_where('users2', array('username' => $username))->row();
     }
+    public function calculate_fee($reservation_id) {
+        $this->db->select('courts.price * ongoing.hours AS total_fee');
+        $this->db->from('courts');
+        $this->db->join('ongoing', 'courts.court_number = ongoing.court');
+        $this->db->where('ongoing.id', $reservation_id);
+    
+        $query = $this->db->get();
+        $result = $query->row();
+    
+        return $result ? $result->total_fee : 0;
+    }
     
 }
 
