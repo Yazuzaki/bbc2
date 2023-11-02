@@ -693,7 +693,11 @@ class bud_model extends CI_Model
     
         return $result ? $result->total_fee : 0;
     }
-    
+    public function getrepReservations() {
+        // Modify this query to retrieve data from your "future" table
+        $query = $this->db->get('future');
+        return $query->result();  // Returns an array of results
+    }
 }
 
         

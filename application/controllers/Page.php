@@ -211,7 +211,12 @@ class Page extends CI_Controller
 
         // If the user is an admin, load the admin page
         $this->load->view('template/adminheader');
-        $data['reservations'] = $this->bud_model->get_all_reservations();
+       /*  $data['reservations'] = $this->bud_model->get_all_reservations();
+        $this->load->view('page/admin', $data); */
+
+        $data['futureReservations'] = $this->bud_model->getrepReservations();
+
+        // Load the HTML template and pass data
         $this->load->view('page/admin', $data);
     }
 
