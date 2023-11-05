@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <title>Reseved Slots</title>
 </head>
 
@@ -200,11 +201,13 @@
                                             data-target="#responseModal" data-action="cancel"
                                             data-id="<?= $row->id ?>">Cancel</a>
 
-                                            <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
+                                        <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
                                             data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">Reschedule</a>
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>"
+                                            data-name="<?= $row->user_name ?>"
+                                            data-email="<?= $row->user_email ?>">Reschedule</a>
 
 
                                     </td>
@@ -249,8 +252,16 @@
                             <form id="reservationForm">
                                 <input type="hidden" name="reservationId" id="reservationId" value="">
                                 <div class="form-group">
-                                    <label for="currentReservationId">Current Reservation ID:</label>
+                                    <label for="currentReservationId">Reservation ID:</label>
                                     <input type="text" id="currentReservationId" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="userNameInput">Name:</label>
+                                    <input type="text" id="userNameInput" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="userEmailInput">Email:</label>
+                                    <input type="text" id="userEmailInput" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label for="newReservedDatetime">New Reserved Datetime:</label>
@@ -331,22 +342,26 @@
                     e.preventDefault();
 
                     var reservationId = $(this).data('id');
-                        var reservedDatetime = $(this).data('reserved-datetime');
-                        var sport = $(this).data('sport'); 
-                        var court = $(this).data('court'); 
+                    var reservedDatetime = $(this).data('reserved-datetime');
+                    var sport = $(this).data('sport');
+                    var court = $(this).data('court');
+                    var userName = $(this).data('name'); // Get the user's name
+                    var userEmail = $(this).data('email'); // Get the user's email
 
-                        $('#reservationId').val(reservationId);
-                        $('#currentReservationId').val(reservationId);
-                        $('#currentReservedDatetime').val(reservedDatetime);
-                        $('#newReservedDatetime').val(reservedDatetime);
-
-                       
-                        $('#sport').val(sport); 
-                        $('#court').val(court); 
+                    $('#reservationId').val(reservationId);
+                    $('#currentReservationId').val(reservationId);
+                    $('#currentReservedDatetime').val(reservedDatetime);
+                    $('#newReservedDatetime').val(reservedDatetime);
+                    $('#userNameInput').val(userName); // Populate the user's name input
+                    $('#userEmailInput').val(userEmail); // Populate the user's email input
 
 
+                    $('#sport').val(sport);
+                    $('#court').val(court);
 
-                    $('#rescheduleModal').modal('show');
+
+
+                    $('#rescheduleModal').modal('hide');
                 });
 
 

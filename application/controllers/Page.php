@@ -256,7 +256,8 @@ class Page extends CI_Controller
             $court = $this->input->post('court');
             $sport = $this->input->post('sport');
             $hours = $this->input->post('hours');
-
+            $qr_code_model = new bud_model();
+            $qr_code = $qr_code_model->generateRandomQRCode(27);
             // Get the uploaded image file
             $image = $_FILES['referenceNum'];
 
@@ -284,6 +285,7 @@ class Page extends CI_Controller
                 'user_email' => $email,
                 'hours' => $hours,
                 'image' => $filePath,
+                'qr_code' => $qr_code,
                
             );
 
@@ -487,7 +489,56 @@ class Page extends CI_Controller
 
         $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
     }
-
+    public function getReservation($reservationId)
+    {
+        $this->db->where('id', $reservationId);
+        $reservation = $this->db->get('reservations')->row();
+    
+        if ($reservation) {
+            // Create a string with reservation details
+            $reservationDetails = 'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . "\n";
+            $reservationDetails .= 'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)) . "\n";
+            $reservationDetails .= 'Court: ' . $reservation->court . "\n";
+            $reservationDetails .= 'Sport: ' . $reservation->sport;
+    
+            // Set the directory path for the QR codes
+            $qrCodeDirectory = FCPATH . 'application\qrcodes';
+            $qrCodeCacheDirectory = FCPATH . 'application\qrcache';
+    
+            // Check if the QR code directory exists, if not, create it
+            if (!is_dir($qrCodeDirectory)) {
+                mkdir($qrCodeDirectory, 0777, true);
+            }
+    
+            // Check if the cache directory exists, if not, create it
+            if (!is_dir($qrCodeCacheDirectory)) {
+                mkdir($qrCodeCacheDirectory, 0777, true);
+            }
+    
+            // Generate a QR code with the reservation details
+            $this->load->library('ciqrcode');
+            $config['cacheable'] = true; // Cache the image to improve performance
+            $config['cachedir'] = $qrCodeCacheDirectory; // Set the cache directory
+            $config['quality'] = true; // High-quality QR code
+            $config['size'] = '1024'; // QR code size
+            $config['black'] = array(255, 255, 255); // QR code color
+            $config['white'] = array(0, 0, 0); // Background color
+    
+            $config['level'] = 'H'; // Error correction level
+            $config['savename'] = $qrCodeDirectory . $reservationId . '.jpg'; // Set the filename with the reservation ID
+            $config['data'] = $reservationDetails; // Reservation details as data
+    
+            $this->ciqrcode->initialize($config);
+            $this->ciqrcode->generate();
+    
+            // Set the QR code image filename in the reservation object
+            $reservation->qr_code_filename = $reservationId . '.jpg';
+        }
+    
+        return $reservation;
+    }
+    
+    
 
 
 
@@ -655,12 +706,14 @@ class Page extends CI_Controller
         // Retrieve form data
 
         $reservationId = $this->input->post('reservationId');
+        $name = $this->input->post('name');
+        $email = $this->input->post('email');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
         $newCourt = $this->input->post('court');
         $newSport = $this->input->post('sport');
 
         // Call the model to update the reservation
-        $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newCourt, $newSport);
+        $result = $this->bud_model->updateReservation($reservationId,$name,$email, $newReservedDatetime, $newCourt, $newSport);
 
         if ($result) {
             $response = array('status' => 'success');
@@ -1004,29 +1057,67 @@ class Page extends CI_Controller
             echo 'User data not found';
         }
     }
-    
-    public function generate_qrcode($unique_combination)
-    {
+    public function generate_qrcode($reservationQRCode) {
         $this->load->library('ciqrcode');
-        $this->load->model('Bud_model');
-
-        // Check if the unique combination exists in the database
-        $data = $this->Bud_model->get_data_by_unique_combination($unique_combination);
-
-        if ($data) {
-            // Generate the QR code
-            $params['data'] = json_encode($data);
+        $this->load->model('bud_model'); // Load the QRCode_model
+    
+        // Check if the reservation with the given QR code exists in the database
+        $reservationDetails = $this->bud_model->getReservationDetailsByQRCode($reservationQRCode);
+    
+        if ($reservationDetails) {
+            $dataToPass = array(
+                'qr_code' => $reservationDetails->qr_code, 
+                'reserved_datetime' => $reservationDetails->reserved_datetime,
+                'status' => $reservationDetails->status,
+                'user_name' => $reservationDetails->user_name,
+                'user_email' => $reservationDetails->user_email,
+                'court' => $reservationDetails->court,
+                'sport' => $reservationDetails->sport,
+                'hours' => $reservationDetails->hours
+            );
+    
+            // Encode the data to pass as a JSON string
+            $dataParam = urlencode(json_encode($dataToPass));
+    
+            // Generate the QR code image
+            $params['data'] = base_url('page/reservation_details_view') . '?data=' . $dataParam; 
             $params['level'] = 'H';
             $params['size'] = 10;
-            $params['savename'] = FCPATH . "uploads/qr_code_{$unique_combination}.jpg";
+            $params['savename'] = FCPATH . "uploads/qr_code_{$reservationQRCode}.jpg";
             $this->ciqrcode->generate($params);
-
-            // Return the data in that row
-            echo json_encode($data);
+    
+            // Pass the data to a view
+            $data['reservationDetails'] = $dataToPass;
+            $this->load->view('page/reservation_details_view', $data);
         } else {
-            echo 'Unique combination not found.';
+            echo 'Reservation not found.';
         }
     }
+
+     
+   /*  public function qr_code_reader() {
+        $dataParam = $this->input->get('data');
+        $data = json_decode(urldecode($dataParam), true);
+        
+        $this->load->view('page/qr_code_reader', ['data' => $data]); // Pass the data array as an associative array
+    } */
+     public function reservation_details_view() {
+        // Retrieve the 'data' parameter from the URL
+        $encoded_data = $this->input->get('data');
+
+        // Decode the JSON data
+        $decoded_data = json_decode(urldecode($encoded_data), true);
+
+        // Pass the decoded data to the view
+        $data['reservationDetails'] = $decoded_data;
+
+        // Load the HTML view
+        $this->load->view('page/reservation_details_view', $data);
+    }
+    
+    
+    
+    
     public function displayprice()
     {
         // Get a reference to the hours input field
@@ -1095,6 +1186,8 @@ public function calculate_fee($reservation_id) {
     $data['total_fee'] = $total_fee;
     $this->load->view('receipt_view', $data);
 }
+
+
 public function receipt_view($reservation_id){
     $this->load->database();
 
@@ -1112,6 +1205,37 @@ public function receipt_view($reservation_id){
     $data['total_fee'] = $total_fee;
     $this->load->view('receipt_view', $data);
     $this->load->view('receipt_view');
+}
+public function generateReservationQRCode($reservationId) {
+    $this->load->model('bud_model'); // Replace with your actual model name
+    $this->load->library('ciqrcode');
+
+    // Fetch reservation data based on the reservation ID
+    $reservation = $this->bud_model->getReservation($reservationId);
+
+    if ($reservation) {
+        // Encode the reservation data as a JSON string
+        $reservationData = json_encode($reservation);
+
+        // Configuration for generating the QR code
+        $config['data'] = $reservationData;
+        $config['level'] = 'H'; // Error correction level
+        $config['size'] = 10; // Size of the QR code
+
+        // Path to save the QR code image (adjust this path as needed)
+        $config['savename'] = FCPATH . 'qrcode' . $reservationId . '.jpg';
+
+        // Generate the QR code
+        $this->ciqrcode->initialize($config);
+        $this->ciqrcode->generate();
+    }
+
+    // Load a view to display the QR code and reservation details
+    $data = [
+        'reservations' => $reservation,
+        'qrCodeImage' => base_url('qrcodes' . $reservationId . '.jpg'),
+    ];
+    $this->load->view('page/qr_code_reader', $data);
 }
 
 

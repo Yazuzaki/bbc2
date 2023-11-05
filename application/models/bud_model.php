@@ -150,6 +150,32 @@ class bud_model extends CI_Model
 
         return $reservation;
     }
+   
+    public function getReservationDetails($reservationId) {
+        // Implement your logic to retrieve reservation details from the database based on the $reservationId.
+        // Replace the following line with your actual database query.
+        $query = $this->db->get_where('reservations', array('id' => $reservationId));
+        
+        // Assuming you have a 'reservations' table with fields such as 'id', 'reserved_datetime', 'status', etc.
+
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return false; // Reservation not found
+        }
+    }
+    public function generateRandomQRCode($length) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomQRCode = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomQRCode .= $characters[rand(0, $charactersLength - 1)];
+        }
+
+        return $randomQRCode;
+    }
+    
 
     public function transferToToday($reservation)
     {
@@ -697,6 +723,16 @@ class bud_model extends CI_Model
         // Modify this query to retrieve data from your "future" table
         $query = $this->db->get('future');
         return $query->result();  // Returns an array of results
+    }
+    public function getReservationDetailsByQRCode($reservationQRCode) {
+        // Get the reservation details from the database
+        $query = $this->db->get_where('reservations', array('qr_code' => $reservationQRCode));
+        return $query->row();
+    }
+    public function get_qr_code_data() {
+        // Get the QR code data from the database
+        $query = $this->db->get('qr_code_data');
+        return $query->result();
     }
 }
 

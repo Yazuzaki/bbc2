@@ -205,7 +205,7 @@
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
                                             data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>">
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>" data-name="<?= $row->user_name ?>" data-email="<?= $row->user_email ?>">
                                             Approve
                                         </a>
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline"
@@ -252,9 +252,18 @@
                             <form id="reservationForm">
                                 <input type="hidden" name="reservationId" id="reservationId" value="">
                                 <div class="form-group">
-                                    <label for="currentReservationId">Current Reservation ID:</label>
+                                    <label for="currentReservationId">Reservation ID:</label>
                                     <input type="text" id="currentReservationId" readonly>
                                 </div>
+                                <div class="form-group">
+                                    <label for="userNameInput">Name:</label>
+                                    <input type="text" id="userNameInput" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="userEmailInput">Email:</label>
+                                    <input type="text" id="userEmailInput" readonly>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="newReservedDatetime">New Reserved Datetime:</label>
                                     <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
@@ -305,21 +314,25 @@
 
                     var reservationId = $(this).data('id');
                     var reservedDatetime = $(this).data('reserved-datetime');
-                    var sport = $(this).data('sport'); // Get the sport data
-                    var court = $(this).data('court'); // Get the court data
+                    var sport = $(this).data('sport');
+                    var court = $(this).data('court');
+                    var userName = $(this).data('name'); // Get the user's name
+                    var userEmail = $(this).data('email'); // Get the user's email
 
                     $('#reservationId').val(reservationId);
                     $('#currentReservationId').val(reservationId);
                     $('#currentReservedDatetime').val(reservedDatetime);
                     $('#newReservedDatetime').val(reservedDatetime);
+                    $('#userNameInput').val(userName); // Populate the user's name input
+                    $('#userEmailInput').val(userEmail); // Populate the user's email input
 
                     // Populate the "sport" and "court" select elements in the modal
-                    $('#sport').val(sport); // Set the selected sport
-                    $('#court').val(court); // Set the selected court
+                    $('#sport').val(sport);
+                    $('#court').val(court);
 
-
-                    $('#responseModal').modal('hide');
+                    $('#rescheduleModal').modal('hide');
                 });
+
 
 
                 $('#submitReschedule').click(function () {
@@ -358,11 +371,11 @@
                         type: "GET",
                         dataType: "json",
                         success: function (response) {
-                           /*  if (data.status === "success") {
-                                $("#responseBody").text("Reservation approved successfully.");
-                            } else {
-                                $("#responseBody").text("Failed to approve reservation: " + data.message);
-                            } */
+                            /*  if (data.status === "success") {
+                                 $("#responseBody").text("Reservation approved successfully.");
+                             } else {
+                                 $("#responseBody").text("Failed to approve reservation: " + data.message);
+                             } */
                             if (response.status === 'success') {
                                 alert('Reservation approved successfully.');
                             } else {
@@ -370,10 +383,10 @@
                             }
 
                             // Hide the reschedule modal
-                           /*  $('#rescheduleModal').modal('hide'); */
+                            /*  $('#rescheduleModal').modal('hide'); */
 
                             // Show the response modal
-                           /*  $('#responseModal').modal('show'); */
+                            /*  $('#responseModal').modal('show'); */
                         },
                         error: function (xhr, status, error) {
                             console.error("AJAX Error:", error);
