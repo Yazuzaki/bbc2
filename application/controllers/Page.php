@@ -450,12 +450,12 @@ class Page extends CI_Controller
     {
         $this->load->model('bud_model');
         $reservation = $this->bud_model->getReservation($reservationId);
-
+    
         if ($reservation->status === 'pending') {
             // Check if the reservation date is today
             $today = date('Y-m-d');
             $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
-
+    
             if ($reservationDate === $today) {
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToToday($reservation);
@@ -464,35 +464,37 @@ class Page extends CI_Controller
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToFuture($reservation);
                 $this->bud_model->transferToToday($reservation);
-
-
             }
+    
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
-
+    
+          
+    
             $response = array('status' => 'success');
         } else {
             $response = array('status' => 'error', 'message' => 'Reservation not pending');
         }
-
+    
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
+    
+    
 
 
-    public function sendReservationApprovalEmail()
+    public function sendReservationApprovalEmail($userEmail)
     {
         $subject = 'Reservation Approved';
         $message = 'Your reservation has been approved.';
         $from_name = "Budz Badminton Court";
         $from = "patrickjeri.garcia@sdca.edu.ph";
-        $email = 'garciapatrick341@gmail.com';
+    
         $add_data = array();
-
-
-
-        $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
+    
+        $this->mailer_withhtml($from, $from_name, $userEmail, $subject, $message, $add_data);
     }
+    
     public function getReservation($reservationId)
     {
         $this->db->where('id', $reservationId);
@@ -1277,5 +1279,88 @@ class Page extends CI_Controller
     {
         $this->load->view('page/nohtml');
     }
-
+    public function generate_qrcode_and_send_email($reservationQRCode)
+    {
+        $this->load->library('ciqrcode');
+        $this->load->model('bud_model'); // Load the QRCode_model
+    
+        // Check if the reservation with the given QR code exists in the database
+        $reservationDetails = $this->bud_model->getReservationDetailsByQRCode($reservationQRCode);
+    
+        if ($reservationDetails) {
+            $dataToPass = array(
+                'qr_code' => $reservationDetails->qr_code,
+                'id' => $reservationDetails->id,
+                'reserved_datetime' => $reservationDetails->reserved_datetime,
+                'status' => $reservationDetails->status,
+                'user_name' => $reservationDetails->user_name,
+                'user_email' => $reservationDetails->user_email,
+                'court' => $reservationDetails->court,
+                'sport' => $reservationDetails->sport,
+                'hours' => $reservationDetails->hours
+            );
+    
+            // Encode the data to pass as a JSON string
+            $dataParam = json_encode($dataToPass);
+    
+            // Generate the QR code image
+            $params['data'] = base_url('page/reservation_details_view') . '?data=' . urlencode($dataParam);
+            $params['level'] = 'H';
+            $params['size'] = 10;
+            $params['savename'] = FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg";
+            $this->ciqrcode->generate($params);
+    
+            // Send the QR code in an email as an attachment
+            $fromEmail = 'patrickjeri.garcia@sdca.edu.ph'; // Replace with your email
+            $fromName = 'Budz Badminton Court'; // Replace with your name
+            $recipientEmail = $reservationDetails->user_email;
+            $subject = 'QR Code for Reservation';
+            $message = 'Please find the QR code for your reservation attached to this email.';
+            
+            $this->load->library('email');
+            $this->webmailer_config();
+            $this->email->set_newline("\r\n");
+            $this->email->from($fromEmail, $fromName);
+            $this->email->to($recipientEmail);
+            $this->email->subject($subject);
+            $this->email->message($message);
+            $this->email->attach(FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg"); // Attach the QR code image
+    
+            if ($this->email->send()) {
+                // Delete the generated QR code after sending it in an email
+                unlink(FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg");
+    
+                $response = array(
+                    'success' => true,
+                    'message' => 'QR Code sent via email',
+                    'data' => $dataToPass
+                );
+    
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+            } else {
+                // Return a JSON response for email send failure
+                $response = array(
+                    'success' => false,
+                    'message' => 'Failed to send email with QR Code'
+                );
+    
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+            }
+        } else {
+            // Return a JSON response for not found
+            $response = array(
+                'success' => false,
+                'message' => 'Reservation not found'
+            );
+    
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+        }
+    }
+    
 }

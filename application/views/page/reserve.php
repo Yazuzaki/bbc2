@@ -174,10 +174,7 @@
                             <label for="referenceNum" class="form-label">Reference Number:</label>
                             <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
                         </div> -->
-                        <div id="reservationDetails">
-                            <p id="displayHours"></p>
-                            <p id="displayTotalPrice"></p>
-                        </div>
+                        
                     </form>
                 </div>
                 <div class="modal-footer">

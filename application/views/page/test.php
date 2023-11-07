@@ -405,7 +405,7 @@
                     var reservationQRCode = $(this).data('qr-code');
                     // Make an AJAX request to call the generate_qrcode function
                     $.ajax({
-                        url: `<?= base_url('Page/generate_qrcode/') ?>${reservationQRCode}`,
+                        url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
                         type: "GET",
                         dataType: "json",
                         success: function (response) {
