@@ -459,26 +459,14 @@ class Page extends CI_Controller
             if ($reservationDate === $today) {
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToToday($reservation);
-
-
-
             } else {
                 // If it's in the future, update status to 'approved' and transfer to the "future" table
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToFuture($reservation);
                 $this->bud_model->transferToToday($reservation);
 
-                // Send an email notification to the user
-                $from = 'ojtweb_mailer@sdca.edu.ph'; // Set your sender email address
-                $from_name = 'Budz Badminton Court'; // Set your sender name
-                $user_email = $reservation->user_email; // User's email
-                $subject = 'Reservation Approved';
-                $message = 'Your reservation has been approved.';
 
-                // Call your mailer function to send the email
-                $this->mailer_withhtml($from, $from_name, $user_email, $subject, $message);
             }
-
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
 
@@ -490,7 +478,6 @@ class Page extends CI_Controller
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
-
 
 
     public function sendReservationApprovalEmail()
