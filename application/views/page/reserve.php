@@ -13,7 +13,7 @@
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
     <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
-    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <title>Reservation</title>
     <style>
@@ -138,12 +138,8 @@
                             <label for="datetimePicker" class="form-label">Selected Date:</label>
                             <input type="text" id="datetimePicker" name="datetime" class="form-control" readonly>
                         </div>
-                        <div class="mb-3">
-                            <label for="timePicker" class="form-label">Select Time:</label>
-                            <select id="timePicker" name="time" class="form-select" required>
-                            </select>
-                            
-                        </div>
+                        <input type="time" id="timePicker" name="timePicker" class="form-select" required step="3600">
+
                         <div class="mb-3">
                             <label for="sport" class="form-label">Select Sport:</label>
                             <select id="sport" name="sport" class="form-select" required>
@@ -174,10 +170,10 @@
                             <div id="price-category"></div>
                         </div>
 
-                        <div class="mb-3">
+                       <!--  <div class="mb-3">
                             <label for="referenceNum" class="form-label">Reference Number:</label>
                             <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
-                        </div>
+                        </div> -->
                         <div id="reservationDetails">
                             <p id="displayHours"></p>
                             <p id="displayTotalPrice"></p>
@@ -192,6 +188,7 @@
             </div>
         </div>
     </div>
+     <!-- ... -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
@@ -318,7 +315,6 @@
             var selectedTime = timePicker.value;
             var selectedCourtId = courtElement.value;
             var selectedSportId = sportElement.value;
-            var referenceNumInputId = referenceNum.value;
             console.log('Selected Court ID:', selectedCourtId);
             console.log('Selected Sport ID:', selectedSportId);
             console.log('Button clicked');
@@ -328,8 +324,8 @@
                 selectedDate === '' ||
                 selectedTime === '' ||
                 selectedCourtId === '' ||
-                selectedSportId === '' ||
-                referenceNum === ''
+                selectedSportId === '' 
+              
             ) {
                 alert('Please fill in all the required fields.');
                 return;
@@ -454,21 +450,44 @@
         }
 
 
-        function generateSharpTimeOptions() {
-            for (var hour = 0; hour < 24; hour++) {
-                var hourString = (hour < 10) ? '0' + hour : hour.toString();
+        document.addEventListener('DOMContentLoaded', function () {
+    var timePicker = document.getElementById('timePicker');
+    var datetimePicker = document.getElementById('datetimePicker');
+
+    // Function to generate sharp time options based on the selected date
+    function generateSharpTimeOptions() {
+        var select = timePicker;
+        select.innerHTML = ''; // Clear existing options
+
+        // Get the selected date from the datetimePicker input
+        var selectedDate = new Date(datetimePicker.value);
+
+        if (!isNaN(selectedDate.getTime())) {
+            // If a valid date is selected
+            for (var hour = 1; hour <= 12; hour++) {
+                // Create options for each sharp hour
+                var hourString = hour < 10 ? '0' + hour : hour.toString();
                 var sharpTime = hourString + ':00';
 
                 var option = document.createElement('option');
                 option.value = sharpTime;
                 option.text = sharpTime;
-
-                timePicker.appendChild(option);
+                select.appendChild(option);
             }
         }
+    }
 
+    // Call the function to generate sharp time options initially
+    generateSharpTimeOptions();
 
+    // Add an event listener to the datetimePicker input for change event
+    datetimePicker.addEventListener('change', function () {
+        // Call the function to update sharp time options based on the selected date
         generateSharpTimeOptions();
+    });
+});
+
+
 
         function checkTimeSlotAvailability(reservations, selectedTime) {
             var selectedDateTime = new Date('2023-08-23 ' + selectedTime);

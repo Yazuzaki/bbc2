@@ -734,6 +734,7 @@ class bud_model extends CI_Model
         $query = $this->db->get('qr_code_data');
         return $query->result();
     }
+    
 }
 
         

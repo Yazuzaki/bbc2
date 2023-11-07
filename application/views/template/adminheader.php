@@ -78,8 +78,8 @@
           <a href="<?php echo base_url('page/canceled'); ?>" class="list-group-item list-group-item-action py-2 ripple">
             <i class=""></i><span>Canceled</span>
           </a>
-          <a href="<?php echo base_url('page/court_status'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Court Manager</span></a>
+          <!-- <a href="<?php echo base_url('page/court_status'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Court Manager</span></a> -->
             <a href="<?php echo base_url('page/landing_page'); ?>" class="list-group-item list-group-item-action py-2 ripple"><i
               class=""></i><span>Home Page</span></a>
 

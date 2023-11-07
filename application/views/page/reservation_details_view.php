@@ -6,12 +6,22 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Reservation Details</h1>
+<div class="container mt-5">
+        
+        <div class="text-center">
+            <img src="<?php echo base_url('asset\299584772_435117378634124_6677388645313997495_n.png'); ?>" alt="Your Logo" width="150">
+        </div>
+        
+        <h1 class="text-center">Reservation Details</h1>
         <table class="table">
+       
             <tr>
-                <th>QR Code</th>
+            <th>Retrival ID</th>
                 <td><?= $reservationDetails['qr_code'] ?></td>
+            </tr>
+            <tr>
+                <th>Reservation ID</th>
+                <td><?= $reservationDetails['id'] ?></td>
             </tr>
             <tr>
                 <th>Name</th>

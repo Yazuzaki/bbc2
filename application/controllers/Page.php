@@ -211,8 +211,8 @@ class Page extends CI_Controller
 
         // If the user is an admin, load the admin page
         $this->load->view('template/adminheader');
-       /*  $data['reservations'] = $this->bud_model->get_all_reservations();
-        $this->load->view('page/admin', $data); */
+        /*  $data['reservations'] = $this->bud_model->get_all_reservations();
+         $this->load->view('page/admin', $data); */
 
         $data['futureReservations'] = $this->bud_model->getrepReservations();
 
@@ -253,28 +253,30 @@ class Page extends CI_Controller
             $name = $this->session->userdata('name');
             $email = $this->session->userdata('email');
             $userDateTime = $this->input->post('datetime');
+            $userTime = $this->input->post('timePicker');
             $court = $this->input->post('court');
             $sport = $this->input->post('sport');
             $hours = $this->input->post('hours');
             $qr_code_model = new bud_model();
             $qr_code = $qr_code_model->generateRandomQRCode(27);
             // Get the uploaded image file
-            $image = $_FILES['referenceNum'];
+            /*   $image = $_FILES['referenceNum'];
 
-            // Set the upload path and file name
-            $uploadPath = './payment/';
-            $fileName = basename($image['name']);
-            $filePath = $uploadPath . $fileName;
+              // Set the upload path and file name
+              $uploadPath = './payment/';
+              $fileName = basename($image['name']);
+              $filePath = $uploadPath . $fileName;
 
-            // Move the uploaded file to the upload path
-            if (move_uploaded_file($image['tmp_name'], $filePath)) {
-                echo "File uploaded successfully";
-            } else {
-                echo "Error uploading file";
-            }
+              // Move the uploaded file to the upload path
+              if (move_uploaded_file($image['tmp_name'], $filePath)) {
+                  echo "File uploaded successfully";
+              } else {
+                  echo "Error uploading file";
+              } */
 
             $userTimezone = new DateTimeZone('Asia/Manila');
-            $dateTime = new DateTime($userDateTime, $userTimezone);
+            $userDateTime = $userDateTime . ' ' . $userTime; // Combine date and time
+            $dateTime = new DateTime($userDateTime, $userTimezone); // Create a DateTime object
             $utcDatetime = $dateTime->format('Y-m-d H:i:s');
 
             $data = array(
@@ -284,9 +286,9 @@ class Page extends CI_Controller
                 'user_name' => $name,
                 'user_email' => $email,
                 'hours' => $hours,
-                'image' => $filePath,
+                /*  'image' => $filePath, */
                 'qr_code' => $qr_code,
-               
+
             );
 
             if ($this->db->insert('reservations', $data)) {
@@ -298,7 +300,10 @@ class Page extends CI_Controller
     }
 
 
-   
+    public function pay()
+    {
+        $this->load->view("page/payment");
+    }
 
 
     public function approved()
@@ -455,14 +460,23 @@ class Page extends CI_Controller
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToToday($reservation);
 
-                // Send an email notification to the user
-                $this->sendReservationApprovalEmail($reservation->user_email);
+
 
             } else {
                 // If it's in the future, update status to 'approved' and transfer to the "future" table
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToFuture($reservation);
                 $this->bud_model->transferToToday($reservation);
+
+                // Send an email notification to the user
+                $from = 'ojtweb_mailer@sdca.edu.ph'; // Set your sender email address
+                $from_name = 'Budz Badminton Court'; // Set your sender name
+                $user_email = $reservation->user_email; // User's email
+                $subject = 'Reservation Approved';
+                $message = 'Your reservation has been approved.';
+
+                // Call your mailer function to send the email
+                $this->mailer_withhtml($from, $from_name, $user_email, $subject, $message);
             }
 
             // Remove the reservation from the "reservations" table
@@ -470,21 +484,24 @@ class Page extends CI_Controller
 
             $response = array('status' => 'success');
         } else {
-            $response = array('status' => 'error', 'message' => 'Reservation not pending.');
+            $response = array('status' => 'error', 'message' => 'Reservation not pending');
         }
 
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
 
-    public function sendReservationApprovalEmail($user_email)
+
+
+    public function sendReservationApprovalEmail()
     {
         $subject = 'Reservation Approved';
         $message = 'Your reservation has been approved.';
         $from_name = "Budz Badminton Court";
         $from = "patrickjeri.garcia@sdca.edu.ph";
-        $email = $user_email;
+        $email = 'garciapatrick341@gmail.com';
         $add_data = array();
+
 
 
         $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
@@ -493,28 +510,28 @@ class Page extends CI_Controller
     {
         $this->db->where('id', $reservationId);
         $reservation = $this->db->get('reservations')->row();
-    
+
         if ($reservation) {
             // Create a string with reservation details
             $reservationDetails = 'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . "\n";
             $reservationDetails .= 'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)) . "\n";
             $reservationDetails .= 'Court: ' . $reservation->court . "\n";
             $reservationDetails .= 'Sport: ' . $reservation->sport;
-    
+
             // Set the directory path for the QR codes
             $qrCodeDirectory = FCPATH . 'application\qrcodes';
             $qrCodeCacheDirectory = FCPATH . 'application\qrcache';
-    
+
             // Check if the QR code directory exists, if not, create it
             if (!is_dir($qrCodeDirectory)) {
                 mkdir($qrCodeDirectory, 0777, true);
             }
-    
+
             // Check if the cache directory exists, if not, create it
             if (!is_dir($qrCodeCacheDirectory)) {
                 mkdir($qrCodeCacheDirectory, 0777, true);
             }
-    
+
             // Generate a QR code with the reservation details
             $this->load->library('ciqrcode');
             $config['cacheable'] = true; // Cache the image to improve performance
@@ -523,22 +540,22 @@ class Page extends CI_Controller
             $config['size'] = '1024'; // QR code size
             $config['black'] = array(255, 255, 255); // QR code color
             $config['white'] = array(0, 0, 0); // Background color
-    
+
             $config['level'] = 'H'; // Error correction level
             $config['savename'] = $qrCodeDirectory . $reservationId . '.jpg'; // Set the filename with the reservation ID
             $config['data'] = $reservationDetails; // Reservation details as data
-    
+
             $this->ciqrcode->initialize($config);
             $this->ciqrcode->generate();
-    
+
             // Set the QR code image filename in the reservation object
             $reservation->qr_code_filename = $reservationId . '.jpg';
         }
-    
+
         return $reservation;
     }
-    
-    
+
+
 
 
 
@@ -713,7 +730,7 @@ class Page extends CI_Controller
         $newSport = $this->input->post('sport');
 
         // Call the model to update the reservation
-        $result = $this->bud_model->updateReservation($reservationId,$name,$email, $newReservedDatetime, $newCourt, $newSport);
+        $result = $this->bud_model->updateReservation($reservationId, $name, $email, $newReservedDatetime, $newCourt, $newSport);
 
         if ($result) {
             $response = array('status' => 'success');
@@ -1027,46 +1044,19 @@ class Page extends CI_Controller
 
 
     }
-    public function qrlogin($userId)
+
+    public function generate_qrcode($reservationQRCode)
     {
         $this->load->library('ciqrcode');
-    
-        // Load the User model to fetch data from the database
-        $this->load->model('bud_model');
-    
-        // Fetch user data from the database using the user ID
-        $user_data = $this->bud_model->getUserData($userId);
-    
-        if ($user_data) {
-            // Define the data for the QR code using user data
-            $data = "Name: {$user_data['name']}, Email: {$user_data['email']}";
-    
-            // Configure QR code parameters
-            $params['data'] = $data;
-            $params['level'] = 'H'; // Error correction level (H for high)
-            $params['size'] = 10; // Size of the QR code modules
-            $params['savename'] = FCPATH . "upload/qr_code_{$userId}.jpg"; // Save the QR code with a unique filename
-    
-            // Generate the QR code as a JPEG image
-            $this->ciqrcode->generate($params);
-    
-            // Redirect to a HTML page with basic template that shows the data of the user
-            redirect(base_url() . "page/testqr/{$userId}");
-        } else {
-            // Handle the case where the user data is not found in the database
-            echo 'User data not found';
-        }
-    }
-    public function generate_qrcode($reservationQRCode) {
-        $this->load->library('ciqrcode');
         $this->load->model('bud_model'); // Load the QRCode_model
-    
+
         // Check if the reservation with the given QR code exists in the database
         $reservationDetails = $this->bud_model->getReservationDetailsByQRCode($reservationQRCode);
-    
+
         if ($reservationDetails) {
             $dataToPass = array(
-                'qr_code' => $reservationDetails->qr_code, 
+                'qr_code' => $reservationDetails->qr_code,
+                'id' => $reservationDetails->id,
                 'reserved_datetime' => $reservationDetails->reserved_datetime,
                 'status' => $reservationDetails->status,
                 'user_name' => $reservationDetails->user_name,
@@ -1075,33 +1065,49 @@ class Page extends CI_Controller
                 'sport' => $reservationDetails->sport,
                 'hours' => $reservationDetails->hours
             );
-    
+
             // Encode the data to pass as a JSON string
-            $dataParam = urlencode(json_encode($dataToPass));
-    
+            $dataParam = json_encode($dataToPass);
+
             // Generate the QR code image
-            $params['data'] = base_url('page/reservation_details_view') . '?data=' . $dataParam; 
+            $params['data'] = base_url('page/reservation_details_view') . '?data=' . urlencode($dataParam);
             $params['level'] = 'H';
             $params['size'] = 10;
-            $params['savename'] = FCPATH . "uploads/qr_code_{$reservationQRCode}.jpg";
+            $params['savename'] = FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg";
             $this->ciqrcode->generate($params);
-    
-            // Pass the data to a view
-            $data['reservationDetails'] = $dataToPass;
-            $this->load->view('page/reservation_details_view', $data);
+
+            // Return the data as JSON response
+            $response = array(
+                'success' => true,
+                'message' => 'Reservation details retrieved successfully',
+                'data' => $dataToPass
+            );
+
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
         } else {
-            echo 'Reservation not found.';
+            // Return a JSON response for not found
+            $response = array(
+                'success' => false,
+                'message' => 'Reservation not found'
+            );
+
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
         }
     }
 
-     
-   /*  public function qr_code_reader() {
-        $dataParam = $this->input->get('data');
-        $data = json_decode(urldecode($dataParam), true);
-        
-        $this->load->view('page/qr_code_reader', ['data' => $data]); // Pass the data array as an associative array
-    } */
-     public function reservation_details_view() {
+
+    /*  public function qr_code_reader() {
+         $dataParam = $this->input->get('data');
+         $data = json_decode(urldecode($dataParam), true);
+         
+         $this->load->view('page/qr_code_reader', ['data' => $data]); // Pass the data array as an associative array
+     } */
+    public function reservation_details_view()
+    {
         // Retrieve the 'data' parameter from the URL
         $encoded_data = $this->input->get('data');
 
@@ -1114,10 +1120,10 @@ class Page extends CI_Controller
         // Load the HTML view
         $this->load->view('page/reservation_details_view', $data);
     }
-    
-    
-    
-    
+
+
+
+
     public function displayprice()
     {
         // Get a reference to the hours input field
@@ -1150,93 +1156,97 @@ class Page extends CI_Controller
             echo json_encode(array("category" => "N/A", "price" => "N/A"));
         }
     }
-public function testqr(){
-    $this->load->view("page/testqr");
-}
-public function user_data($userId)
-{
-    // Load the User model to fetch data from the database
-    $this->load->model('bud_model');
-
-    // Fetch user data from the database using the user ID
-    $user_data = $this->bud_model->getUserData($userId);
-
-    if ($user_data) {
-        // Load the user_data view and pass the user data to it
-        $this->load->view('user_data', $user_data);
-    } else {
-        // Handle the case where the user data is not found in the database
-        echo 'User data not found';
+    public function testqr()
+    {
+        $this->load->view("page/testqr");
     }
-}
-public function calculate_fee($reservation_id) {
-    $this->load->database();
+    public function user_data($userId)
+    {
+        // Load the User model to fetch data from the database
+        $this->load->model('bud_model');
 
-    $this->db->select('courts.price * ongoing.hours AS total_fee');
-    $this->db->from('courts');
-    $this->db->join('ongoing', 'courts.court_number = ongoing.court');
-    $this->db->where('ongoing.id', $reservation_id);
+        // Fetch user data from the database using the user ID
+        $user_data = $this->bud_model->getUserData($userId);
 
-    $query = $this->db->get();
-    $result = $query->row();
+        if ($user_data) {
+            // Load the user_data view and pass the user data to it
+            $this->load->view('user_data', $user_data);
+        } else {
+            // Handle the case where the user data is not found in the database
+            echo 'User data not found';
+        }
+    }
+    public function calculate_fee($reservation_id)
+    {
+        $this->load->database();
 
-    $total_fee = $result ? $result->total_fee : 0;
+        $this->db->select('courts.price * ongoing.hours AS total_fee');
+        $this->db->from('courts');
+        $this->db->join('ongoing', 'courts.court_number = ongoing.court');
+        $this->db->where('ongoing.id', $reservation_id);
 
-    // Load view with total fee
-    $data['total_fee'] = $total_fee;
-    $this->load->view('receipt_view', $data);
-}
+        $query = $this->db->get();
+        $result = $query->row();
 
+        $total_fee = $result ? $result->total_fee : 0;
 
-public function receipt_view($reservation_id){
-    $this->load->database();
-
-    $this->db->select('courts.price * ongoing.hours AS total_fee');
-    $this->db->from('courts');
-    $this->db->join('ongoing', 'courts.court_number = ongoing.court');
-    $this->db->where('ongoing.id', $reservation_id);
-
-    $query = $this->db->get();
-    $result = $query->row();
-
-    $total_fee = $result ? $result->total_fee : 0;
-
-    // Load view with total fee
-    $data['total_fee'] = $total_fee;
-    $this->load->view('receipt_view', $data);
-    $this->load->view('receipt_view');
-}
-public function generateReservationQRCode($reservationId) {
-    $this->load->model('bud_model'); // Replace with your actual model name
-    $this->load->library('ciqrcode');
-
-    // Fetch reservation data based on the reservation ID
-    $reservation = $this->bud_model->getReservation($reservationId);
-
-    if ($reservation) {
-        // Encode the reservation data as a JSON string
-        $reservationData = json_encode($reservation);
-
-        // Configuration for generating the QR code
-        $config['data'] = $reservationData;
-        $config['level'] = 'H'; // Error correction level
-        $config['size'] = 10; // Size of the QR code
-
-        // Path to save the QR code image (adjust this path as needed)
-        $config['savename'] = FCPATH . 'qrcode' . $reservationId . '.jpg';
-
-        // Generate the QR code
-        $this->ciqrcode->initialize($config);
-        $this->ciqrcode->generate();
+        // Load view with total fee
+        $data['total_fee'] = $total_fee;
+        $this->load->view('receipt_view', $data);
     }
 
-    // Load a view to display the QR code and reservation details
-    $data = [
-        'reservations' => $reservation,
-        'qrCodeImage' => base_url('qrcodes' . $reservationId . '.jpg'),
-    ];
-    $this->load->view('page/qr_code_reader', $data);
-}
+
+    public function receipt_view($reservation_id)
+    {
+        $this->load->database();
+
+        $this->db->select('courts.price * ongoing.hours AS total_fee');
+        $this->db->from('courts');
+        $this->db->join('ongoing', 'courts.court_number = ongoing.court');
+        $this->db->where('ongoing.id', $reservation_id);
+
+        $query = $this->db->get();
+        $result = $query->row();
+
+        $total_fee = $result ? $result->total_fee : 0;
+
+        // Load view with total fee
+        $data['total_fee'] = $total_fee;
+        $this->load->view('receipt_view', $data);
+        $this->load->view('receipt_view');
+    }
+    public function generateReservationQRCode($reservationId)
+    {
+        $this->load->model('bud_model'); // Replace with your actual model name
+        $this->load->library('ciqrcode');
+
+        // Fetch reservation data based on the reservation ID
+        $reservation = $this->bud_model->getReservation($reservationId);
+
+        if ($reservation) {
+            // Encode the reservation data as a JSON string
+            $reservationData = json_encode($reservation);
+
+            // Configuration for generating the QR code
+            $config['data'] = $reservationData;
+            $config['level'] = 'H'; // Error correction level
+            $config['size'] = 10; // Size of the QR code
+
+            // Path to save the QR code image (adjust this path as needed)
+            $config['savename'] = FCPATH . 'qrcode' . $reservationId . '.jpg';
+
+            // Generate the QR code
+            $this->ciqrcode->initialize($config);
+            $this->ciqrcode->generate();
+        }
+
+        // Load a view to display the QR code and reservation details
+        $data = [
+            'reservations' => $reservation,
+            'qrCodeImage' => base_url('qrcodes' . $reservationId . '.jpg'),
+        ];
+        $this->load->view('page/qr_code_reader', $data);
+    }
 
 
 

@@ -142,12 +142,14 @@
                                 <th>Reserve ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Reserved Datetime</th>
+                                <th>Reserved Date</th>
+                             
                                 <th>Created on</th>
                                 <th>Status</th>
                                 <th>Hours</th>
                                 <th>Sport</th>
                                 <th>Court</th>
+                                <th>Code</th>
                                 <th>Img_Path</th>
                                 <th>Action</th>
                             </tr>
@@ -167,6 +169,7 @@
                                     <td>
                                         <?= $row->reserved_datetime ?>
                                     </td>
+                                   
                                     <td>
                                         <?= $row->created_at ?>
                                     </td>
@@ -181,6 +184,9 @@
                                     </td>
                                     <td>
                                         <?= $row->court ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->qr_code ?>
                                     </td>
                                     <td>
                                         <a href="#" onclick="showImage('<?= base_url($row->image) ?>')">
@@ -205,7 +211,9 @@
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
                                             data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>" data-name="<?= $row->user_name ?>" data-email="<?= $row->user_email ?>">
+                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>"
+                                            data-name="<?= $row->user_name ?>" data-email="<?= $row->user_email ?>"
+                                            data-qr-code="<?= $row->qr_code ?>">
                                             Approve
                                         </a>
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline"
@@ -263,7 +271,10 @@
                                     <label for="userEmailInput">Email:</label>
                                     <input type="text" id="userEmailInput" readonly>
                                 </div>
-
+                                <div class="mb-3">
+                                    <label for="qrCode">QR Code:</label>
+                                    <input type="text" id="qrCodeInput" readonly>
+                                </div>
                                 <div class="form-group">
                                     <label for="newReservedDatetime">New Reserved Datetime:</label>
                                     <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
@@ -288,11 +299,16 @@
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" id="submitReschedule">Update</button>
                             <button type="button" class="btn btn-success" id="finalizeButton">Approve</button>
+                            <button type="button" id="generateQRButton" class="btn btn-primary"
+                                data-qr-code="<?= $row->qr_code ?>">Generate QR Code</button>
+
+
                         </div>
                     </div>
                     </form>
@@ -318,6 +334,7 @@
                     var court = $(this).data('court');
                     var userName = $(this).data('name'); // Get the user's name
                     var userEmail = $(this).data('email'); // Get the user's email
+                    var reservationQRCode = $(this).data('qr_code');
 
                     $('#reservationId').val(reservationId);
                     $('#currentReservationId').val(reservationId);
@@ -325,6 +342,7 @@
                     $('#newReservedDatetime').val(reservedDatetime);
                     $('#userNameInput').val(userName); // Populate the user's name input
                     $('#userEmailInput').val(userEmail); // Populate the user's email input
+                    $('#qrCodeInput').val(reservationQRCode);
 
                     // Populate the "sport" and "court" select elements in the modal
                     $('#sport').val(sport);
@@ -361,9 +379,8 @@
                         }
                     });
                 });
-
                 $("#finalizeButton").click(function () {
-                    // Retrieve the reservationId
+ 
                     var reservationId = $('#reservationId').val();
 
                     $.ajax({
@@ -371,28 +388,39 @@
                         type: "GET",
                         dataType: "json",
                         success: function (response) {
-                            /*  if (data.status === "success") {
-                                 $("#responseBody").text("Reservation approved successfully.");
-                             } else {
-                                 $("#responseBody").text("Failed to approve reservation: " + data.message);
-                             } */
                             if (response.status === 'success') {
                                 alert('Reservation approved successfully.');
                             } else {
                                 alert('Failed to approve reservation:');
                             }
-
-                            // Hide the reschedule modal
-                            /*  $('#rescheduleModal').modal('hide'); */
-
-                            // Show the response modal
-                            /*  $('#responseModal').modal('show'); */
                         },
                         error: function (xhr, status, error) {
                             console.error("AJAX Error:", error);
                         }
                     });
                 });
+
+                $("#generateQRButton").click(function () {
+                    // Retrieve the reservationQRCode or generate it as needed
+                    var reservationQRCode = $(this).data('qr-code');
+                    // Make an AJAX request to call the generate_qrcode function
+                    $.ajax({
+                        url: `<?= base_url('Page/generate_qrcode/') ?>${reservationQRCode}`,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success) {
+                                alert('QR code generated successfully.');
+                            } else {
+                                alert('Failed to generate QR code: ' + response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("QR Code AJAX Error:", error);
+                        }
+                    });
+                });
+
 
 
 
