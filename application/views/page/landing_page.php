@@ -43,14 +43,14 @@
       }
 
       .carousel-item:nth-child(2) {
-        background-image: url('<?php echo base_url('path_to_image/image2.jpg'); ?>');
+        background-image: url('<?php echo base_url('asset\370296386_1581609075931529_4531480717191686445_n.jpg'); ?>');
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center center;
       }
 
       .carousel-item:nth-child(3) {
-        background-image: url('<?php echo base_url('path_to_image/image3.jpg'); ?>');
+        background-image: url('<?php echo base_url('asset\368975087_215957004848978_8169321611528092148_n.jpg'); ?>');
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center center;
@@ -117,35 +117,35 @@
       <div class="carousel-inner">
         <!-- Single item -->
         <div class="carousel-item active">
-          <img src="<?php echo base_url('asset\tarpaulinasver.jpg'); ?>" class="d-block w-100" alt="Image 1">
+          <img src="<?php echo base_url('asset/tarpaulinasver.jpg'); ?>" class="d-block w-100 img-fluid" alt="Image 1">
           <div class="d-flex justify-content-center align-items-center h-100">
             <div class="text-white text-center">
-              <h1 class="mb-3">Learn Bootstrap 5 with MDB</h1>
-              <h5 class="mb-4">Best & free guide of responsive web design</h5>
-              <a class="btn btn-outline-light btn-lg m-2" href="https://www.youtube.com/watch?v=c9B4TPnak1A"
-                role="button" rel="nofollow" target="_blank">Start tutorial</a>
-              <a class="btn btn-outline-light btn-lg m-2" href="https://mdbootstrap.com/docs/standard/" target="_blank"
-                role="button">Download MDB UI KIT</a>
+              <h1 class="mb-3"></h1>
+              <h5 class="mb-4"></h5>
+              <a class="btn btn-outline-light btn-lg m-2" href=""
+                role="button" rel="nofollow" target="_blank"></a>
+              <a class="btn btn-outline-light btn-lg m-2" href="" target="_blank"
+                role="button"></a>
             </div>
           </div>
         </div>
 
         <!-- Single item -->
         <div class="carousel-item">
-          <img src="<?php echo base_url('path_to_image/image2.jpg'); ?>" class="d-block w-100" alt="Image 2">
+          <img src="<?php echo base_url('asset\377276714_1773273606449565_1104129031896993202_n.jpg'); ?>" class="d-block w-100 img-fluid" alt="Image 2">
           <div class="d-flex justify-content-center align-items-center h-100">
             <div class="text-black text-center">
-              <h2>You can place here any content</h2>
+              <h2></h2>
             </div>
           </div>
         </div>
 
         <!-- Single item -->
         <div class="carousel-item">
-          <img src="<?php echo base_url('path_to_image/image3.jpg'); ?>" class="d-block w-100" alt="Image 3">
+          <img src="<?php echo base_url('asset\368975087_215957004848978_8169321611528092148_n.jpg'); ?>" class="d-block w-100 img-fluid" alt="Image 3">
           <div class="d-flex justify-content-center align-items-center h-100">
             <div class="text-black text-center">
-              <h2>And cover it with any mask</h2>
+              <h2></h2>
               
             </div>
           </div>
@@ -174,7 +174,7 @@
         <div class="row">
           <div class="col-md-6 gx-5 mb-4">
             <div class="bg-image hover-overlay ripple shadow-2-strong" data-mdb-ripple-color="light">
-              <img src="https://mdbootstrap.com/img/new/slides/031.jpg" class="img-fluid"/>
+              <img src="<?php echo base_url('asset\370131756_639802664734917_2523457582616540763_n.jpg'); ?>" class="img-fluid"/>
               <a href="#!">
                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
               </a>
@@ -182,7 +182,7 @@
           </div>
 
           <div class="col-md-6 gx-5 mb-4">
-            <h4><strong>Facilis consequatur eligendi</strong></h4>
+            <h4><strong>Services</strong></h4>
             <p class="text-muted">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis consequatur
               eligendi quisquam doloremque vero ex debitis veritatis placeat unde animi laborum
@@ -203,7 +203,7 @@
 
       <!--Section: Content-->
       <section class="text-center">
-        <h4 class="mb-5"><strong>Facilis consequatur eligendi</strong></h4>
+        <h4 class="mb-5"><strong>We Offer</strong></h4>
 
         <div class="row">
           <div class="col-lg-4 col-md-12 mb-4">
@@ -216,10 +216,9 @@
                 </a>
               </div>
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
+                <h5 class="card-title">11 Courts</h5>
                 <p class="card-text">
-                  Some quick example text to build on the card title and make up the bulk of the
-                  card's content.
+                 
                 </p>
              
               </div>
@@ -236,10 +235,9 @@
                 </a>
               </div>
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
+                <h5 class="card-title">Food & Beverages</h5>
                 <p class="card-text">
-                  Some quick example text to build on the card title and make up the bulk of the
-                  card's content.
+                 
                 </p>
              
               </div>
@@ -256,10 +254,9 @@
                 </a>
               </div>
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
+                <h5 class="card-title">Clubs</h5>
                 <p class="card-text">
-                  Some quick example text to build on the card title and make up the bulk of the
-                  card's content.
+                
                 </p>
                 
               </div>

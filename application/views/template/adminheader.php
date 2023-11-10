@@ -73,8 +73,8 @@
           </a>
           <a href="<?php echo base_url('page/reserved'); ?>"
             class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Reserved Slots</span></a>
-          <a href="<?php echo base_url('page/approved'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Approved Reservations</span></a>
+        <!--   <a href="<?php echo base_url('page/approved'); ?>"
+            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Approved Reservations</span></a> -->
           <a href="<?php echo base_url('page/canceled'); ?>" class="list-group-item list-group-item-action py-2 ripple">
             <i class=""></i><span>Canceled</span>
           </a>

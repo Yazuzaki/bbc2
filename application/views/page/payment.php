@@ -50,7 +50,7 @@
 
 		                    	<div class="wizard-header">
 		                        	<h3 class="wizard-title">
-		                        		Book a Room
+		                        		Rent a Court
 		                        	</h3>
 									<h5>This information will let us know more about you.</h5>
 		                    	</div>
@@ -107,7 +107,7 @@
 		                                        	</select>
 		                                    	</div>
 												<div class="form-group label-floating">
-		                                        	<label class="control-label">Daily Budget</label>
+		                                        	<label class="control-label">Amount</label>
 	                                        		<select class="form-control">
 														<option disabled="" selected=""></option>
 	                                                	<option value="Afghanistan"> < $100 </option>

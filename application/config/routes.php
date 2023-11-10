@@ -21,6 +21,7 @@ $route['get_category_and_price'] = 'Page/get_category_and_price';
 $route['page/qr_code_reader'] = 'Page/generate_qrcode';
 $route['page/reservation_details_view'] = 'Page/reservation_details_view';
 $route['send-email'] = 'Page/sendReservationApprovalEmail';
+$route['page/sport-frequency'] = 'Page/sportFrequency';
 
 
 

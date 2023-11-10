@@ -170,10 +170,10 @@
                             <div id="price-category"></div>
                         </div>
 
-                       <!--  <div class="mb-3">
-                            <label for="referenceNum" class="form-label">Reference Number:</label>
+                        <div class="mb-3">
+                            <label for="referenceNum" class="form-label">Reference Number Gcash 09060886262:</label>
                             <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
-                        </div> -->
+                        </div>
                         
                     </form>
                 </div>
@@ -312,6 +312,7 @@
             var selectedTime = timePicker.value;
             var selectedCourtId = courtElement.value;
             var selectedSportId = sportElement.value;
+            var referenceNumInputId = referenceNum.value;
             console.log('Selected Court ID:', selectedCourtId);
             console.log('Selected Sport ID:', selectedSportId);
             console.log('Button clicked');
@@ -321,7 +322,8 @@
                 selectedDate === '' ||
                 selectedTime === '' ||
                 selectedCourtId === '' ||
-                selectedSportId === '' 
+                selectedSportId === '' ||
+                referenceNum === ''
               
             ) {
                 alert('Please fill in all the required fields.');
@@ -486,24 +488,21 @@
 
 
 
-        function checkTimeSlotAvailability(reservations, selectedTime) {
-            var selectedDateTime = new Date('2023-08-23 ' + selectedTime);
+function checkTimeSlotAvailability(reservations, selectedTime) {
+    var selectedDateTime = new Date('2023-08-23 ' + selectedTime);
 
-            for (var i = 0; i < reservations.length; i++) {
-                var reservationTime = new Date('2023-08-23 ' + reservations[i].time);
+    for (var i = 0; i < reservations.length; i++) {
+        var reservationTime = new Date('2023-08-23 ' + reservations[i].time);
 
+        var timeDifference = selectedDateTime - reservationTime;
 
-                var timeDifference = selectedDateTime - reservationTime;
-
-
-                if (Math.abs(timeDifference) < 60 * 60 * 1000) {
-                    return false;
-                }
-            }
-
-            return true;
+        if (Math.abs(timeDifference) < 60 * 60 * 1000) {
+            return false;
         }
+    }
 
+    return true;
+}
         $.ajax({
             type: 'GET',
             url: '<?php echo site_url("Page/get_court_choices"); ?>',

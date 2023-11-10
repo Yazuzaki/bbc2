@@ -62,60 +62,42 @@
           </ul>
 
           <ul class="navbar-nav d-flex flex-row">
-          <?php
-// Check if the user is logged in
-if ($this->session->userdata('id')) {
-    // Load the user's data from the database using the user ID
-    $user_id = $this->session->userdata('id');
-    $user = $this->db->get_where('users', array('id' => $user_id))->row();
+            <?php
+            // Check if the user is logged in
+            if ($this->session->userdata('id')) {
+              // Load the user's data from the database using the user ID
+              $user_id = $this->session->userdata('id');
+              $user = $this->db->get_where('users', array('id' => $user_id))->row();
 
-    if ($user) {
-        // If the user is an admin, show the "Admin" link
-        if ($user->role === 'admin') {
-            echo '<li class="nav-item me-3 me-lg-0">
+              if ($user) {
+                // If the user is an admin, show the "Admin" link
+                if ($user->role === 'admin') {
+                  echo '<li class="nav-item me-3 me-lg-0">
               <a class="nav-link" href="' . base_url('page/admin') . '">Admin</a>
             </li>';
-        }
+                }
 
-    
-        echo '<li class="nav-item me-3 me-lg-0">
+
+                echo '<li class="nav-item me-3 me-lg-0">
               <a class="nav-link" href="' . base_url('page/logout') . '">Logout</a>
             </li>';
-    }
-} else {
-    // If not logged in, show the "Sign In" link
-    echo '<li class="nav-item me-3 me-lg-0">
+              }
+            } else {
+              // If not logged in, show the "Sign In" link
+              echo '<li class="nav-item me-3 me-lg-0">
           <a class="nav-link" href="' . base_url('page/loginview') . '">Sign In</a>
         </li>';
-      echo  '<li class="nav-item me-3 me-lg-0">
-        <a class="nav-link" href="' .base_url('page/register').'">Register</a>
+              echo '<li class="nav-item me-3 me-lg-0">
+        <a class="nav-link" href="' . base_url('page/register') . '">Register</a>
       </li>';
-}
-?>
+            }
+            ?>
 
-           
+
             <!-- Icons -->
-            <li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow"
-                target="_blank">
-                <i class="fab fa-youtube"></i>
-              </a>
-            </li>
-            <li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="https://www.facebook.com/mdbootstrap" rel="nofollow" target="_blank">
-                <i class="fab fa-facebook-f"></i>
-              </a>
-            </li>
-            <li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="https://twitter.com/MDBootstrap" rel="nofollow" target="_blank">
-                <i class="fab fa-twitter"></i>
-              </a>
-            </li>
-            <li class="nav-item me-3 me-lg-0">
-              <a class="nav-link" href="https://github.com/mdbootstrap/mdb-ui-kit" rel="nofollow" target="_blank">
-                <i class="fab fa-github"></i>
-              </a>
-            </li>
+
+
+
           </ul>
         </div>
       </div>

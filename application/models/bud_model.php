@@ -734,6 +734,14 @@ class bud_model extends CI_Model
         $query = $this->db->get('qr_code_data');
         return $query->result();
     }
+
+    public function getSportFrequency() {
+        $this->db->select('sport, COUNT(*) as frequency');
+        $this->db->group_by('sport');
+        $query = $this->db->get('today');
+
+        return $query->result();
+    }
     
 }
 

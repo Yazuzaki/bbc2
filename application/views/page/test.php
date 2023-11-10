@@ -271,10 +271,7 @@
                                     <label for="userEmailInput">Email:</label>
                                     <input type="text" id="userEmailInput" readonly>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="qrCode">QR Code:</label>
-                                    <input type="text" id="qrCodeInput" readonly>
-                                </div>
+                        
                                 <div class="form-group">
                                     <label for="newReservedDatetime">New Reserved Datetime:</label>
                                     <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
@@ -304,9 +301,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" id="submitReschedule">Update</button>
-                            <button type="button" class="btn btn-success" id="finalizeButton">Approve</button>
-                            <button type="button" id="generateQRButton" class="btn btn-primary"
-                                data-qr-code="<?= $row->qr_code ?>">Generate QR Code</button>
+                            <button type="button" class="btn btn-success" id="finalizeButton"   data-qr-code="<?= $row->qr_code ?>">Approve</button>
 
 
                         </div>
@@ -351,9 +346,58 @@
                     $('#rescheduleModal').modal('hide');
                 });
 
+                $("#finalizeButton").click(function () {
+                   
+    var reservationQRCode = $(this).data('qr-code');
+
+    // First, generate the QR code
+    generateQRCode(reservationQRCode);
+
+    function generateQRCode(reservationQRCode) {
+        // Make an AJAX request to call the generate_qrcode function
+        $.ajax({
+            url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
+            type: "GET",
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    // QR code generated successfully, now approve the reservation
+                    approveReservation();
+                } else {
+                    alert('Failed to generate QR code: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("QR Code AJAX Error:", error);
+            }
+        });
+    }
+    
+    function approveReservation() {
+        var reservationId = $('#reservationId').val();
+
+        // Send an AJAX request to approve the reservation
+        $.ajax({
+            url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
+            type: "GET",
+            dataType: "json",
+            success: function (response) {
+                if (response.status === 'success') {
+                    alert('QR code generated and Reservation approved successfully.');
+                } else {
+                    alert('Failed to approve reservation.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", error);
+            }
+        });
+    }
+});
 
 
-                $('#submitReschedule').click(function () {
+
+                /* $('#submitReschedule').click(function () {
                     // Serialize the form data
                     var formData = $('#reservationForm').serialize();
 
@@ -379,7 +423,7 @@
                         }
                     });
                 });
-                $("#finalizeButton").click(function () {
+               $("#finalizeButton").click(function () {
  
                     var reservationId = $('#reservationId').val();
 
@@ -422,7 +466,7 @@
                 });
 
 
-
+ */
 
 
                 // Function to handle the "Decline" button click

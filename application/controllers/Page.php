@@ -260,7 +260,7 @@ class Page extends CI_Controller
             $qr_code_model = new bud_model();
             $qr_code = $qr_code_model->generateRandomQRCode(27);
             // Get the uploaded image file
-            /*   $image = $_FILES['referenceNum'];
+              $image = $_FILES['referenceNum'];
 
               // Set the upload path and file name
               $uploadPath = './payment/';
@@ -272,7 +272,7 @@ class Page extends CI_Controller
                   echo "File uploaded successfully";
               } else {
                   echo "Error uploading file";
-              } */
+              }
 
             $userTimezone = new DateTimeZone('Asia/Manila');
             $userDateTime = $userDateTime . ' ' . $userTime; // Combine date and time
@@ -286,7 +286,7 @@ class Page extends CI_Controller
                 'user_name' => $name,
                 'user_email' => $email,
                 'hours' => $hours,
-                /*  'image' => $filePath, */
+                 'image' => $filePath,
                 'qr_code' => $qr_code,
 
             );
@@ -478,6 +478,7 @@ class Page extends CI_Controller
     
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
+        
     }
     
     
@@ -927,7 +928,12 @@ class Page extends CI_Controller
         }
     }
 
+    public function sportFrequency() {
+        $data['sport_frequency'] = $this->bud_model->getSportFrequency();
 
+        // Load a view to display the report
+        $this->load->view('page/sport_frequency', $data);
+    }
 
 
 
@@ -985,15 +991,7 @@ class Page extends CI_Controller
         echo json_encode($court_choices);
     }
 
-    // In your controller
-    public function user_management()
-    {
-        // Load the user data from your model
-        $data['users'] = $this->bud_model->getUsers(); // Replace with your actual model and method
 
-        // Load the view and pass the data
-        $this->load->view('page/user_management', $data);
-    }
 
     public function blocktime()
     {
@@ -1185,25 +1183,6 @@ class Page extends CI_Controller
     }
 
 
-    public function receipt_view($reservation_id)
-    {
-        $this->load->database();
-
-        $this->db->select('courts.price * ongoing.hours AS total_fee');
-        $this->db->from('courts');
-        $this->db->join('ongoing', 'courts.court_number = ongoing.court');
-        $this->db->where('ongoing.id', $reservation_id);
-
-        $query = $this->db->get();
-        $result = $query->row();
-
-        $total_fee = $result ? $result->total_fee : 0;
-
-        // Load view with total fee
-        $data['total_fee'] = $total_fee;
-        $this->load->view('receipt_view', $data);
-        $this->load->view('receipt_view');
-    }
     public function generateReservationQRCode($reservationId)
     {
         $this->load->model('bud_model'); // Replace with your actual model name
@@ -1270,6 +1249,7 @@ class Page extends CI_Controller
         $this->email->message($message);
         if ($this->email->send()) {
             echo '<pre>' . print_r(array('status' => 'success', 'msg' => 'Email has been sent to ' . $send_to . ' (' . $send_to . ')'), 1) . '</pre>';
+            redirect('page/loginview'); 
         } else {
             show_error($this->email->print_debugger());
             echo '<pre>' . print_r(array('status' => 'error', 'msg' => 'Failed to send Email : ' . $send_to), 1) . '</pre>';
@@ -1315,7 +1295,7 @@ class Page extends CI_Controller
             $fromName = 'Budz Badminton Court'; // Replace with your name
             $recipientEmail = $reservationDetails->user_email;
             $subject = 'QR Code for Reservation';
-            $message = 'Please find the QR code for your reservation attached to this email.';
+            $message = 'Your Reservation is Approved. Please find the QR code for your reservation attached to this email.';
             
             $this->load->library('email');
             $this->webmailer_config();

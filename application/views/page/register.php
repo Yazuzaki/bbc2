@@ -118,9 +118,7 @@
 								<button type="submit" class="btn btn-primary">Register</button>
 							</div>
 					</div>
-					</form>
-				</div>
-				<div class="custom-card-footer py-3 border-0">
+					<div class="mb-3">
 					<div class="text-center">
 						Have an account ? <a href="loginview" class="text-dark"> Login</a>
 					</div>
@@ -128,6 +126,9 @@
 			</div>
 			<div class="text-center mt-5 text-muted">
 			</div>
+					</form>
+				</div>
+				
 			<!-- 	</div> -->
 		</div>
 		</div>
