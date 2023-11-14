@@ -742,6 +742,26 @@ class bud_model extends CI_Model
 
         return $query->result();
     }
+    public function getReservationCount() {
+        $this->db->select('sport, COUNT(*) as frequency');
+        $this->db->from('today'); // Replace 'today' with your actual table name
+        $this->db->where('status', 'approved'); // You may adjust the status condition as needed
+        $this->db->group_by('sport');
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+    public function get_user_by_verification_token($token)
+    {
+        $query = $this->db->get_where('users', array('email_verification_token' => $token), 1);
+        return $query->row_array();
+    }
+    
+    public function update_email_verification_status($userId, $status)
+    {
+        $this->db->where('id', $userId);
+        $this->db->update('users', array('email_verified' => $status));
+    }
     
 }
 

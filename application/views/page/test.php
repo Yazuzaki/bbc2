@@ -143,7 +143,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Reserved Date</th>
-                             
+
                                 <th>Created on</th>
                                 <th>Status</th>
                                 <th>Hours</th>
@@ -169,7 +169,7 @@
                                     <td>
                                         <?= $row->reserved_datetime ?>
                                     </td>
-                                   
+
                                     <td>
                                         <?= $row->created_at ?>
                                     </td>
@@ -245,6 +245,11 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-body">
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
 
             <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
                 aria-labelledby="rescheduleModalLabel" aria-hidden="true">
@@ -271,7 +276,7 @@
                                     <label for="userEmailInput">Email:</label>
                                     <input type="text" id="userEmailInput" readonly>
                                 </div>
-                        
+
                                 <div class="form-group">
                                     <label for="newReservedDatetime">New Reserved Datetime:</label>
                                     <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
@@ -300,14 +305,15 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="submitReschedule">Update</button>
-                            <button type="button" class="btn btn-success" id="finalizeButton"   data-qr-code="<?= $row->qr_code ?>">Approve</button>
+                            <button type="button" class="btn btn-success" id="finalizeButton"
+                                data-qr-code="<?= $row->qr_code ?>">Approve</button>
 
 
                         </div>
                     </div>
                     </form>
                 </div>
+
             </div>
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -315,8 +321,9 @@
             <script>
 
                 $(document).ready(function () {
-                    $('#myTable').DataTable();
-
+                    $('#myTable').DataTable({
+                        
+                    });
 
                 });
 
@@ -327,19 +334,19 @@
                     var reservedDatetime = $(this).data('reserved-datetime');
                     var sport = $(this).data('sport');
                     var court = $(this).data('court');
-                    var userName = $(this).data('name'); // Get the user's name
-                    var userEmail = $(this).data('email'); // Get the user's email
+                    var userName = $(this).data('name');
+                    var userEmail = $(this).data('email');
                     var reservationQRCode = $(this).data('qr_code');
 
                     $('#reservationId').val(reservationId);
                     $('#currentReservationId').val(reservationId);
                     $('#currentReservedDatetime').val(reservedDatetime);
                     $('#newReservedDatetime').val(reservedDatetime);
-                    $('#userNameInput').val(userName); // Populate the user's name input
-                    $('#userEmailInput').val(userEmail); // Populate the user's email input
+                    $('#userNameInput').val(userName);
+                    $('#userEmailInput').val(userEmail);
                     $('#qrCodeInput').val(reservationQRCode);
 
-                    // Populate the "sport" and "court" select elements in the modal
+
                     $('#sport').val(sport);
                     $('#court').val(court);
 
@@ -347,58 +354,8 @@
                 });
 
                 $("#finalizeButton").click(function () {
-                   
-    var reservationQRCode = $(this).data('qr-code');
+                    
 
-    // First, generate the QR code
-    generateQRCode(reservationQRCode);
-
-    function generateQRCode(reservationQRCode) {
-        // Make an AJAX request to call the generate_qrcode function
-        $.ajax({
-            url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
-            type: "GET",
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    // QR code generated successfully, now approve the reservation
-                    approveReservation();
-                } else {
-                    alert('Failed to generate QR code: ' + response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("QR Code AJAX Error:", error);
-            }
-        });
-    }
-    
-    function approveReservation() {
-        var reservationId = $('#reservationId').val();
-
-        // Send an AJAX request to approve the reservation
-        $.ajax({
-            url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
-            type: "GET",
-            dataType: "json",
-            success: function (response) {
-                if (response.status === 'success') {
-                    alert('QR code generated and Reservation approved successfully.');
-                } else {
-                    alert('Failed to approve reservation.');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("AJAX Error:", error);
-            }
-        });
-    }
-});
-
-
-
-                /* $('#submitReschedule').click(function () {
-                    // Serialize the form data
                     var formData = $('#reservationForm').serialize();
 
                     $.ajax({
@@ -409,6 +366,8 @@
                         success: function (response) {
                             if (response.status === 'success') {
                                 alert('Reservation rescheduled successfully.');
+
+                                
                             } else {
                                 alert('Failed to reschedule reservation.');
                             }
@@ -418,13 +377,89 @@
                         error: function () {
                             $('#responseBody').html('An error occurred during the request.');
 
-                            // Show the response modal
+                            
                             $('#responseModal').modal('show');
                         }
                     });
+
+
+                    var reservationQRCode = $(this).data('qr-code');
+
+                   
+                    generateQRCode(reservationQRCode);
+
+                    function generateQRCode(reservationQRCode) {
+                  
+                        $.ajax({
+                            url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
+                            type: "GET",
+                            dataType: "json",
+                            success: function (response) {
+                                if (response.success) {
+                                   
+                                    approveReservation();
+                                } else {
+                                    alert('Failed to generate QR code: ' + response.message);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("QR Code AJAX Error:", error);
+                            }
+                        });
+                    }
+
+                    function approveReservation() {
+                        var reservationId = $('#reservationId').val();
+
+                        // Send an AJAX request to approve the reservation
+                        $.ajax({
+                            url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
+                            type: "GET",
+                            dataType: "json",
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    alert('QR code generated and Reservation approved successfully.');
+                                } else {
+                                    alert('Failed to approve reservation.');
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("AJAX Error:", error);
+                            }
+                        });
+                    }
                 });
-               $("#finalizeButton").click(function () {
- 
+
+
+
+            /*     $('#submitReschedule').click(function () {
+                    // Serialize the form data
+                    var formData = $('#reservationForm').serialize();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url('Page/finalize_reservation'); ?>',
+                data: formData,
+                    dataType: 'json',
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                alert('Reservation rescheduled successfully.');
+                            } else {
+                                alert('Failed to reschedule reservation.');
+                            }
+
+
+                        },
+                error: function () {
+                    $('#responseBody').html('An error occurred during the request.');
+
+                    // Show the response modal
+                    $('#responseModal').modal('show');
+                }
+                    });
+                });
+                $("#finalizeButton").click(function () {
+
                     var reservationId = $('#reservationId').val();
 
                     $.ajax({
@@ -464,10 +499,10 @@
                         }
                     });
                 });
-
-
  */
 
+ 
+ 
 
                 // Function to handle the "Decline" button click
                 $(".btn-danger[data-action='decline']").click(function () {

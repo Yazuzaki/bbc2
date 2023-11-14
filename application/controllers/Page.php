@@ -124,59 +124,82 @@ class Page extends CI_Controller
     }
 
 
-    public function register_form()
-    {
-        $this->form_validation->set_error_delimiters('<div class="error alert alert-dark">', '</div');
+        public function register_form()
+        {
+            $this->form_validation->set_error_delimiters('<div class="error alert alert-dark">', '</div');
 
-        $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
-        $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
-        $this->form_validation->set_message('is_unique', 'The Email is already taken. Please choose a different Email');
-        $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[10]');
-        $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
+            $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
+            $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
+            $this->form_validation->set_message('is_unique', 'The Email is already taken. Please choose a different Email');
+            $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[10]');
+            $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
 
-        if ($this->form_validation->run() === FALSE) {
-            $this->load->view('page/register');
-        } else {
-            $data = array(
-                'name' => $this->input->post('name'),
-                'email' => $this->input->post('email'),
-                'password' => $this->input->post('password'),
-                'role' => 'user',
-                'email_verified' => 0,
-                'email_verification_token' => md5(uniqid(rand(), true))
-            );
-
-            if ($this->bud_model->check_email_exist($data['email'])) {
-                $this->session->set_flashdata('error', 'Email already exists.');
-                redirect('page/register');
-            }
-
-            if ($this->bud_model->register_user($data)) {
-                // Pass the email and verification token to the sendVerificationEmail function
-                $this->sendVerificationEmail($data['email'], $data['email_verification_token']);
-
-                $successMessage = 'Registered successfully. Check your email for verification.';
-                echo "<script>showSuccessToast('$successMessage');</script>";
-
-                redirect('page/loginview');
+            if ($this->form_validation->run() === FALSE) {
+                $this->load->view('page/register');
             } else {
-                $this->session->set_flashdata('error', 'Registration failed.');
-                redirect('page/register');
+                $data = array(
+                    'name' => $this->input->post('name'),
+                    'email' => $this->input->post('email'),
+                    'password' => $this->input->post('password'),
+                    'role' => 'user',
+                    'email_verified' => 0,
+                    'email_verification_token' => md5(uniqid(rand(), true))
+                );
+
+                if ($this->bud_model->check_email_exist($data['email'])) {
+                    $this->session->set_flashdata('error', 'Email already exists.');
+                    redirect('page/register');
+                }
+
+                if ($this->bud_model->register_user($data)) {
+                    // Pass the email and verification token to the sendVerificationEmail function
+                    $this->sendVerificationEmail($data['email'], $data['email_verification_token']);
+
+                    $successMessage = 'Registered successfully. Check your email for verification.';
+                    echo "<script>showSuccessToast('$successMessage');</script>";
+
+                    redirect('page/loginview');
+                } else {
+                    $this->session->set_flashdata('error', 'Registration failed.');
+                    redirect('page/register');
+                }
             }
         }
-    }
 
-    public function sendVerificationEmail($email, $verificationToken)
-    {
-        $subject = 'Email Verification';
-        $message = 'Click the following link to verify your email address: ' . base_url('verification?token=' . $verificationToken);
-        $from_name = "Budz Badminton Court";
-        $from = "patrickjeri.garcia@sdca.edu.ph";
-        $add_data = array();
-
-        // Now, you can use the provided email and verification token to send the verification email
-        $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
-    }
+        public function sendVerificationEmail($email, $verificationToken)
+        {
+            $subject = 'Email Verification';
+            $verificationLink = base_url('Page/verify_email?token=' . $verificationToken);
+            $message = 'Click the following link to verify your email address: <a href="' . $verificationLink . '">' . $verificationLink . '</a>';
+            $from_name = "Budz Badminton Court";
+            $from = "patrickjeri.garcia@sdca.edu.ph";
+            $add_data = array();
+        
+            // Now, you can use the provided email and modified message to send the verification email
+            $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
+        }
+        
+        public function verify_email()
+        {
+            $token = $this->input->get('token'); // Get the verification token from the URL
+        
+            // Check if the token is valid
+            $user = $this->bud_model->get_user_by_verification_token($token);
+        
+            if ($user) {
+                // Update the user's email_verified status to 1
+                $this->bud_model->update_email_verification_status($user['id'], 1);
+        
+                // You can also set a flash message or redirect the user to a success page
+                $this->session->set_flashdata('success', 'Email verification successful. You can now log in.');
+                redirect('page/loginview');
+            } else {
+                // Token is invalid or user not found
+                $this->session->set_flashdata('error', 'Invalid verification token.');
+                redirect('page/loginview');
+            }
+        }
+        
 
 
     public function main()
@@ -213,12 +236,15 @@ class Page extends CI_Controller
         $this->load->view('template/adminheader');
         /*  $data['reservations'] = $this->bud_model->get_all_reservations();
          $this->load->view('page/admin', $data); */
-
+         $data['sport_frequency'] = $this->bud_model->getSportFrequency();
+         $reservationCount = $this->bud_model->getReservationCount();
+         $data['reservationCount'] = $reservationCount;
         $data['futureReservations'] = $this->bud_model->getrepReservations();
 
         // Load the HTML template and pass data
         $this->load->view('page/admin', $data);
     }
+
 
     public function gallery()
     {
