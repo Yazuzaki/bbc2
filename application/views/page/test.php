@@ -9,6 +9,9 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+
     <title>Pending Reservation</title>
 </head>
 
@@ -207,7 +210,7 @@
                                     </script>
 
 
-                                    <td> <a href="#" class="btn btn-success reschedule-button" data-toggle="modal"
+                                    <td> <a href="#" class="btn btn-success reschedule-button mb-2" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
                                             data-id="<?= $row->id ?>"
                                             data-reserved-datetime="<?= $row->reserved_datetime ?>"
@@ -319,11 +322,27 @@
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
             <script>
+                
 
                 $(document).ready(function () {
                     $('#myTable').DataTable({
                         
                     });
+                    $('#responseModal').iziModal({
+            title: 'Response',
+            headerColor: '#1abc9c',
+            width: 600,
+            padding: 20,
+            closeButton: true,
+            overlayClose: false,
+            overlayColor: 'rgba(0, 0, 0, 0.6)',
+        });
+
+        // Function to open the response modal
+        function openResponseModal(message) {
+            $('#responseBody').html(message);
+            $('#responseModal').iziModal('open');
+        }
 
                 });
 

@@ -10,24 +10,84 @@
 
 <body>
     <div class="container">
-        <h1 class="my-4">Sport Frequency Report</h1>
-      
+
+        <!-- Banner with color background -->
+        <div class="jumbotron text-white bg-primary">
+            <h1 class="display-4">Admin Dashboard</h1>
+        </div>
+
+        <!-- Cards Section -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card d-flex flex-fill bg-success">
+                    <div class="card-body">
+                        <h3 class="card-title">Total Reservations</h3>
+                        <p class="card-text">Total Reservations:
+                            <?php echo $futureReservations; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card d-flex flex-fill bg-success rounded">
+                    <div class="card-body">
+                        <h3 class="card-title">Canceled Reservations</h3>
+                        <p class="card-text">Total Canceled Reservations:
+                            <?php echo $canceledCount; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card d-flex flex-fill bg-success rounded">
+                    <div class="card-body">
+                        <h3 class="card-title">Declined Reservations</h3>
+                        <p class="card-text">Total Declined Reservations:
+                            <?php echo $declinedCount; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card d-flex flex-fill bg-success rounded">
+                    <div class="card-body">
+                        <h3 class="card-title">Pending Reservations</h3>
+                        <p class="card-text">Total Pending Reservations:
+                            <?php echo $pendingCount; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
         <div class="row">
             <div class="col-md-12">
-                <h3>Bar Chart</h3>
+                <h3>Sport Frequency Chart</h3>
                 <canvas id="sportFrequencyChart" style="max-width: 800px;"></canvas>
             </div>
         </div>
     </div>
-   
+
     <script>
-        // Your sport frequency data from PHP
         var sportData = <?php echo json_encode($sport_frequency); ?>;
 
         var sportLabels = sportData.map(item => item.sport);
         var sportFrequency = sportData.map(item => item.frequency);
 
-        // Create a bar chart
+        // Define an array of colors for each bar
+        var barColors = [
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            // Add more colors as needed
+        ];
+
+        // Create a bar chart with different colors
         var ctx = document.getElementById('sportFrequencyChart').getContext('2d');
         var chart = new Chart(ctx, {
             type: 'bar',
@@ -36,9 +96,9 @@
                 datasets: [{
                     label: 'Sport Frequency',
                     data: sportFrequency,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    backgroundColor: barColors,
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    borderWidth: 1,
                 }]
             },
             options: {
@@ -53,7 +113,6 @@
                 }
             }
         });
-        
     </script>
 </body>
 

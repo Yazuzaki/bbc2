@@ -10,6 +10,9 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
+<script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+
     <title>Reseved Slots</title>
 </head>
 
@@ -197,7 +200,7 @@
                                         }
                                     </script>
                                     <td>
-                                        <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
+                                        <a href="#" class="btn btn-success cancel-button mb-2" data-toggle="modal"
                                             data-target="#responseModal" data-action="cancel"
                                             data-id="<?= $row->id ?>">Cancel</a>
 
@@ -365,7 +368,13 @@
                 });
 
 
-
+                iziToast.settings({
+        timeout: 5000, // Default toast timeout
+        resetOnHover: true,
+        transitionIn: 'fadeInDown',
+        transitionOut: 'fadeOutUp',
+        position: 'topRight', // You can change the toast position
+    });
 
                 $('#submitReschedule').click(function () {
                     // Serialize the form data

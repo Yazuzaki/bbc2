@@ -720,17 +720,15 @@ class bud_model extends CI_Model
         return $result ? $result->total_fee : 0;
     }
     public function getrepReservations() {
-        // Modify this query to retrieve data from your "future" table
-        $query = $this->db->get('future');
-        return $query->result();  // Returns an array of results
+        $query = $this->db->query("SELECT COUNT(*) as count FROM reservations");
+        $result = $query->row();
+        return $result->count;
     }
     public function getReservationDetailsByQRCode($reservationQRCode) {
-        // Get the reservation details from the database
         $query = $this->db->get_where('reservations', array('qr_code' => $reservationQRCode));
         return $query->row();
     }
     public function get_qr_code_data() {
-        // Get the QR code data from the database
         $query = $this->db->get('qr_code_data');
         return $query->result();
     }
@@ -744,8 +742,8 @@ class bud_model extends CI_Model
     }
     public function getReservationCount() {
         $this->db->select('sport, COUNT(*) as frequency');
-        $this->db->from('today'); // Replace 'today' with your actual table name
-        $this->db->where('status', 'approved'); // You may adjust the status condition as needed
+        $this->db->from('today'); 
+        $this->db->where('status', 'approved'); 
         $this->db->group_by('sport');
         $query = $this->db->get();
 
@@ -762,7 +760,37 @@ class bud_model extends CI_Model
         $this->db->where('id', $userId);
         $this->db->update('users', array('email_verified' => $status));
     }
-    
+    public function get_timeslots() {
+        $query = $this->db->get('timeslots');
+        return $query->result();
+    }
+    public function getAvailableCourts() {
+        $query = $this->db->get_where('courts', array('status' => 'available'));
+        return $query->result_array();
+    }
+    public function getCanceledCount() {
+        $query = $this->db->query("SELECT COUNT(*) as count FROM canceled");
+        $result = $query->row();
+        return $result->count;
+    }
+
+    public function getDeclinedCount() {
+        $query = $this->db->query("SELECT COUNT(*) as count FROM declined");
+        $result = $query->row();
+        return $result->count;
+    }
+    public function getFutureCount() {
+        $query = $this->db->query("SELECT COUNT(*) as count FROM future");
+        $result = $query->row();
+        return $result->count;
+    }
+    public function getpendingCount() {
+        $query = $this->db->query("SELECT COUNT(*) as count FROM reservations");
+        $result = $query->row();
+        return $result->count;
+    }
+
+
 }
 
         

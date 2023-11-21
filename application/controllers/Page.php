@@ -124,82 +124,82 @@ class Page extends CI_Controller
     }
 
 
-        public function register_form()
-        {
-            $this->form_validation->set_error_delimiters('<div class="error alert alert-dark">', '</div');
+    public function register_form()
+    {
+        $this->form_validation->set_error_delimiters('<div class="error alert alert-dark">', '</div');
 
-            $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
-            $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
-            $this->form_validation->set_message('is_unique', 'The Email is already taken. Please choose a different Email');
-            $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[10]');
-            $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
+        $this->form_validation->set_rules('name', 'Full Name', 'trim|required');
+        $this->form_validation->set_rules('email', 'E-Mail Address', 'trim|required|valid_email|is_unique[users.email]');
+        $this->form_validation->set_message('is_unique', 'The Email is already taken. Please choose a different Email');
+        $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[10]');
+        $this->form_validation->set_rules('con_password', 'Confirm Password', 'trim|required|matches[password]');
 
-            if ($this->form_validation->run() === FALSE) {
-                $this->load->view('page/register');
-            } else {
-                $data = array(
-                    'name' => $this->input->post('name'),
-                    'email' => $this->input->post('email'),
-                    'password' => $this->input->post('password'),
-                    'role' => 'user',
-                    'email_verified' => 0,
-                    'email_verification_token' => md5(uniqid(rand(), true))
-                );
+        if ($this->form_validation->run() === FALSE) {
+            $this->load->view('page/register');
+        } else {
+            $data = array(
+                'name' => $this->input->post('name'),
+                'email' => $this->input->post('email'),
+                'password' => $this->input->post('password'),
+                'role' => 'user',
+                'email_verified' => 0,
+                'email_verification_token' => md5(uniqid(rand(), true))
+            );
 
-                if ($this->bud_model->check_email_exist($data['email'])) {
-                    $this->session->set_flashdata('error', 'Email already exists.');
-                    redirect('page/register');
-                }
-
-                if ($this->bud_model->register_user($data)) {
-                    // Pass the email and verification token to the sendVerificationEmail function
-                    $this->sendVerificationEmail($data['email'], $data['email_verification_token']);
-
-                    $successMessage = 'Registered successfully. Check your email for verification.';
-                    echo "<script>showSuccessToast('$successMessage');</script>";
-
-                    redirect('page/loginview');
-                } else {
-                    $this->session->set_flashdata('error', 'Registration failed.');
-                    redirect('page/register');
-                }
+            if ($this->bud_model->check_email_exist($data['email'])) {
+                $this->session->set_flashdata('error', 'Email already exists.');
+                redirect('page/register');
             }
-        }
 
-        public function sendVerificationEmail($email, $verificationToken)
-        {
-            $subject = 'Email Verification';
-            $verificationLink = base_url('Page/verify_email?token=' . $verificationToken);
-            $message = 'Click the following link to verify your email address: <a href="' . $verificationLink . '">' . $verificationLink . '</a>';
-            $from_name = "Budz Badminton Court";
-            $from = "patrickjeri.garcia@sdca.edu.ph";
-            $add_data = array();
-        
-            // Now, you can use the provided email and modified message to send the verification email
-            $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
-        }
-        
-        public function verify_email()
-        {
-            $token = $this->input->get('token'); // Get the verification token from the URL
-        
-            // Check if the token is valid
-            $user = $this->bud_model->get_user_by_verification_token($token);
-        
-            if ($user) {
-                // Update the user's email_verified status to 1
-                $this->bud_model->update_email_verification_status($user['id'], 1);
-        
-                // You can also set a flash message or redirect the user to a success page
-                $this->session->set_flashdata('success', 'Email verification successful. You can now log in.');
+            if ($this->bud_model->register_user($data)) {
+                // Pass the email and verification token to the sendVerificationEmail function
+                $this->sendVerificationEmail($data['email'], $data['email_verification_token']);
+
+                $successMessage = 'Registered successfully. Check your email for verification.';
+                echo "<script>showSuccessToast('$successMessage');</script>";
+
                 redirect('page/loginview');
             } else {
-                // Token is invalid or user not found
-                $this->session->set_flashdata('error', 'Invalid verification token.');
-                redirect('page/loginview');
+                $this->session->set_flashdata('error', 'Registration failed.');
+                redirect('page/register');
             }
         }
-        
+    }
+
+    public function sendVerificationEmail($email, $verificationToken)
+    {
+        $subject = 'Email Verification';
+        $verificationLink = base_url('Page/verify_email?token=' . $verificationToken);
+        $message = 'Click the following link to verify your email address: <a href="' . $verificationLink . '">' . $verificationLink . '</a>';
+        $from_name = "Budz Badminton Court";
+        $from = "patrickjeri.garcia@sdca.edu.ph";
+        $add_data = array();
+
+        // Now, you can use the provided email and modified message to send the verification email
+        $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
+    }
+
+    public function verify_email()
+    {
+        $token = $this->input->get('token'); // Get the verification token from the URL
+
+        // Check if the token is valid
+        $user = $this->bud_model->get_user_by_verification_token($token);
+
+        if ($user) {
+            // Update the user's email_verified status to 1
+            $this->bud_model->update_email_verification_status($user['id'], 1);
+
+            // You can also set a flash message or redirect the user to a success page
+            $this->session->set_flashdata('success', 'Email verification successful. You can now log in.');
+            redirect('page/loginview');
+        } else {
+            // Token is invalid or user not found
+            $this->session->set_flashdata('error', 'Invalid verification token.');
+            redirect('page/loginview');
+        }
+    }
+
 
 
     public function main()
@@ -236,12 +236,13 @@ class Page extends CI_Controller
         $this->load->view('template/adminheader');
         /*  $data['reservations'] = $this->bud_model->get_all_reservations();
          $this->load->view('page/admin', $data); */
-         $data['sport_frequency'] = $this->bud_model->getSportFrequency();
-         $reservationCount = $this->bud_model->getReservationCount();
-         $data['reservationCount'] = $reservationCount;
+        $data['sport_frequency'] = $this->bud_model->getSportFrequency();
         $data['futureReservations'] = $this->bud_model->getrepReservations();
+        $data['canceledCount'] = $this->bud_model->getCanceledCount();
+        $data['declinedCount'] = $this->bud_model->getDeclinedCount();
+        $data['pendingCount'] = $this->bud_model->getpendingCount();
 
-        // Load the HTML template and pass data
+      
         $this->load->view('page/admin', $data);
     }
 
@@ -286,19 +287,19 @@ class Page extends CI_Controller
             $qr_code_model = new bud_model();
             $qr_code = $qr_code_model->generateRandomQRCode(27);
             // Get the uploaded image file
-              $image = $_FILES['referenceNum'];
+            $image = $_FILES['referenceNum'];
 
-              // Set the upload path and file name
-              $uploadPath = './payment/';
-              $fileName = basename($image['name']);
-              $filePath = $uploadPath . $fileName;
+            // Set the upload path and file name
+            $uploadPath = './payment/';
+            $fileName = basename($image['name']);
+            $filePath = $uploadPath . $fileName;
 
-              // Move the uploaded file to the upload path
-              if (move_uploaded_file($image['tmp_name'], $filePath)) {
-                  echo "File uploaded successfully";
-              } else {
-                  echo "Error uploading file";
-              }
+            // Move the uploaded file to the upload path
+            if (move_uploaded_file($image['tmp_name'], $filePath)) {
+                echo "File uploaded successfully";
+            } else {
+                echo "Error uploading file";
+            }
 
             $userTimezone = new DateTimeZone('Asia/Manila');
             $userDateTime = $userDateTime . ' ' . $userTime; // Combine date and time
@@ -312,7 +313,7 @@ class Page extends CI_Controller
                 'user_name' => $name,
                 'user_email' => $email,
                 'hours' => $hours,
-                 'image' => $filePath,
+                'image' => $filePath,
                 'qr_code' => $qr_code,
 
             );
@@ -329,6 +330,10 @@ class Page extends CI_Controller
     public function pay()
     {
         $this->load->view("page/payment");
+    }
+    public function scan()
+    {
+        $this->load->view("page/scan");
     }
 
 
@@ -476,12 +481,12 @@ class Page extends CI_Controller
     {
         $this->load->model('bud_model');
         $reservation = $this->bud_model->getReservation($reservationId);
-    
+
         if ($reservation->status === 'pending') {
             // Check if the reservation date is today
             $today = date('Y-m-d');
             $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
-    
+
             if ($reservationDate === $today) {
                 $this->bud_model->updateStatus($reservationId, 'approved');
                 $this->bud_model->transferToToday($reservation);
@@ -491,23 +496,23 @@ class Page extends CI_Controller
                 $this->bud_model->transferToFuture($reservation);
                 $this->bud_model->transferToToday($reservation);
             }
-    
+
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
-    
-          
-    
+
+
+
             $response = array('status' => 'success');
         } else {
             $response = array('status' => 'error', 'message' => 'Reservation not pending');
         }
-    
+
         // Send the response as JSON
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
-        
+
     }
-    
-    
+
+
 
 
     public function sendReservationApprovalEmail($userEmail)
@@ -516,12 +521,12 @@ class Page extends CI_Controller
         $message = 'Your reservation has been approved.';
         $from_name = "Budz Badminton Court";
         $from = "patrickjeri.garcia@sdca.edu.ph";
-    
+
         $add_data = array();
-    
+
         $this->mailer_withhtml($from, $from_name, $userEmail, $subject, $message, $add_data);
     }
-    
+
     public function getReservation($reservationId)
     {
         $this->db->where('id', $reservationId);
@@ -570,7 +575,11 @@ class Page extends CI_Controller
 
         return $reservation;
     }
-
+    public function courtvisual()
+    {
+        // Load the view
+        $this->load->view('page/courtvisual');
+    }
 
 
 
@@ -954,7 +963,8 @@ class Page extends CI_Controller
         }
     }
 
-    public function sportFrequency() {
+    public function sportFrequency()
+    {
         $data['sport_frequency'] = $this->bud_model->getSportFrequency();
 
         // Load a view to display the report
@@ -1242,8 +1252,73 @@ class Page extends CI_Controller
         $this->load->view('page/qr_code_reader', $data);
     }
 
+    public function timeslots()
+    {
+
+        $data['timeslots'] = $this->bud_model->get_timeslots();
+        $this->load->view('page/timeslot_view', $data);
+    }
+
+    public function process_reservation()
+    {
+        // Get form data
+        $court_id = $this->input->post('court_id');
+        $start_time = $this->input->post('start_time');
+        $duration = $this->input->post('duration');
 
 
+        $end_time = date('Y-m-d H:i:s', strtotime($start_time) + 3600 * $duration);
+
+
+        if ($this->isCourtAvailable($court_id, $start_time, $end_time)) {
+
+            $this->insertReservation($court_id, $start_time, $end_time);
+
+
+            redirect('reservation/success');
+        } else {
+
+            echo 'Court is not available for the specified duration.';
+        }
+    }
+
+    private function isCourtAvailable($court_id, $start_time, $end_time)
+    {
+        // Implement the logic to check court availability in your database
+        // You may perform a database query here to check for overlapping reservations
+        // Return true if the court is available, false otherwise
+        // ...
+
+        return true; // Placeholder, replace with actual logic
+    }
+
+    private function insertReservation($court_id, $start_time, $end_time)
+    {
+
+        $data = array(
+            'court_id' => $court_id,
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+            'status' => 'booked'
+        );
+
+        $this->bud_model->insert('court_schedule', $data);
+    }
+
+    public function success()
+    {
+        // Display a success message after successful reservation
+        echo 'Reservation successful!';
+    }
+    public function reserve_court()
+    {
+
+
+
+        $data['courts'] = $this->bud_model->getAvailableCourts();
+
+        $this->load->view('page/reserve_court');
+    }
     //mailer
     public function webmailer_config()
     {
@@ -1275,7 +1350,7 @@ class Page extends CI_Controller
         $this->email->message($message);
         if ($this->email->send()) {
             echo '<pre>' . print_r(array('status' => 'success', 'msg' => 'Email has been sent to ' . $send_to . ' (' . $send_to . ')'), 1) . '</pre>';
-            redirect('page/loginview'); 
+            redirect('page/loginview');
         } else {
             show_error($this->email->print_debugger());
             echo '<pre>' . print_r(array('status' => 'error', 'msg' => 'Failed to send Email : ' . $send_to), 1) . '</pre>';
@@ -1289,10 +1364,10 @@ class Page extends CI_Controller
     {
         $this->load->library('ciqrcode');
         $this->load->model('bud_model'); // Load the QRCode_model
-    
+
         // Check if the reservation with the given QR code exists in the database
         $reservationDetails = $this->bud_model->getReservationDetailsByQRCode($reservationQRCode);
-    
+
         if ($reservationDetails) {
             $dataToPass = array(
                 'qr_code' => $reservationDetails->qr_code,
@@ -1305,24 +1380,24 @@ class Page extends CI_Controller
                 'sport' => $reservationDetails->sport,
                 'hours' => $reservationDetails->hours
             );
-    
+
             // Encode the data to pass as a JSON string
             $dataParam = json_encode($dataToPass);
-    
+
             // Generate the QR code image
             $params['data'] = base_url('page/reservation_details_view') . '?data=' . urlencode($dataParam);
             $params['level'] = 'H';
             $params['size'] = 10;
             $params['savename'] = FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg";
             $this->ciqrcode->generate($params);
-    
+
             // Send the QR code in an email as an attachment
             $fromEmail = 'patrickjeri.garcia@sdca.edu.ph'; // Replace with your email
             $fromName = 'Budz Badminton Court'; // Replace with your name
             $recipientEmail = $reservationDetails->user_email;
             $subject = 'QR Code for Reservation';
             $message = 'Your Reservation is Approved. Please find the QR code for your reservation attached to this email.';
-            
+
             $this->load->library('email');
             $this->webmailer_config();
             $this->email->set_newline("\r\n");
@@ -1331,17 +1406,17 @@ class Page extends CI_Controller
             $this->email->subject($subject);
             $this->email->message($message);
             $this->email->attach(FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg"); // Attach the QR code image
-    
+
             if ($this->email->send()) {
                 // Delete the generated QR code after sending it in an email
                 unlink(FCPATH . "application/uploads/qr_code_{$reservationQRCode}.jpg");
-    
+
                 $response = array(
                     'success' => true,
                     'message' => 'QR Code sent via email',
                     'data' => $dataToPass
                 );
-    
+
                 $this->output
                     ->set_content_type('application/json')
                     ->set_output(json_encode($response));
@@ -1351,7 +1426,7 @@ class Page extends CI_Controller
                     'success' => false,
                     'message' => 'Failed to send email with QR Code'
                 );
-    
+
                 $this->output
                     ->set_content_type('application/json')
                     ->set_output(json_encode($response));
@@ -1362,11 +1437,11 @@ class Page extends CI_Controller
                 'success' => false,
                 'message' => 'Reservation not found'
             );
-    
+
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode($response));
         }
     }
-    
+
 }

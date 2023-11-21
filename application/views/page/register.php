@@ -81,7 +81,7 @@
 
 						<?php echo validation_errors('<div class="alert alert-danger">', '</div>'); ?>
 						<?php if (form_error('email')): ?>
-							<div class="alert alert-danger">
+							<div class="alert alert-danger"> 
 								<?= form_error('email'); ?>
 							</div>
 						<?php endif; ?>
