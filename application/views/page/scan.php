@@ -40,6 +40,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> <!-- Add jQuery library -->
+
     <script>
         function scanImage() {
             var fileInput = document.getElementById('imageInput');
@@ -52,8 +54,8 @@
             if (file) {
                 Tesseract.recognize(
                     file,
-                    'eng', // Language code, e.g., 'eng' for English
-                    { logger: info => console.log(info) } // Optional logger
+                    'eng',
+                    { logger: info => console.log(info) }
                 ).then(({ data: { text } }) => {
                     resultContainer.style.display = 'block';
                     scannedTextElement.textContent = text;
@@ -77,6 +79,22 @@
             } else {
                 alert('Please select an image before scanning.');
             }
+        }
+
+        function sendReferenceNumberToBackend(referenceNumber) {
+            // Use jQuery AJAX to send data to the backend
+            $.ajax({
+                url: '<?php echo site_url("Page/process_scan"); ?>',
+                method: 'POST',
+                data: { referenceNumber: referenceNumber },
+                success: function (response) {
+                    console.log('Reference number sent to the backend successfully');
+                    // You can handle the response from the backend here
+                },
+                error: function (error) {
+                    console.error('Error sending reference number to the backend', error);
+                }
+            });
         }
     </script>
 </body>

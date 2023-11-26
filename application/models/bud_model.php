@@ -789,8 +789,14 @@ class bud_model extends CI_Model
         $result = $query->row();
         return $result->count;
     }
+    public function insert_reference_number($reference_number) {
+        // Insert the reference number into the database
+        $data = array(
+            'referencenumber' => $reference_number
+        );
 
-
+        $this->db->insert('refnum', $data);
+    }
 }
 
         

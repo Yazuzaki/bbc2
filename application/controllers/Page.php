@@ -27,6 +27,15 @@ class Page extends CI_Controller
 
 
     }
+    public function court_layout()
+    {
+
+
+        $this->load->view('template/header');
+        $this->load->view('page/courtlayout');
+
+
+    }
     public function history()
     {
 
@@ -1319,6 +1328,7 @@ class Page extends CI_Controller
 
         $this->load->view('page/reserve_court');
     }
+
     //mailer
     public function webmailer_config()
     {
@@ -1356,9 +1366,19 @@ class Page extends CI_Controller
             echo '<pre>' . print_r(array('status' => 'error', 'msg' => 'Failed to send Email : ' . $send_to), 1) . '</pre>';
         }
     }
-    public function nohtml()
-    {
-        $this->load->view('page/nohtml');
+    public function process_scan() {
+        $reference_number = $this->input->post('reference_number');
+
+        if (!empty($reference_number)) {
+            // Insert the reference number into the database
+            $this->bud_model->insert_reference_number($reference_number);
+
+            // Send a response back to the JavaScript
+            echo json_encode(['success' => true]);
+        } else {
+            // Handle the case when the reference number is empty
+            echo json_encode(['error' => 'Reference number is empty']);
+        }
     }
     public function generate_qrcode_and_send_email($reservationQRCode)
     {
