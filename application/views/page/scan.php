@@ -25,7 +25,8 @@
         <form id="imageForm" enctype="multipart/form-data" class="mt-4">
             <div class="form-group">
                 <label for="imageInput">Select Image:</label>
-                <input type="file" id="imageInput" name="imageInput" accept="image/*" required class="form-control-file">
+                <input type="file" id="imageInput" name="imageInput" accept="image/*" required
+                    class="form-control-file">
             </div>
 
             <button type="button" onclick="scanImage()" class="btn btn-primary">Scan Image</button>
@@ -70,7 +71,7 @@
                         var referenceNumber = matches[1];
                         extractedReferenceNumberElement.innerHTML = referenceNumber;
 
-                        // Send the reference number to the backend for insertion
+                        // Send the extracted reference number to the backend for insertion
                         sendReferenceNumberToBackend(referenceNumber);
                     } else {
                         extractedReferenceNumberElement.innerHTML = 'No reference numbers found.';
@@ -79,23 +80,28 @@
             } else {
                 alert('Please select an image before scanning.');
             }
+
+            function sendReferenceNumberToBackend(referenceNumber) {
+                // Use jQuery AJAX to send data to the backend
+                $.ajax({
+                    url: '<?php echo site_url("Page/process_scan"); ?>',
+                    method: 'POST',
+                    data: { referenceNumber: referenceNumber },
+                    dataType: 'json', // specify the expected data type
+                    success: function (response) {
+                        console.log('Reference number sent to the backend successfully');
+                        // You can handle the response from the backend here
+                    },
+                    error: function (error) {
+                        console.error('Error sending reference number to the backend', error);
+                    }
+                });
+            }
         }
 
-        function sendReferenceNumberToBackend(referenceNumber) {
-            // Use jQuery AJAX to send data to the backend
-            $.ajax({
-                url: '<?php echo site_url("Page/process_scan"); ?>',
-                method: 'POST',
-                data: { referenceNumber: referenceNumber },
-                success: function (response) {
-                    console.log('Reference number sent to the backend successfully');
-                    // You can handle the response from the backend here
-                },
-                error: function (error) {
-                    console.error('Error sending reference number to the backend', error);
-                }
-            });
-        }
+
+
+
     </script>
 </body>
 

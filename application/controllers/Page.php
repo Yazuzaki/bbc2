@@ -1367,11 +1367,11 @@ class Page extends CI_Controller
         }
     }
     public function process_scan() {
-        $reference_number = $this->input->post('reference_number');
+        $referenceNumber = $this->input->post('referenceNumber');
 
-        if (!empty($reference_number)) {
+        if (!empty($referenceNumber)) {
             // Insert the reference number into the database
-            $this->bud_model->insert_reference_number($reference_number);
+            $this->bud_model->insert_reference_number($referenceNumber);
 
             // Send a response back to the JavaScript
             echo json_encode(['success' => true]);
