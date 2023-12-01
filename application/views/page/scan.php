@@ -72,7 +72,8 @@
                         extractedReferenceNumberElement.innerHTML = referenceNumber;
 
                         // Send the extracted reference number to the backend for insertion
-                        sendReferenceNumberToBackend(referenceNumber);
+                        sendReferenceNumberToBackend(referenceNumber.toString());
+
                     } else {
                         extractedReferenceNumberElement.innerHTML = 'No reference numbers found.';
                     }

@@ -1368,11 +1368,11 @@ class Page extends CI_Controller
     }
     public function process_scan() {
         $referenceNumber = $this->input->post('referenceNumber');
-
+    
         if (!empty($referenceNumber)) {
             // Insert the reference number into the database
             $this->bud_model->insert_reference_number($referenceNumber);
-
+    
             // Send a response back to the JavaScript
             echo json_encode(['success' => true]);
         } else {
@@ -1380,6 +1380,7 @@ class Page extends CI_Controller
             echo json_encode(['error' => 'Reference number is empty']);
         }
     }
+    
     public function generate_qrcode_and_send_email($reservationQRCode)
     {
         $this->load->library('ciqrcode');
