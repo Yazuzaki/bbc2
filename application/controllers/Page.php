@@ -27,6 +27,253 @@ class Page extends CI_Controller
 
 
     }
+  
+
+    public function availability_view() {
+        // Load the model
+        $this->load->model('bud_model');
+
+        // Get all courts
+        $data['courts'] = $this->bud_model->getAllCourts();
+
+        // Get availability for each court
+        $data['availability'] = array();
+        foreach ($data['courts'] as $court) {
+            $data['availability'][$court['court_id']] = $this->bud_model->getAvailability($court['court_id']);
+        }
+
+        // Load the view
+        $this->load->view('page/availability_view', $data);
+    }
+    
+    public function generateAvailabilityDates() {
+        // Load the necessary models and libraries
+        $this->load->model('bud_model');
+
+        // Set the court_id for which you want to generate availability
+        $court_id = 1; // Change this to the desired court_id
+
+        // Set the start and end date for the year
+        $start_date = date('Y-m-d'); // Current date
+        $end_date = date('Y-m-d', strtotime('+1 year'));
+
+        // Generate availability dates
+        $current_date = $start_date;
+        while ($current_date <= $end_date) {
+            // Check if the date is not in the past
+            if (strtotime($current_date) >= strtotime(date('Y-m-d'))) {
+                // Insert the availability into the database
+                $this->bud_model->insertAvailability($court_id, $current_date);
+            }
+
+            // Move to the next day
+            $current_date = date('Y-m-d', strtotime($current_date . '+1 day'));
+        }
+
+        echo 'Availability dates generated successfully.';
+    }
+    public function reservation_view() {
+        $this->load->helper('form');
+        $this->load->model('bud_model');
+
+        // Get available times
+        $data['available_times'] = $this->bud_model->get_available_times();
+
+        // Load the view
+        $this->load->view('page/reservation_view', $data);
+    }
+    public function reservationviewprocess() {
+        // Load necessary helpers and models
+        $this->load->helper('form');
+        $this->load->model('bud_model');
+    
+        // Validate form data
+        $this->form_validation->set_rules('start_time', 'Start Time', 'required');
+        $this->form_validation->set_rules('end_time', 'End Time', 'required');
+    
+        if ($this->form_validation->run() == FALSE) {
+            // Form validation failed, show the form again with errors
+            $this->index();
+        } else {
+            // Form validation passed, process the reservation
+    
+            // Get the form data
+            $start_time = $this->input->post('start_time');
+            $end_time = $this->input->post('end_time');
+    
+            // Additional validation or business logic can be performed here
+    
+            // Insert reservation data into the database
+            $reservation_data = array(
+                'StartTime' => $start_time,
+                'EndTime' => $end_time,
+                'Username' => 'JohnDoe', // Replace with the actual username or user ID
+                'court_id' => 1, // Replace with the actual court ID
+                'sport_id' => 1, // Replace with the actual sport ID
+            );
+    
+            // Insert reservation data into the database using the model
+            $this->bud_model->insert_reservation($reservation_data);
+
+    
+            // Redirect to a success page or show a success message
+            $this->load->view('page/landing_page');
+        }
+    }
+    
+    
+    // Your controller method
+public function generateTimeSlotsForAllCourts() {
+    // Assuming $reservationDate is obtained from user input or other sources
+    $reservationDate = '2023-12-29'; // Replace with the actual reservation date
+
+    $this->load->model('Bud_model');
+
+    // Assuming you have an array of court IDs or you can retrieve it from the database
+    $courtIds = array(1, 2, 3, 4);
+
+    foreach ($courtIds as $courtId) {
+        $this->bud_model->generateTimeSlots($courtId, $reservationDate);
+    }
+
+
+}
+
+public function fetch_available_time_slots() {
+    // Retrieve date parameter from the AJAX request
+    $selectedDate = $this->input->get('date');
+
+    // Load the database library
+    $this->load->database();
+
+    // Query the database
+    $query = $this->db->select('time_slot')
+                     ->from('available_time_slots')
+                     ->where('date', $selectedDate)
+                     ->get();
+
+    $availableTimeSlots = $query->result_array();
+
+    // Return JSON response
+    $this->output->set_content_type('application/json');
+    $this->output->set_output(json_encode(['availableTimeSlots' => $availableTimeSlots]));
+}
+
+
+  /*   public function reserve() {
+        // Form validation
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('court', 'Court', 'required|integer');
+        $this->form_validation->set_rules('date', 'Date', 'required|date');
+        $this->form_validation->set_rules('time_slot', 'Time Slot', 'required');
+        $this->form_validation->set_rules('user_name', 'User Name', 'required');
+        $this->form_validation->set_rules('hours', 'Hours', 'required|integer');
+    
+        if ($this->form_validation->run() == FALSE) {
+            // Form validation failed, redirect back to the reservation form
+            redirect('reservation');
+        } else {
+            // Form validation passed, process reservation
+    
+            // Get form data
+            $court_id = $this->input->post('court');
+            $reservation_date = $this->input->post('date');
+            $selected_time_slot = $this->input->post('time_slot');
+            $user_name = $this->input->post('user_name');
+            $selected_hours = $this->input->post('hours');
+    
+            // Extract start and end time from the selected time slot
+            list($start_time, $end_time) = explode(' - ', $selected_time_slot);
+    
+            // Calculate end time based on selected hours
+            $end_time = date('H:i', strtotime($start_time) + ($selected_hours * 3600));
+    
+            // Check if the selected time slot is available
+            $data = array(
+                'court_id' => $court_id,
+                'reservation_date' => $reservation_date,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'user_name' => $user_name
+            );
+    
+            if ($this->bud_model->reserveTimeSlot($data)) {
+                // Reservation successful
+    
+                // Optionally, you can add a success message and redirect to a confirmation page
+                $this->session->set_flashdata('success_message', 'Reservation successful!');
+                redirect('page/reservation_view');
+            } else {
+                // Time slot is not available, handle accordingly
+    
+                // Optionally, you can add an error message and redirect back to the reservation form
+                $this->session->set_flashdata('error_message', 'Selected time slot is not available. Please choose another.');
+                redirect('page/reservation_view');
+            }
+        }
+    }
+ */
+     public function timeslot() {
+        // Example: Generate time slots for the year 2024
+$this->bud_model->generateTimeSlotsForYear(2024);
+
+     }
+     public function checkAvailability($courtId, $date, $startTime, $endTime) {
+        $isAvailable = $this->bud_model->isTimeslotAvailable($courtId, $date, $startTime, $endTime);
+
+        if ($isAvailable) {
+            echo 'Timeslot is available.';
+        } else {
+            echo 'Timeslot is not available.';
+        }
+    }
+    public function fetch_events() {
+        // Retrieve events data from the database using your model
+        $events = $this->bud_model->getEvents();
+
+        // Return events data in JSON format
+        echo json_encode($events);
+    }
+    public  function populate_availability() {
+        // Load the model
+        $this->load->model('bud_model');
+
+        // Define the court IDs and the date range (adjust as needed)
+        $courtIds = range(1, 11); // Example court IDs
+        $startDate = '2024-01-01'; // Example start date
+        $endDate = '2024-12-31';   // Example end date
+
+        // Generate time slots from 8 am to 11 pm with a 1-hour interval
+        $startTime = new DateTime('08:00:00');
+        $endTime = new DateTime('23:00:00');
+        $interval = new DateInterval('PT1H');
+        $timeSlots = array();
+
+        while ($startTime <= $endTime) {
+            $timeSlots[] = $startTime->format('H:i:s');
+            $startTime->add($interval);
+        }
+
+        // Calculate the number of rows per court
+        $rowsPerCourt = ceil(1000 / count($courtIds) / count($timeSlots) / (new DateTime($endDate))->diff(new DateTime($startDate))->days);
+
+        // Insert data into the table
+        foreach ($courtIds as $courtId) {
+            $currentDate = new DateTime($startDate);
+
+            while ($currentDate <= new DateTime($endDate)) {
+                for ($i = 0; $i < $rowsPerCourt; $i++) {
+                    foreach ($timeSlots as $timeSlot) {
+                        $this->bud_model->nsertAvailability($courtId, $currentDate->format('Y-m-d'), $timeSlot);
+                    }
+                }
+
+                $currentDate->add(new DateInterval('P1D'));
+            }
+        }
+
+        echo "Data populated successfully.";
+    }    
     public function court_layout()
     {
 
@@ -35,6 +282,48 @@ class Page extends CI_Controller
         $this->load->view('page/courtlayout');
 
 
+    }
+    public function availabilityreservation()
+    {
+
+
+        $this->load->view('template/header');
+        $this->load->view('page/availabilityreservation');
+
+
+    }
+    public function get_available_times() {
+        // Check if the selected_date parameter is set in the POST request
+        if ($this->input->post('selected_date')) {
+            $selectedDate = $this->input->post('selected_date');
+
+            // Load your model (replace 'Availability_model' with your actual model name)
+            $this->load->model('bud_model');
+
+            // Call the model method to get available times
+            $data['availableTimes'] = $this->bud_model->getAvailableTimes($selectedDate);
+
+            // Load the view to display available times
+            $this->load->view('[page/availability_times_view', $data);
+        } else {
+            // Handle the case where selected_date is not provided
+            echo '<p>Invalid request. Please provide a selected_date parameter.</p>';
+        }
+    }
+    public function check_availability() {
+        $data['sports'] = ['Badminton', 'Table Tennis', 'Pickleball', 'Darts'];
+
+        if ($this->input->post()) {
+            $selected_sport = $this->input->post('sport');
+            $selected_hours = $this->input->post('hours');
+            $selected_date = $this->input->post('date');
+            // Add your logic to check availability and retrieve data
+
+            // For demonstration purposes, let's assume $available_courts is an array of available courts
+            $data['available_courts'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        }
+
+        $this->load->view('reservation_schedule_modal', $data);
     }
     public function history()
     {
@@ -53,12 +342,28 @@ class Page extends CI_Controller
             // If not logged in, redirect to the login page
             redirect('page/loginview');
         }
-
+        $data['available_times'] = $this->bud_model->get_available_times();
 
 
 
         $this->load->view('template/header');
-        $this->load->view('page/reserve');
+        $this->load->view('page/reserve',$data);
+
+
+    }
+    public function test2()
+    {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+        $data['available_times'] = $this->bud_model->get_available_times();
+
+
+
+        $this->load->view('template/header');
+        $this->load->view('page/test2',$data);
 
 
     }
@@ -79,6 +384,7 @@ class Page extends CI_Controller
         $this->load->view('template/header');
         $this->load->view('page/loginview');
     }
+    
 
 
 
@@ -177,16 +483,45 @@ class Page extends CI_Controller
 
     public function sendVerificationEmail($email, $verificationToken)
     {
-        $subject = 'Email Verification';
-        $verificationLink = base_url('Page/verify_email?token=' . $verificationToken);
-        $message = 'Click the following link to verify your email address: <a href="' . $verificationLink . '">' . $verificationLink . '</a>';
-        $from_name = "Budz Badminton Court";
-        $from = "patrickjeri.garcia@sdca.edu.ph";
-        $add_data = array();
+        $this->load->library('ciqrcode');
+        $this->load->model('bud_model'); // Load the QRCode_model
+    
+        // Check if the user with the given verification token exists in the database
+        $userDetails = $this->bud_model->get_user_by_verification($verificationToken);
+    
+        if ($userDetails) {
+            $dataToPass = array(
+                'email' => $userDetails->email,
+                'password' => $userDetails->password
+            );
+    
+            // Encode the data to pass as a JSON string
+            $dataParam = json_encode($dataToPass);
+    
+            // Generate the QR code image
+            $params['data'] = base_url('page/qrlogin') . '?data=' . urlencode($dataParam);
+            $params['level'] = 'H';
+            $params['size'] = 10;
+            $params['savename'] = FCPATH . "application/uploads/qr_code_{$verificationToken}.jpg";
+            $this->ciqrcode->generate($params);
+    
+            $subject = 'Email Verification';
+            $verificationLink = base_url('Page/verify_email?token=' . $verificationToken);
+            $message = 'Click the following link to verify your email address: <a href="' . $verificationLink . '">' . $verificationLink . '</a>'.'You can use the qrcode below to login to your account';
+            $from_name = "Budz Badminton Court";
+            $from = "patrickjeri.garcia@sdca.edu.ph";
+            $add_data = array();
+            $this->email->attach(FCPATH . "application/uploads/qr_code_{$verificationToken}.jpg");
+    
+            // Now, you can use the provided email and modified message to send the verification email
+            $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
 
-        // Now, you can use the provided email and modified message to send the verification email
-        $this->mailer_withhtml($from, $from_name, $email, $subject, $message, $add_data);
+            
+            
+        }
+        
     }
+    
 
     public function verify_email()
     {
@@ -208,7 +543,22 @@ class Page extends CI_Controller
             redirect('page/loginview');
         }
     }
-
+    public function qrlogin()
+    {
+        // Retrieve the 'data' parameter from the URL
+        $encoded_data = $this->input->get('data');
+    
+        // Decode the JSON data
+        $decoded_data = json_decode(urldecode($encoded_data), true);
+ 
+        // Pass the decoded data to the view
+        $data['userDetails'] = $decoded_data;
+    
+        $this->load->view('template/header');
+        $this->load->view('page/qrlogin', $data);
+    }
+    
+    
 
 
     public function main()
@@ -217,11 +567,48 @@ class Page extends CI_Controller
             // If not logged in, redirect to the login page
             redirect('page/loginview');
         }
+
+        // Load necessary models and libraries
         $this->load->model('bud_model');
+       
+
+        // Check if the cancellation form is submitted
+        if ($this->input->post('cancel_reservation')) {
+            $reservationId = $this->input->post('reservation_id');
+
+            // Attempt to cancel the reservation
+            $cancellationResult = $this->bud_model->cancelReservation($reservationId);
+
+            // Log the cancellation result
+            $this->logCancellation($cancellationResult);
+
+            // Set flash messages based on the cancellation result
+            if ($cancellationResult) {
+                $this->session->set_flashdata('success', 'Reservation canceled successfully.');
+            } else {
+                $this->session->set_flashdata('error', 'Reservation cancellation not allowed.');
+            }
+
+            // Redirect back to the user profile page
+            redirect('Page/main');
+        }
+
+        // Load user profile view
         $this->load->view('template/header');
         $data['name'] = $this->session->userdata('name');
+        $data['reservations'] = $this->bud_model->getUserReservations($this->session->userdata('id'));
         $this->load->view('page/index', $data);
         $this->load->view('template/footer');
+    }
+
+    private function logCancellation($result)
+    {
+        // Your logging logic goes here
+        if ($result) {
+            log_message('info', 'Reservation canceled successfully.');
+        } else {
+            log_message('error', 'Failed to cancel reservation or cancellation not allowed.');
+        }
     }
 
     public function admin()

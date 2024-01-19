@@ -754,6 +754,11 @@ class bud_model extends CI_Model
         $query = $this->db->get_where('users', array('email_verification_token' => $token), 1);
         return $query->row_array();
     }
+    public function get_user_by_verification($verificationToken) {
+        $query = $this->db->get_where('users', array('email_verification_token' => $verificationToken));
+        return $query->row();
+      
+    }
     
     public function update_email_verification_status($userId, $status)
     {
@@ -797,6 +802,297 @@ class bud_model extends CI_Model
 
         $this->db->insert('refnum', $data);
     }
+    public function cancelReservation($reservationId)
+    {
+        // Get reservation details
+        $reservation = $this->db
+            ->where('id', $reservationId)
+            ->get('future')
+            ->row();
+
+        // Check if cancellation is allowed (2 days before the reservation)
+        $reservationDate = new DateTime($reservation->reserved_datetime);
+        $currentDate = new DateTime();
+        $difference = $currentDate->diff($reservationDate);
+
+        if ($difference->days >= 2) {
+            // Insert canceled reservation into the 'canceled' table
+            $canceledData = array(
+                'reserved_datetime' => $reservation->reserved_datetime,
+                'created_at' => $reservation->created_at,
+                'court' => $reservation->court,
+                'sport' => $reservation->sport,
+                'status' => 'canceled',
+                'date_of_cancellation' => date('Y-m-d H:i:s'),
+                'user_name' => $reservation->user_name,
+                'user_email' => $reservation->user_email,
+                'image' => $reservation->image,
+                'qr_code' => $reservation->qr_code,
+                'hours' => $reservation->hours,
+            );
+
+            $this->db->insert('canceled', $canceledData);
+
+            // Delete the reservation from the 'future' table
+            $this->db->where('id', $reservationId)->delete('future');
+
+            return true; // Cancellation successful
+        }
+
+        return false; // Cancellation not allowed
+    }
+    public function getUserReservations($userId)
+    {
+        // Assuming 'reservations' is the name of your table
+        $this->db->where('id', $userId);
+        $query = $this->db->get('reservations');
+
+        // Check if there are any reservations
+        if ($query->num_rows() > 0) {
+            return $query->result(); // Return an array of reservation objects
+        } else {
+            return array(); // Return an empty array if there are no reservations
+        }
+    }
+    public function addAvailability($courtId, $availableDatetime) {
+        $data = array(
+            'court_id' => $courtId,
+            'available_datetime' => $availableDatetime
+        );
+        $this->db->insert('availability', $data);
+    }
+
+    public function removeAvailability($courtId, $reservedDatetime) {
+        $this->db->where('court_id', $courtId);
+        $this->db->where('available_datetime', $reservedDatetime);
+        $this->db->delete('availability');
+    }
+
+    public function addBackAvailability($courtId, $availableDatetime) {
+        $data = array(
+            'court_id' => $courtId,
+            'available_datetime' => $availableDatetime
+        );
+        $this->db->insert('availability', $data);
+    }
+  
+
+    public function getAvailability($courtId) {
+        $this->db->where('court_id', $courtId);
+        $query = $this->db->get('availability');
+        $result = $query->result_array();
+
+        $availability = array();
+        foreach ($result as $row) {
+            $availability[] = $row['available_datetime'];
+        }
+
+        return $availability;
+    }
+    public function insertAvailability($court_id, $available_datetime) {
+        $data = array(
+            'court_id' => $court_id,
+            'available_datetime' => $available_datetime
+        );
+
+        $this->db->insert('availability', $data);
+    }
+    public function getAvailableTimes($selectedDate) {
+        // Implement your database query to get available times based on the selected date
+        // Replace 'availability' and 'available_datetime' with your actual table and column names
+        $query = $this->db->select('available_datetime')
+                          ->from('availability')
+                          ->where('DATETIME(available_datetime)', $selectedDate)
+                          ->get();
+
+        return $query->result_array();
+    }
+    public function getAllCourts() {
+        return $this->db->get('court')->result_array();
+    }
+    public function getAvailableTimeSlots() {
+        // Assuming that 'court_reservation' has columns 'start_time', 'end_time', and 'court_id'
+        $this->db->select('start_time, end_time, court_id');
+        $this->db->where('reservation_date', date('Y-m-d')); // You may need to adjust this condition based on your requirement
+        $query = $this->db->get('court_reservation');
+    
+
+    $result = $query->result_array();
+
+   
+        
+        $result = $query->result_array();
+    
+        // Process the result to format it as an array of time slots for each court
+        $available_time_slots = array();
+        foreach ($result as $row) {
+            $court_id = $row['court_id'];
+            $start_time = $row['start_time'];
+            $end_time = $row['end_time'];
+    
+            $available_time_slots[$court_id][] = $start_time . ' - ' . $end_time;
+        }
+    
+        return $available_time_slots;
+    }
+    public function reserveTimeSlot($data) {
+        // Check if the selected time slot is available
+        $this->db->where('court_id', $data['court_id']);
+        $this->db->where('reservation_date', $data['reservation_date']);
+        $this->db->where('start_time', $data['start_time']);
+        $query = $this->db->get('court_reservation');
+    
+        if ($query->num_rows() > 0) {
+            // The time slot is already reserved, handle accordingly
+            return false;
+        } else {
+            // Insert the reservation
+            $this->db->insert('court_reservation', $data);
+            return true;
+        }
+    }
+    public function generateTimeSlots($courtId, $reservationDate) {
+        $start_time = new DateTime('08:00:00');
+        $end_time = new DateTime('22:00:00');
+        $interval = new DateInterval('PT1H'); // 1-hour interval
+
+        $timeslots = array();
+
+        while ($start_time < $end_time) {
+            $timeslot = array(
+                'court_id' => $courtId,
+                'reservation_date' => $reservationDate,
+                'start_time' => $start_time->format('H:i:s'),
+                'end_time' => $start_time->add($interval)->format('H:i:s'),
+                'user_name' => '', // You can set a default value
+            );
+
+            $timeslots[] = $timeslot;
+        }
+
+        // Insert generated time slots into the database
+        $this->db->insert_batch('court_reservation', $timeslots);
+    }
+    public function generateTimeSlotsForYear($year) {
+        $start_date = $year . '-01-01';
+        $end_date = $year . '-12-31';
+    
+        $start_time = new DateTime('08:00:00');
+        $end_time = new DateTime('22:00:00');
+        $interval = new DateInterval('PT1H'); // 1-hour interval
+    
+        $time_slots = array();
+    
+        $current_date = new DateTime($start_date);
+    
+        while ($current_date <= new DateTime($end_date)) {
+            $current_time = clone $start_time;
+    
+            while ($current_time < $end_time) {
+                $time_slots[] = array(
+                    'court_id' => 1, // Replace with the actual court ID
+                    'reservation_date' => $current_date->format('Y-m-d'),
+                    'start_time' => $current_time->format('H:i:s'),
+                    'end_time' => $current_time->add($interval)->format('H:i:s'),
+                    'user_name' => '', // You can set a default value
+                );
+            }
+    
+            $current_date->modify('+1 day');
+            $current_time = clone $start_time;
+        }
+    
+        // Insert generated time slots into the database
+        $this->db->insert_batch('court_time_slots', $time_slots);
+    }
+    public function isTimeslotAvailable($courtId, $date, $startTime, $endTime) {
+        $this->db->where('court_id', $courtId);
+        $this->db->where('availability_date', $date);
+        $this->db->where('start_time <', $endTime);
+        $this->db->where('end_time >', $startTime);
+
+        $query = $this->db->get('court_availability');
+
+        return $query->num_rows() == 0;
+    }
+    public function getEvents() {
+        $this->db->select('availability_id as id, court_id, availability_date as start, start_time as startTime, end_time as endTime');
+        $query = $this->db->get('court_availability');
+
+        return $query->result_array();
+    }
+    public function nsertAvailability($courtId, $date, $startTime) {
+        // Adjust the database table and column names based on your actual structure
+        $data = array(
+            'court_id' => $courtId,
+            'availability_date' => $date,
+            'start_time' => $startTime,
+            'end_time' => date('H:i:s', strtotime($startTime . ' +1 hour')),
+        );
+
+        $this->db->insert('court_availability', $data);
+    }
+    public function get_available_times() {
+        // Get all reservations between the specified time range
+        $this->db->select('StartTime, EndTime');
+        $this->db->from('testreserve');
+        $this->db->where('StartTime IS NULL OR StartTime >=', '2024-01-08 08:00:00');
+        $this->db->where('EndTime IS NULL OR EndTime <=', '2024-01-08 22:00:00');
+        $query = $this->db->get();
+        $reserved_times = $query->result();
+    
+        // Generate all possible times between 8 am to 10 pm
+        $all_times = $this->generate_times('08:00:00', '22:00:00');
+    
+        // Remove reserved times from the available times
+        $available_times = array_diff($all_times, $this->extract_reserved_times($reserved_times));
+    
+        return $available_times;
+    }
+    
+    
+    private function generate_times($start_time, $end_time) {
+        $times = array();
+        $current_time = strtotime($start_time);
+
+        while ($current_time <= strtotime($end_time)) {
+            $times[] = date('h:i A', $current_time);
+            $current_time += 60 * 60; // increment by 1 hour
+        }
+
+        return $times;
+    }
+
+    private function extract_reserved_times($reserved_times) {
+        $times = array();
+
+        foreach ($reserved_times as $reserved_time) {
+            $start_time = date('h:i A', strtotime($reserved_time->StartTime));
+            $end_time = date('h:i A', strtotime($reserved_time->EndTime));
+
+            // Add all times between start and end time to the reserved times array
+            $times = array_merge($times, $this->generate_times($start_time, $end_time));
+        }
+
+        return $times;
+    }
+    public function insert_reservation($data) {
+        // Insert reservation data into the 'testreserve' table
+        $this->db->insert('testreserve', $data);
+    
+        // Check if the insertion was successful
+        return $this->db->affected_rows() > 0;
+    }
+    public function process_reservation() {
+        // Implement logic to process the reservation
+        // This could involve inserting data into the database, etc.
+
+        // For demonstration purposes, let's assume the reservation is successful
+        // and no database interaction is required in this example.
+    }
+
+    
+            
 }
 
         
