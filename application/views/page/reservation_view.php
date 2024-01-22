@@ -16,12 +16,22 @@
 
         <?php echo validation_errors(); ?>
 
-        <?php if (empty($available_times)): ?>
+        <?php
+        // Check if reservation success flash data exists
+        $reservation_success = $this->session->flashdata('reservation_success');
+
+        if ($reservation_success) {
+            echo '<div class="alert alert-success">' . $reservation_success . '</div>';
+        }
+        ?>
+
+       <!--  <?php if (empty($available_times)): ?>
             <div class="alert alert-warning">
                 No more available timeslots. Please choose a different date or time.
             </div>
-        <?php else: ?>
-            <?php echo form_open('Page/reservationviewprocess'); ?>
+        <?php else: ?> -->
+            <?php echo form_open('Page/reservationviewprocess', array('enctype' => 'multipart/form-data')); ?>
+
 
             <div class="form-group">
                 <label for="date">Date:</label>
@@ -43,7 +53,7 @@
             </div>
 
             <div class="form-group">
-                <label for="court">Court:</label>
+                <label for="court">Court: Price per Hour <br>Special: 250PHP Regular 210PHP Beginner 180PHP</label>
                 <select class="form-control" id="court" name="court" required>
                     <?php foreach ($court_categories as $key => $category): ?>
                         <option value="<?php echo $category['start_court']; ?>">
@@ -77,6 +87,11 @@
                     <?php endforeach; ?>
                 </select>
                 <div class="invalid-feedback">Please select an end time.</div>
+            </div>
+            <div class="form-group">
+                <label for="proof_of_payment">Proof of Payment Gcash Payment Only (Screenshot) Gcash 09060886262:</label>
+                <input type="file" id="referenceNum" name="referenceNum" class="form-control" required>
+                <div class="invalid-feedback">Please upload a valid image file.</div>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit Reservation</button>

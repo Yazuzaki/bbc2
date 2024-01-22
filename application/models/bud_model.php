@@ -79,6 +79,10 @@ class bud_model extends CI_Model
     {
         return $this->db->get('reservations')->result();
     }
+    public function get_all_reservations2()
+    {
+        return $this->db->get('testreserve')->result();
+    }
     public function get_all_canceled_reservations()
     {
         return $this->db->get('canceled')->result();
@@ -726,6 +730,10 @@ class bud_model extends CI_Model
     }
     public function getReservationDetailsByQRCode($reservationQRCode) {
         $query = $this->db->get_where('reservations', array('qr_code' => $reservationQRCode));
+        return $query->row();
+    }
+    public function getReservationDetailsByQRCodev2($reservationQRCode) {
+        $query = $this->db->get_where('testreserve', array('qr_code' => $reservationQRCode));
         return $query->row();
     }
     public function get_qr_code_data() {

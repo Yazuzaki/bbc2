@@ -74,6 +74,7 @@
                     <th>Name</th>
                     <th>Date</th>
                     <th>Start Time</th>
+                    <th>Status</th>
                     <th>End Time</th>
                     <th>Action</th>
                 </tr>
@@ -84,6 +85,7 @@
                         <td><?php echo $reservation->ReservationID; ?></td>
                         <td><?php echo $reservation->Username; ?></td>
                         <td><?php echo $reservation->Date; ?></td>
+                        <td><?php echo $reservation->status; ?></td>
                         <td><?php echo $reservation->StartTime; ?></td>
                         <td><?php echo $reservation->EndTime; ?></td>
                         <td>

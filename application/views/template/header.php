@@ -57,10 +57,10 @@
               <a class="nav-link" href="" rel="nofollow" target="_blank"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
+              <a class="nav-link" href="<?php echo base_url('page/reservation_view'); ?>">Reserve</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservations</a>
+              <a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservation</a>
             </li>
           </ul>
 
@@ -127,6 +127,47 @@
             <li class="nav-item">
               <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservation</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav d-flex flex-row">
+            <?php
+            // Check if the user is logged in
+            if ($this->session->userdata('id')) {
+              // Load the user's data from the database using the user ID
+              $user_id = $this->session->userdata('id');
+              $user = $this->db->get_where('users', array('id' => $user_id))->row();
+
+              if ($user) {
+                // If the user is an admin, show the "Admin" link
+                if ($user->role === 'admin') {
+                  echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/admin') . '">Admin</a>
+            </li>';
+                }
+
+
+                echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/logout') . '">Logout</a>
+            </li>';
+              }
+            } else {
+              // If not logged in, show the "Sign In" link
+              echo '<li class="nav-item me-3 me-lg-0">
+          <a class="nav-link" href="' . base_url('page/loginview') . '">Sign In</a>
+        </li>';
+              echo '<li class="nav-item me-3 me-lg-0">
+        <a class="nav-link" href="' . base_url('page/register') . '">Register</a>
+      </li>';
+            }
+            ?>
+
+
+            <!-- Icons -->
+
+
+
           </ul>
         </div>
       </div>

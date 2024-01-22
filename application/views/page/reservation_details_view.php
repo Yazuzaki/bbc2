@@ -21,28 +21,31 @@
             </tr>
             <tr>
                 <th>Reservation ID</th>
-                <td><?= $reservationDetails['id'] ?></td>
+                <td><?= $reservationDetails['ReservationID'] ?></td>
             </tr>
             <tr>
                 <th>Name</th>
-                <td><?= $reservationDetails['user_name'] ?></td>
+                <td><?= $reservationDetails['Username'] ?></td>
             </tr>
             <tr>
                 <th>Reservation Date</th>
-                <td><?= $reservationDetails['reserved_datetime'] ?></td>
+                <td><?= $reservationDetails['Date'] ?></td>
+            </tr>
+            <th>Reservation Start</th>
+                <td><?= $reservationDetails['StartTime'] ?></td>
+            </tr>
+            <th>Reservation End</th>
+                <td><?= $reservationDetails['EndTime'] ?></td>
             </tr>
             <tr>
                 <th>Court</th>
-                <td><?= $reservationDetails['court'] ?></td>
+                <td><?= $reservationDetails['court_id'] ?></td>
             </tr>
             <tr>
                 <th>Sport</th>
-                <td><?= $reservationDetails['sport'] ?></td>
+                <td><?= $reservationDetails['sport_id'] ?></td>
             </tr>
-            <tr>
-                <th>Hours</th>
-                <td><?= $reservationDetails['hours'] ?></td>
-            </tr>
+          
         </table>
     </div>
     <!-- Include Bootstrap JS and jQuery -->
