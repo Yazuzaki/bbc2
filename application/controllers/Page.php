@@ -76,50 +76,98 @@ class Page extends CI_Controller
         $this->load->helper('form');
         $this->load->model('bud_model');
 
-        // Get available times
-        $data['available_times'] = $this->bud_model->get_available_times();
+       
+
+        // Get available times for the specified date
+        $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
+        $data['court_categories'] = $this->bud_model->get_court_categories();
+        $data['sports'] = $this->bud_model->get_sports();
 
         // Load the view
         $this->load->view('page/reservation_view', $data);
     }
-    public function reservationviewprocess() {
-        // Load necessary helpers and models
-        $this->load->helper('form');
-        $this->load->model('bud_model');
+    public function date_click() {
+        $selectedDate = $this->input->post('date');
+        $availableTimes = $this->bud_model->get_available_times_by_date($selectedDate);
     
-        // Validate form data
-        $this->form_validation->set_rules('start_time', 'Start Time', 'required');
-        $this->form_validation->set_rules('end_time', 'End Time', 'required');
-    
-        if ($this->form_validation->run() == FALSE) {
-            // Form validation failed, show the form again with errors
-            $this->index();
-        } else {
-            // Form validation passed, process the reservation
-    
-            // Get the form data
-            $start_time = $this->input->post('start_time');
-            $end_time = $this->input->post('end_time');
-    
-            // Additional validation or business logic can be performed here
-    
-            // Insert reservation data into the database
-            $reservation_data = array(
-                'StartTime' => $start_time,
-                'EndTime' => $end_time,
-                'Username' => 'JohnDoe', // Replace with the actual username or user ID
-                'court_id' => 1, // Replace with the actual court ID
-                'sport_id' => 1, // Replace with the actual sport ID
-            );
-    
-            // Insert reservation data into the database using the model
-            $this->bud_model->insert_reservation($reservation_data);
-
-    
-            // Redirect to a success page or show a success message
-            $this->load->view('page/landing_page');
-        }
+        echo json_encode($availableTimes);
     }
+    
+        public function reservationviewprocess() {
+            // Load necessary helpers and models
+            $this->load->helper('form');
+            $this->load->library('form_validation');
+            $this->load->model('bud_model');
+
+            // Validate form data
+            $this->form_validation->set_rules('start_time', 'Start Time', 'required');
+            $this->form_validation->set_rules('end_time', 'End Time', 'required');
+            $this->form_validation->set_rules('court', 'Court', 'required|numeric');
+            $this->form_validation->set_rules('sport', 'Sport', 'required|numeric');
+            $this->form_validation->set_rules('date', 'Date', 'required|date');
+
+            if ($this->form_validation->run() == FALSE) {
+                // Form validation failed, show the form again with errors
+                $this->index();
+            } else {
+                // Form validation passed, process the reservation
+
+                // Get the form data
+                $start_time = $this->input->post('start_time');
+                $end_time = $this->input->post('end_time');
+                $court_id = $this->input->post('court');
+                $sport_id = $this->input->post('sport');
+                $date = $this->input->post('date');
+
+                // Get court category information
+                $court_categories = $this->bud_model->get_court_categories();
+                $court_category = null;
+
+                foreach ($court_categories as $category) {
+                    if ($court_id >= $category['start_court'] && $court_id <= $category['end_court']) {
+                        $court_category = $category;
+                        break;
+                    }
+                }
+
+               
+
+                // Insert reservation data into the database
+                $reservation_data = array(
+                    'StartTime' => $start_time,
+                    'EndTime' => $end_time,
+                    'Username' => 'JohnDoe', // Replace with the actual username or user ID
+                    'court_id' => $court_id,
+                    'sport_id' => $sport_id,
+                    'Date' => $date,
+                    
+                );
+
+                // Insert reservation data into the database using the model
+                $this->bud_model->insert_reservation($reservation_data);
+
+                // Redirect to a success page or show a success message
+                $this->load->view('page/landing_page');
+            }
+        }
+    public function get_available_times() {
+        // Load necessary models
+        $this->load->model('bud_model');
+
+        // Get date and court from POST data
+        $date = $this->input->post('date');
+        $court = $this->input->post('court');
+
+        // Validate and sanitize input if needed
+
+        // Get available times from the model
+        $available_times = $this->bud_model->get_available_times($date, $court);
+
+        // Return the available times as JSON
+        $this->output->set_content_type('application/json')->set_output(json_encode($available_times));
+    }
+
+
     
     
     // Your controller method
@@ -292,7 +340,7 @@ $this->bud_model->generateTimeSlotsForYear(2024);
 
 
     }
-    public function get_available_times() {
+   /*  public function get_available_times() {
         // Check if the selected_date parameter is set in the POST request
         if ($this->input->post('selected_date')) {
             $selectedDate = $this->input->post('selected_date');
@@ -309,7 +357,7 @@ $this->bud_model->generateTimeSlotsForYear(2024);
             // Handle the case where selected_date is not provided
             echo '<p>Invalid request. Please provide a selected_date parameter.</p>';
         }
-    }
+    } */
     public function check_availability() {
         $data['sports'] = ['Badminton', 'Table Tennis', 'Pickleball', 'Darts'];
 
@@ -350,6 +398,27 @@ $this->bud_model->generateTimeSlotsForYear(2024);
         $this->load->view('page/reserve',$data);
 
 
+    }
+    public function reserve_status()
+    {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+
+        // Load model
+        $this->load->model('bud_model');
+
+        // Get user ID from session
+        $userEmail = $this->session->userdata('user_email');
+
+        // Get reservations for the logged-in user
+        $data['reservations'] = $this->bud_model->getReservationsByUserEmail($userEmail);
+
+        // Load views
+        $this->load->view('template/header');
+        $this->load->view('page/reserve_status', $data);
     }
     public function test2()
     {

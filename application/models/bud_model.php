@@ -1032,23 +1032,25 @@ class bud_model extends CI_Model
 
         $this->db->insert('court_availability', $data);
     }
-    public function get_available_times() {
-        // Get all reservations between the specified time range
+    public function get_available_times($selected_date) {
+        // Get all reservations for the specified date
         $this->db->select('StartTime, EndTime');
         $this->db->from('testreserve');
-        $this->db->where('StartTime IS NULL OR StartTime >=', '2024-01-08 08:00:00');
-        $this->db->where('EndTime IS NULL OR EndTime <=', '2024-01-08 22:00:00');
+        $this->db->where('Date', $selected_date);
         $query = $this->db->get();
         $reserved_times = $query->result();
     
         // Generate all possible times between 8 am to 10 pm
-        $all_times = $this->generate_times('08:00:00', '22:00:00');
+        $all_times = $this->generate_times('09:00:00', '22:00:00');
     
         // Remove reserved times from the available times
         $available_times = array_diff($all_times, $this->extract_reserved_times($reserved_times));
     
         return $available_times;
     }
+    
+    
+    
     
     
     private function generate_times($start_time, $end_time) {
@@ -1076,6 +1078,42 @@ class bud_model extends CI_Model
 
         return $times;
     }
+    public function get_court_categories() {
+        return array(
+            'special_court' => array('start_court' => 1, 'end_court' => 3, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 250),
+            'regular_court' => array('start_court' => 4, 'end_court' => 8, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 210),
+            'beginner_court' => array('start_court' => 9, 'end_court' => 11, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 180),
+        );
+    }
+    // Inside bud_model.php
+public function auto_assign_court($court_category) {
+    // Query the database to get an available court within the specified category
+    $this->db->select('court_id');
+    $this->db->from('court');
+    $this->db->where('category', $court_category);
+    $this->db->where('is_available', 1); // Assuming you have a column indicating whether a court is available
+    $this->db->limit(1);
+    $query = $this->db->get();
+
+    if ($query->num_rows() > 0) {
+        // Court found, return the court_id
+        return $query->row('court_id');
+    } else {
+        // No available court in the specified category
+        return false;
+    }
+}
+
+
+    public function get_sports() {
+        return array(
+            'badminton' => array('id' => 1, 'name' => 'Badminton', 'fee' => 50),
+            'pickleball' => array('id' => 2, 'name' => 'Pickleball', 'fee' => 50),
+            'table_tennis' => array('id' => 3, 'name' => 'Table Tennis', 'fee' => 50),
+            'darts' => array('id' => 4, 'name' => 'Darts', 'fee' => 50),
+            // Add more sports as needed
+        );
+    }
     public function insert_reservation($data) {
         // Insert reservation data into the 'testreserve' table
         $this->db->insert('testreserve', $data);
@@ -1091,8 +1129,60 @@ class bud_model extends CI_Model
         // and no database interaction is required in this example.
     }
 
-    
-            
+    public function getReservationsByUserEmail($userEmail)
+    {
+        $this->db->select('*');
+        $this->db->from('reservations');
+        $this->db->where('user_email', $userEmail);
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+    // In your Bud_model.php
+
+public function get_available_times_by_date($selectedDate) {
+    // Get all reservations for the selected date
+    $this->db->select('StartTime, EndTime');
+    $this->db->from('testreserve');
+    $this->db->where('Date', $selectedDate);
+    $query = $this->db->get();
+    $reservedTimes = $query->result();
+
+    // Generate all possible times between 8 am to 10 pm
+    $allTimes = $this->generate_times2('09:00:00', '22:00:00');
+
+    // Remove reserved times from the available times
+    $availableTimes = array_diff($allTimes, $this->extract_reserved_times2($reservedTimes));
+
+    return $availableTimes;
+}
+
+private function generate_times2($startTime, $endTime) {
+    $times = array();
+    $currentTime = strtotime($startTime);
+
+    while ($currentTime <= strtotime($endTime)) {
+        $times[] = date('h:i A', $currentTime);
+        $currentTime += 60 * 60; // increment by 1 hour
+    }
+
+    return $times;
+}
+
+private function extract_reserved_times2($reservedTimes) {
+    $times = array();
+
+    foreach ($reservedTimes as $reservedTime) {
+        $startTime = date('h:i A', strtotime($reservedTime->StartTime));
+        $endTime = date('h:i A', strtotime($reservedTime->EndTime));
+
+        // Add all times between start and end time to the reserved times array
+        $times = array_merge($times, $this->generate_times($startTime, $endTime));
+    }
+
+    return $times;
+}
+
 }
 
         
