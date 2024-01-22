@@ -1079,12 +1079,31 @@ class bud_model extends CI_Model
         return $times;
     }
     public function get_court_categories() {
-        return array(
-            'special_court' => array('start_court' => 1, 'end_court' => 3, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 250),
-            'regular_court' => array('start_court' => 4, 'end_court' => 8, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 210),
-            'beginner_court' => array('start_court' => 9, 'end_court' => 11, 'start_time' => '08:00:00', 'end_time' => '22:00:00', 'fee' => 180),
-        );
+        // Assume you have loaded the database library
+    
+        // Select relevant columns from the courts table
+        $this->db->select('court_id, court_number, category, price');
+        $this->db->from('courts');
+    
+        // Get the result set
+        $query = $this->db->get();
+        $courts = $query->result_array();
+    
+        // Organize the result into the desired format
+        $courtCategories = array();
+        foreach ($courts as $court) {
+            $courtCategories[$court['category']] = array(
+                'start_court' => $court['court_id'],
+                'end_court' => $court['court_id'],
+                'start_time' => '08:00:00', // You might want to fetch this from the database as well
+                'end_time' => '22:00:00',   // You might want to fetch this from the database as well
+                'fee' => $court['price']
+            );
+        }
+    
+        return $courtCategories;
     }
+    
     // Inside bud_model.php
 public function auto_assign_court($court_category) {
     // Query the database to get an available court within the specified category
