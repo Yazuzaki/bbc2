@@ -59,6 +59,9 @@
             <li class="nav-item">
               <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservations</a>
+            </li>
           </ul>
 
           <ul class="navbar-nav d-flex flex-row">

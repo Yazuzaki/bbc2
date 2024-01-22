@@ -1104,24 +1104,8 @@ class bud_model extends CI_Model
         return $courtCategories;
     }
     
-    // Inside bud_model.php
-public function auto_assign_court($court_category) {
-    // Query the database to get an available court within the specified category
-    $this->db->select('court_id');
-    $this->db->from('court');
-    $this->db->where('category', $court_category);
-    $this->db->where('is_available', 1); // Assuming you have a column indicating whether a court is available
-    $this->db->limit(1);
-    $query = $this->db->get();
+    
 
-    if ($query->num_rows() > 0) {
-        // Court found, return the court_id
-        return $query->row('court_id');
-    } else {
-        // No available court in the specified category
-        return false;
-    }
-}
 
 
     public function get_sports() {
@@ -1151,11 +1135,36 @@ public function auto_assign_court($court_category) {
     public function getReservationsByUserEmail($userEmail)
     {
         $this->db->select('*');
-        $this->db->from('reservations');
-        $this->db->where('user_email', $userEmail);
+        $this->db->from('testreserve');
+        $this->db->where('Username', $userEmail);
         $query = $this->db->get();
 
         return $query->result();
+    }
+    public function cancel_reservation($reservationId) {
+        // Implement your cancellation logic here
+        // For example, you might perform a database query to delete the reservation
+
+        $this->db->where('ReservationID', $reservationId);
+        $this->db->delete('testreserve');
+
+        // Check if the delete operation was successful
+        return $this->db->affected_rows() > 0;
+    }
+    public function getReservationByIdAndUser($reservation_id, $user_email) {
+        $this->db->select('*');
+        $this->db->from('testreserve');
+        $this->db->where('id', $reservation_id);
+        $this->db->where('user_email', $user_email);
+        $query = $this->db->get();
+
+        return $query->row();
+    }
+
+    public function deleteReservation($reservation_id) {
+        // Implement the logic to delete the reservation from the database
+        $this->db->where('id', $reservation_id);
+        $this->db->delete('reservations');
     }
     // In your Bud_model.php
 

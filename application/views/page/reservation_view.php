@@ -30,6 +30,30 @@
                     max="<?php echo date('Y-m-d', strtotime('+1 year')); ?>">
                 <div class="invalid-feedback">Please select a date.</div>
             </div>
+            <div class="form-group">
+                <label for="sport">Sport:</label>
+                <select class="form-control" id="sport" name="sport" required>
+                    <?php foreach ($sports as $sport): ?>
+                        <option value="<?php echo $sport['id']; ?>">
+                            <?php echo $sport['name']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="invalid-feedback">Please select a sport.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="court">Court:</label>
+                <select class="form-control" id="court" name="court" required>
+                    <?php foreach ($court_categories as $key => $category): ?>
+                        <option value="<?php echo $category['start_court']; ?>">
+                            <?php echo ucfirst($key); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="invalid-feedback">Please select a court.</div>
+            </div>
+
 
             <div class="form-group">
                 <label for="start_time">Start Time:</label>
@@ -53,30 +77,6 @@
                     <?php endforeach; ?>
                 </select>
                 <div class="invalid-feedback">Please select an end time.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="sport">Sport:</label>
-                <select class="form-control" id="sport" name="sport" required>
-                    <?php foreach ($sports as $sport): ?>
-                        <option value="<?php echo $sport['id']; ?>">
-                            <?php echo $sport['name']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <div class="invalid-feedback">Please select a sport.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="court">Court:</label>
-                <select class="form-control" id="court" name="court" required>
-                    <?php foreach ($court_categories as $key => $category): ?>
-                        <option value="<?php echo $category['start_court']; ?>">
-                            <?php echo ucfirst($key); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <div class="invalid-feedback">Please select a court.</div>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit Reservation</button>

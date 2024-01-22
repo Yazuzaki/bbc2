@@ -93,63 +93,64 @@ class Page extends CI_Controller
         echo json_encode($availableTimes);
     }
     
-        public function reservationviewprocess() {
-            // Load necessary helpers and models
-            $this->load->helper('form');
-            $this->load->library('form_validation');
-            $this->load->model('bud_model');
-
-            // Validate form data
-            $this->form_validation->set_rules('start_time', 'Start Time', 'required');
-            $this->form_validation->set_rules('end_time', 'End Time', 'required');
-            $this->form_validation->set_rules('court', 'Court', 'required|numeric');
-            $this->form_validation->set_rules('sport', 'Sport', 'required|numeric');
-            $this->form_validation->set_rules('date', 'Date', 'required|date');
-
-            if ($this->form_validation->run() == FALSE) {
-                // Form validation failed, show the form again with errors
-                $this->index();
-            } else {
-                // Form validation passed, process the reservation
-
-                // Get the form data
-                $start_time = $this->input->post('start_time');
-                $end_time = $this->input->post('end_time');
-                $court_id = $this->input->post('court');
-                $sport_id = $this->input->post('sport');
-                $date = $this->input->post('date');
-
-                // Get court category information
-                $court_categories = $this->bud_model->get_court_categories();
-                $court_category = null;
-
-                foreach ($court_categories as $category) {
-                    if ($court_id >= $category['start_court'] && $court_id <= $category['end_court']) {
-                        $court_category = $category;
-                        break;
-                    }
+    public function reservationviewprocess() {
+        // Load necessary helpers and models
+        $this->load->helper('form');
+        $this->load->library('form_validation');
+        $this->load->model('bud_model');
+    
+        // Validate form data
+        $this->form_validation->set_rules('start_time', 'Start Time', 'required');
+        $this->form_validation->set_rules('end_time', 'End Time', 'required');
+        $this->form_validation->set_rules('court', 'Court', 'required|numeric');
+        $this->form_validation->set_rules('sport', 'Sport', 'required|numeric');
+        $this->form_validation->set_rules('date', 'Date', 'required|date');
+    
+        if ($this->form_validation->run() == FALSE) {
+            // Form validation failed, show the form again with errors
+            $this->index();
+        } else {
+            // Form validation passed, process the reservation
+    
+            // Get the form data
+            $start_time = $this->input->post('start_time');
+            $end_time = $this->input->post('end_time');
+            $court_id = $this->input->post('court');
+            $sport_id = $this->input->post('sport');
+            $date = $this->input->post('date');
+    
+            // Get court category information
+            $court_categories = $this->bud_model->get_court_categories();
+            $court_category = null;
+    
+            foreach ($court_categories as $category) {
+                if ($court_id >= $category['start_court'] && $court_id <= $category['end_court']) {
+                    $court_category = $category;
+                    break;
                 }
-
-               
-
-                // Insert reservation data into the database
-                $reservation_data = array(
-                    'StartTime' => $start_time,
-                    'EndTime' => $end_time,
-                    'Username' => 'JohnDoe', // Replace with the actual username or user ID
-                    'court_id' => $court_id,
-                    'sport_id' => $sport_id,
-                    'Date' => $date,
-                    
-                );
-
-                // Insert reservation data into the database using the model
-                $this->bud_model->insert_reservation($reservation_data);
-
-                // Redirect to a success page or show a success message
-                $this->load->view('page/landing_page');
             }
+    
+            // Get the username from the session
+            $username = $this->session->userdata('name');
+    
+            // Insert reservation data into the database
+            $reservation_data = array(
+                'StartTime' => $start_time,
+                'EndTime' => $end_time,
+                'Username' => $username,
+                'court_id' => $court_id,
+                'sport_id' => $sport_id,
+                'Date' => $date,
+            );
+    
+            // Insert reservation data into the database using the model
+            $this->bud_model->insert_reservation($reservation_data);
+    
+            // Redirect to a success page or show a success message
+            $this->load->view('page/landing_page');
         }
+    }
+    
     public function get_available_times() {
         // Load necessary models
         $this->load->model('bud_model');
@@ -411,7 +412,7 @@ $this->bud_model->generateTimeSlotsForYear(2024);
         $this->load->model('bud_model');
 
         // Get user ID from session
-        $userEmail = $this->session->userdata('user_email');
+        $userEmail = $this->session->userdata('name');
 
         // Get reservations for the logged-in user
         $data['reservations'] = $this->bud_model->getReservationsByUserEmail($userEmail);
@@ -420,6 +421,39 @@ $this->bud_model->generateTimeSlotsForYear(2024);
         $this->load->view('template/header');
         $this->load->view('page/reserve_status', $data);
     }
+    public function cancelReservation() {
+        $reservationId = $this->input->post('reservationId');
+
+        // Load necessary models
+        $this->load->model('bud_model');
+
+        // Implement the logic to cancel the reservation in the model
+        $result = $this->bud_model->cancel_reservation($reservationId);
+
+        if ($result) {
+            echo "Reservation canceled successfully.";
+        } else {
+            echo "Error canceling reservation.";
+        }
+    }
+
+
+    private function is_within_cancellation_period($reservation_datetime) {
+        // Convert reservation_datetime to a DateTime object
+        $reservation_date = new DateTime($reservation_datetime);
+    
+        // Calculate the cancellation date by subtracting 48 hours from the reservation date
+        $cancellation_date = clone $reservation_date;
+        $cancellation_date->sub(new DateInterval('PT48H'));
+    
+        // Get the current date and time
+        $current_date = new DateTime();
+    
+        // Check if the current date and time are after the cancellation date
+        return $current_date > $cancellation_date;
+    }
+    
+
     public function test2()
     {
         // Check if the user is logged in
@@ -1134,37 +1168,7 @@ $this->bud_model->generateTimeSlotsForYear(2024);
             echo json_encode([]);
         }
     }
-    public function grab_reservations()
-    {
-        // Handle form submission
-        if ($this->input->server('REQUEST_METHOD') === 'POST') {
-            $start_date = $this->input->post('start_date');
-            $end_date = $this->input->post('end_date');
-
-            // Query to fetch future reservations
-            $this->db->where('reserved_datetime >=', $start_date);
-            $this->db->where('reserved_datetime <=', $end_date);
-            $query = $this->db->get('reservations');
-
-            // Check if there are future reservations
-            if ($query->num_rows() > 0) {
-                $future_reservations = $query->result_array();
-
-                // Loop through future reservations and insert into the future table
-                foreach ($future_reservations as $reservation) {
-                    $this->db->insert('future', $reservation);
-                }
-
-                // delete from pending
-                $this->db->where('reserved_datetime >=', $start_date);
-                $this->db->where('reserved_datetime <=', $end_date);
-                $this->db->delete('reservations');
-            }
-        }
-
-        // Load the view with the updated reservation data
-        $this->load->view('reservation_view');
-    }
+ 
     public function move_reservation_to_table($reservationId, $tableName)
     {
         // Check if the $tableName is 'today' or 'future'
