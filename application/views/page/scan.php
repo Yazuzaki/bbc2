@@ -62,7 +62,8 @@
                     scannedTextElement.textContent = text;
 
                     // Define a regular expression for matching reference numbers
-                    var referenceNumberRegex = /\b(?:Ref\. No\.|Reference\s*Number)\s*([\d\s]+)\b/g;
+                    var referenceNumberRegex = /\b(?:Ref(?:\.|:)?\s*No(?:\.|:)?|Reference\s*Number)\s*([\d\s]+)\b/g;
+
 
                     // Extract reference numbers from the scanned text
                     var matches = referenceNumberRegex.exec(text);

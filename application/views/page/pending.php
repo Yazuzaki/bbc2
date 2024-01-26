@@ -229,65 +229,7 @@
             </div>
         </div>
     </div>
-    <!-- ... (Your existing code) ... -->
-
-    <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog" aria-labelledby="rescheduleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rescheduleModalLabel">Edit Reservation</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="reservationForm">
-                        <!-- Hidden field to store reservation ID -->
-                        <input type="hidden" name="reservationId" id="reservationId" value="">
-
-                        <!-- Other input fields for editing data -->
-                        <div class="form-group">
-                            <label for="currentReservedDate">Reserved Date:</label>
-                            <input type="text" id="currentReservedDate" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="currentReservedStarttime">Start Time:</label>
-                            <input type="text" id="currentReservedStarttime" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="currentReservedEndtime">End Time:</label>
-                            <input type="text" id="currentReservedEndtime" readonly>
-                        </div>
-                        <!-- Add other fields as needed (e.g., sport, court, etc.) -->
-
-                        <!-- Updated fields for editing -->
-                        <div class="form-group">
-                            <label for="newReservedDate">New Reserved Date:</label>
-                            <input type="datetime-local" id="newReservedDate" name="newReservedDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="sport" class="form-label">Select Sport:</label>
-                            <select id="sport" name="sport" class="form-select" required>
-                                <!-- Options for sports will be dynamically populated using PHP -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="court" class="form-label">Select Court:</label>
-                            <select id="court" name="court" class="form-select" required>
-                                <!-- Options for courts will be dynamically populated using PHP -->
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="finalizeButton">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+   
 
 
 

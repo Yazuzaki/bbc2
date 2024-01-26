@@ -10,7 +10,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
 
     <title>Pending Reservation</title>
 </head>
@@ -141,63 +141,63 @@
 
                     <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
-                            <tr>
-                                <th>Reserve ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Reserved Date</th>
-
-                                <th>Created on</th>
-                                <th>Status</th>
-                                <th>Hours</th>
-                                <th>Sport</th>
-                                <th>Court</th>
-                                <th>Code</th>
-                                <th>Img_Path</th>
-                                <th>Action</th>
+                            <th>Reservation ID</th>
+                            <th>Created</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Reserved Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Status</th>
+                            <th>Sport</th>
+                            <th>Court</th>
+                            <th>QR Code</th>
+                            <th>Proof of Payment</th>
+                            <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($reservations as $row): ?>
                                 <tr>
                                     <td>
-                                        <?= $row->id ?>
+                                        <?= $row->ReservationID ?>
                                     </td>
-                                    <td>
-                                        <?= $row->user_name ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->user_email ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->reserved_datetime ?>
-                                    </td>
-
                                     <td>
                                         <?= $row->created_at ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->Username ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->email ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->Date ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->StartTime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->EndTime ?>
                                     </td>
                                     <td class="status-<?= strtolower($row->status) ?>">
                                         <?= $row->status ?>
                                     </td>
                                     <td>
-                                        <?= $row->hours ?>
+                                        <?= $row->sport_id ?>
                                     </td>
                                     <td>
-                                        <?= $row->sport ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->court ?>
+                                        <?= $row->court_id ?>
                                     </td>
                                     <td>
                                         <?= $row->qr_code ?>
                                     </td>
                                     <td>
-                                        <a href="#" onclick="showImage('<?= base_url($row->image) ?>')">
-                                            <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
+                                        <a href="#" onclick="showImage('<?= base_url($row->refnum) ?>')">
+                                            <img src="<?= base_url($row->refnum) ?>" alt="Proof of Payment" width="100"
                                                 height="100">
                                         </a>
                                     </td>
-
                                     <script>
                                         function showImage(src) {
                                             var img = new Image();
@@ -209,20 +209,21 @@
                                         }
                                     </script>
 
-
                                     <td> <a href="#" class="btn btn-success reschedule-button mb-2" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
-                                            data-id="<?= $row->id ?>"
-                                            data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>"
-                                            data-name="<?= $row->user_name ?>" data-email="<?= $row->user_email ?>"
+                                            data-id="<?= $row->ReservationID ?>" data-date="<?= $row->Date ?>"
+                                            data-start="<?= $row->StartTime ?>" data-end="<?= $row->EndTime ?>"
+                                            data-sport="<?= $row->sport_id ?>" data-court="<?= $row->court_id ?>"
+                                            data-name="<?= $row->Username ?>" data-email="<?= $row->email ?>"
                                             data-qr-code="<?= $row->qr_code ?>">
                                             Approve
                                         </a>
                                         <a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline"
-                                            data-id="<?= $row->id ?>" class="btn btn-danger">Decline</a>
+                                            data-id="<?= $row->ReservationID ?>" class="btn btn-danger">Decline</a>
                                     </td>
                                 </tr>
+
+
                             <?php endforeach; ?>
 
                         </tbody>
@@ -254,347 +255,303 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
 
-            <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
-                aria-labelledby="rescheduleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="rescheduleModalLabel">Finalize Reservation</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
+                    aria-labelledby="rescheduleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="rescheduleModalLabel">Finalize Reservation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="reservationForm">
+                                    <input type="hidden" name="reservationId" id="reservationId" value="">
+                                    <div class="form-group">
+                                        <label for="currentReservationId">Reservation ID:</label>
+                                        <input type="text" id="currentReservationId" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="userNameInput">Name:</label>
+                                        <input type="text" id="userNameInput" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="userEmailInput">Email:</label>
+                                        <input type="text" id="userEmailInput" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newReservedDatetime">New Reserved Date:</label>
+                                        <input type="date" id="newReservedDatetime" name="newReservedDatetime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newStartTime">Start Time:</label>
+                                        <select class="form-control" id="newStartTime" name="newStartTime" required>
+                                            <?php foreach ($available_times as $time): ?>
+                                                <option value="<?php echo $time; ?>">
+                                                    <?php echo $time; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newEndTime">End Time:</label>
+                                        <select class="form-control" id="newEndTime" name="newEndTime" required>
+                                            <?php foreach ($available_times as $time): ?>
+                                                <option value="<?php echo $time; ?>">
+                                                    <?php echo $time; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sport" class="form-label">Select Sport:</label>
+                                        <select id="sport" name="sport" class="form-select" required>
+                                            <?php foreach ($sports as $sport): ?>
+                                                <option value="<?php echo $sport['sport_id']; ?>">
+                                                    <?php echo $sport['sport_name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="court" class="form-label">Select Court:</label>
+                                        <select id="court" name="court" class="form-select" required>
+                                            <?php foreach ($courts as $court): ?>
+                                                <option value="<?php echo $court['court_id']; ?>">
+                                                    <?php echo $court['court_number']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-success" id="finalizeButton"
+                                    data-qr-code="<?= $row->qr_code ?>">Approve</button>
+
+
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            <form id="reservationForm">
-                                <input type="hidden" name="reservationId" id="reservationId" value="">
-                                <div class="form-group">
-                                    <label for="currentReservationId">Reservation ID:</label>
-                                    <input type="text" id="currentReservationId" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userNameInput">Name:</label>
-                                    <input type="text" id="userNameInput" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userEmailInput">Email:</label>
-                                    <input type="text" id="userEmailInput" readonly>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="newReservedDatetime">New Reserved Datetime:</label>
-                                    <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="sport" class="form-label">Select Sport:</label>
-                                    <select id="sport" name="sport" class="form-select" required>
-                                        <?php foreach ($sports as $sport): ?>
-                                            <option value="<?php echo $sport['sport_id']; ?>">
-                                                <?php echo $sport['sport_name']; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="court" class="form-label">Select Court:</label>
-                                    <select id="court" name="court" class="form-select" required>
-                                        <?php foreach ($courts as $court): ?>
-                                            <option value="<?php echo $court['court_id']; ?>">
-                                                <?php echo $court['court_number']; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-success" id="finalizeButton"
-                                data-qr-code="<?= $row->qr_code ?>">Approve</button>
-
-
-                        </div>
+                        </form>
                     </div>
-                    </form>
+
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                <script>
 
-            <script>
-                
 
-                $(document).ready(function () {
-                    $('#myTable').DataTable({
-                        
+                    $(document).ready(function () {
+                        $('#myTable').DataTable({
+
+                        });
+                        $('#responseModal').iziModal({
+                            title: 'Response',
+                            headerColor: '#1abc9c',
+                            width: 600,
+                            padding: 20,
+                            closeButton: true,
+                            overlayClose: false,
+                            overlayColor: 'rgba(0, 0, 0, 0.6)',
+                        });
+
+                        // Function to open the response modal
+                        function openResponseModal(message) {
+                            $('#responseBody').html(message);
+                            $('#responseModal').iziModal('open');
+                        }
+
                     });
-                    $('#responseModal').iziModal({
-            title: 'Response',
-            headerColor: '#1abc9c',
-            width: 600,
-            padding: 20,
-            closeButton: true,
-            overlayClose: false,
-            overlayColor: 'rgba(0, 0, 0, 0.6)',
-        });
 
-        // Function to open the response modal
-        function openResponseModal(message) {
-            $('#responseBody').html(message);
-            $('#responseModal').iziModal('open');
-        }
+                    $('.reschedule-button').click(function (e) {
+                        e.preventDefault();
 
-                });
+                        var reservationId = $(this).data('id');
+                        var reservedDate = $(this).data('date');
+                        var startTime = $(this).data('start');
+                        var endTime = $(this).data('end');
+                        var sport = $(this).data('sport');
+                        var court = $(this).data('court');
+                        var userName = $(this).data('name');
+                        var userEmail = $(this).data('email');
+                        var reservationQRCode = $(this).data('qr-code');
 
-                $('.reschedule-button').click(function (e) {
-                    e.preventDefault();
+                        // Set values in the modal
+                        $('#reservationId').val(reservationId);
+                        $('#currentReservationId').val(reservationId);
+                        $('#currentReservedDatetime').val(reservedDate);
+                        $('#newReservedDatetime').val(reservedDate);
+                        $('#newStartTime').val(startTime);
+                        $('#newEndTime').val(endTime);
+                        $('#userNameInput').val(userName);
+                        $('#userEmailInput').val(userEmail);
+                        $('#qrCodeInput').val(reservationQRCode);
 
-                    var reservationId = $(this).data('id');
-                    var reservedDatetime = $(this).data('reserved-datetime');
-                    var sport = $(this).data('sport');
-                    var court = $(this).data('court');
-                    var userName = $(this).data('name');
-                    var userEmail = $(this).data('email');
-                    var reservationQRCode = $(this).data('qr_code');
+                        $('#sport').val(sport);
+                        $('#court').val(court);
 
-                    $('#reservationId').val(reservationId);
-                    $('#currentReservationId').val(reservationId);
-                    $('#currentReservedDatetime').val(reservedDatetime);
-                    $('#newReservedDatetime').val(reservedDatetime);
-                    $('#userNameInput').val(userName);
-                    $('#userEmailInput').val(userEmail);
-                    $('#qrCodeInput').val(reservationQRCode);
+                        $('#rescheduleModal').modal('show');
+                    });
+
+                    $("#finalizeButton").click(function () {
 
 
-                    $('#sport').val(sport);
-                    $('#court').val(court);
+                        var formData = $('#reservationForm').serialize();
 
-                    $('#rescheduleModal').modal('hide');
-                });
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo base_url('Page/finalize_reservation'); ?>',
+                            data: formData,
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    alert('Reservation Approved successfully.');
 
-                $("#finalizeButton").click(function () {
-                    
 
-                    var formData = $('#reservationForm').serialize();
+                                } else {
+                                    alert('Reservation Approved successfully..');
+                                }
 
-                    $.ajax({
-                        type: 'POST',
-                        url: '<?php echo base_url('Page/finalize_reservation'); ?>',
-                        data: formData,
-                        dataType: 'json',
-                        success: function (response) {
-                            if (response.status === 'success') {
-                                alert('Reservation rescheduled successfully.');
 
-                                
-                            } else {
-                                alert('Failed to reschedule reservation.');
+                            },
+                            error: function () {
+                                $('#responseBody').html('An error occurred during the request.');
+
+
+                                $('#responseModal').modal('show');
                             }
+                        });
 
 
-                        },
-                        error: function () {
-                            $('#responseBody').html('An error occurred during the request.');
+                        var reservationQRCode = $(this).data('qr-code');
 
-                            
-                            $('#responseModal').modal('show');
+
+                        generateQRCode(reservationQRCode);
+
+                        function generateQRCode(reservationQRCode) {
+
+                            $.ajax({
+                                url: `<?= base_url('Page/generate_qrcode_and_send_emailv2/') ?>${reservationQRCode}`,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (response) {
+                                    if (response.success) {
+
+                                        approveReservation();
+                                    } else {
+                                        alert('Failed to generate QR code: ' + response.message);
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("QR Code AJAX Error:", error);
+                                }
+                            });
+                        }
+
+                        function approveReservation() {
+                            var reservationId = $('#reservationId').val();
+
+                            // Send an AJAX request to approve the reservation
+                            $.ajax({
+                                url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (response) {
+                                    if (response.status === 'success') {
+                                        alert('QR code generated and Reservation approved successfully.');
+                                    } else {
+                                        alert('Failed to approve reservation.');
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("AJAX Error:", error);
+                                }
+                            });
                         }
                     });
 
 
-                    var reservationQRCode = $(this).data('qr-code');
 
-                   
-                    generateQRCode(reservationQRCode);
 
-                    function generateQRCode(reservationQRCode) {
-                  
+
+
+
+                    // Function to handle the "Decline" button click
+                    $(".btn-danger[data-action='decline']").click(function () {
+                        const reservationId = $(this).data("id");
                         $.ajax({
-                            url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
+                            url: `<?= base_url('Page/decline_reservation/') ?>${reservationId}`,
                             type: "GET",
                             dataType: "json",
-                            success: function (response) {
-                                if (response.success) {
-                                   
-                                    approveReservation();
+                            success: function (data) {
+                                if (data.status === "success") {
+                                    $("#responseBody").text("Reservation declined successfully.");
                                 } else {
-                                    alert('Failed to generate QR code: ' + response.message);
+                                    $("#responseBody").text("Failed to decline reservation: " + data.message);
                                 }
-                            },
-                            error: function (xhr, status, error) {
-                                console.error("QR Code AJAX Error:", error);
-                            }
-                        });
-                    }
-
-                    function approveReservation() {
-                        var reservationId = $('#reservationId').val();
-
-                        // Send an AJAX request to approve the reservation
-                        $.ajax({
-                            url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
-                            type: "GET",
-                            dataType: "json",
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    alert('QR code generated and Reservation approved successfully.');
-                                } else {
-                                    alert('Failed to approve reservation.');
-                                }
+                                $('#responseModal').modal('show');
                             },
                             error: function (xhr, status, error) {
                                 console.error("AJAX Error:", error);
                             }
                         });
-                    }
-                });
-
-
-
-            /*     $('#submitReschedule').click(function () {
-                    // Serialize the form data
-                    var formData = $('#reservationForm').serialize();
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '<?php echo base_url('Page/finalize_reservation'); ?>',
-                data: formData,
-                    dataType: 'json',
-                        success: function (response) {
-                            if (response.status === 'success') {
-                                alert('Reservation rescheduled successfully.');
-                            } else {
-                                alert('Failed to reschedule reservation.');
-                            }
-
-
-                        },
-                error: function () {
-                    $('#responseBody').html('An error occurred during the request.');
-
-                    // Show the response modal
-                    $('#responseModal').modal('show');
-                }
                     });
-                });
-                $("#finalizeButton").click(function () {
+                    responseModal.addEventListener('hidden.bs.modal', function () {
+                        responseBody.innerText = '';
+                        location.reload();
+                    });
 
-                    var reservationId = $('#reservationId').val();
+                    responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
+                        responseBody.innerText = '';
+                        $('#responseModal').modal('hide');
+                        location.reload();
+                    });
 
                     $.ajax({
-                        url: `<?= base_url('Page/approve_reservation/') ?>${reservationId}`,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (response) {
-                            if (response.status === 'success') {
-                                alert('Reservation approved successfully.');
-                            } else {
-                                alert('Failed to approve reservation:');
-                            }
+                        type: 'GET',
+                        url: '<?php echo site_url("Page/get_court_choices"); ?>',
+                        dataType: 'json',
+                        success: function (courts) {
+                            var courtSelect = document.getElementById('court');
+
+
+                            courts.forEach(function (court) {
+                                var option = document.createElement('option');
+                                option.value = court.court_id;
+                                option.text = court.court_id;
+                                courtSelect.appendChild(option);
+                            });
                         },
-                        error: function (xhr, status, error) {
-                            console.error("AJAX Error:", error);
+                        error: function () {
+                            alert('Error fetching court choices');
                         }
                     });
-                });
-
-                $("#generateQRButton").click(function () {
-                    // Retrieve the reservationQRCode or generate it as needed
-                    var reservationQRCode = $(this).data('qr-code');
-                    // Make an AJAX request to call the generate_qrcode function
                     $.ajax({
-                        url: `<?= base_url('Page/generate_qrcode_and_send_email/') ?>${reservationQRCode}`,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (response) {
-                            if (response.success) {
-                                alert('QR code generated successfully.');
-                            } else {
-                                alert('Failed to generate QR code: ' + response.message);
-                            }
+                        type: 'GET',
+                        url: '<?php echo site_url("Page/get_sport_choices"); ?>',
+                        dataType: 'json',
+                        success: function (sports) {
+                            var sportSelect = document.getElementById('sport');
+
+                            sports.forEach(function (sport) {
+                                var option = document.createElement('option');
+                                option.value = sport.sport_id;
+                                option.text = sport.sport_id;
+                                sportSelect.appendChild(option);
+                            });
                         },
-                        error: function (xhr, status, error) {
-                            console.error("QR Code AJAX Error:", error);
+                        error: function () {
+                            alert('Error fetching sport choices');
                         }
                     });
-                });
- */
-
- 
- 
-
-                // Function to handle the "Decline" button click
-                $(".btn-danger[data-action='decline']").click(function () {
-                    const reservationId = $(this).data("id");
-                    $.ajax({
-                        url: `<?= base_url('Page/decline_reservation/') ?>${reservationId}`,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.status === "success") {
-                                $("#responseBody").text("Reservation declined successfully.");
-                            } else {
-                                $("#responseBody").text("Failed to decline reservation: " + data.message);
-                            }
-                            $('#responseModal').modal('show');
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("AJAX Error:", error);
-                        }
-                    });
-                });
-                responseModal.addEventListener('hidden.bs.modal', function () {
-                    responseBody.innerText = '';
-                    location.reload();
-                });
-
-                responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
-                    responseBody.innerText = '';
-                    $('#responseModal').modal('hide');
-                    location.reload();
-                });
-
-                $.ajax({
-                    type: 'GET',
-                    url: '<?php echo site_url("Page/get_court_choices"); ?>',
-                    dataType: 'json',
-                    success: function (courts) {
-                        var courtSelect = document.getElementById('court');
-
-
-                        courts.forEach(function (court) {
-                            var option = document.createElement('option');
-                            option.value = court.court_number;
-                            option.text = court.court_number;
-                            courtSelect.appendChild(option);
-                        });
-                    },
-                    error: function () {
-                        alert('Error fetching court choices');
-                    }
-                });
-                $.ajax({
-                    type: 'GET',
-                    url: '<?php echo site_url("Page/get_sport_choices"); ?>',
-                    dataType: 'json',
-                    success: function (sports) {
-                        var sportSelect = document.getElementById('sport');
-
-                        sports.forEach(function (sport) {
-                            var option = document.createElement('option');
-                            option.value = sport.sport_name;
-                            option.text = sport.sport_name;
-                            sportSelect.appendChild(option);
-                        });
-                    },
-                    error: function () {
-                        alert('Error fetching sport choices');
-                    }
-                });
 
 
 
-            </script>
+                </script>
 
 </body>
 

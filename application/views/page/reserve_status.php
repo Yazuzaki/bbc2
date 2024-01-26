@@ -37,6 +37,12 @@
             border: none;
             background: none;
         }
+
+        .cancel-btn[disabled] {
+            color: gray;
+            text-decoration: none;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +95,16 @@
                         <td><?php echo $reservation->StartTime; ?></td>
                         <td><?php echo $reservation->EndTime; ?></td>
                         <td>
-                            <button class="btn btn-danger cancel-btn" onclick="cancelReservation(<?php echo $reservation->ReservationID; ?>)">Cancel</button>
+                            <?php
+                            $now = new DateTime();
+                            $reservationStart = new DateTime($reservation->Date . ' ' . $reservation->StartTime);
+
+                            if ($now > $reservationStart) {
+                                echo '<button class="btn btn-danger cancel-btn" disabled>Cancel</button>';
+                            } else {
+                                echo '<button class="btn btn-danger cancel-btn" onclick="cancelReservation(' . $reservation->ReservationID . ')">Cancel</button>';
+                            }
+                            ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

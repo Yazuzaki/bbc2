@@ -81,6 +81,11 @@ class Page extends CI_Controller
     }
     public function reservation_view()
     {
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
+
         $this->load->helper('form');
         $this->load->model('bud_model');
 
@@ -94,6 +99,19 @@ class Page extends CI_Controller
         // Load the view
         $this->load->view('template/header');
         $this->load->view('page/reservation_view', $data);
+    }
+    public function fetch_reservations()
+    {
+        // Load the database library
+        $this->load->database();
+
+        // Fetch reservation data
+        $query = $this->db->get('testreserve');
+        $reservationData = $query->result_array();
+
+        // Return reservation data as JSON
+        header('Content-Type: application/json');
+        echo json_encode($reservationData);
     }
     public function date_click()
     {
@@ -176,7 +194,7 @@ class Page extends CI_Controller
             // Insert reservation data into the database using the model
             $this->bud_model->insert_reservation($reservation_data);
 
-         
+
             $this->session->set_flashdata('reservation_success', 'Your reservation has been received and is waiting for approval.');
 
             // Redirect to a success page or show a success message
@@ -556,12 +574,12 @@ class Page extends CI_Controller
         // This part of the code is not executed if the user is redirected
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
-        $data['reservations'] = $this->bud_model->get_all_reservations();
-        $data['ongoing_reservations'] = $this->bud_model->getOngoingReservations();
-        $data['future_reservations'] = $this->bud_model->getFutureReservations();
+        $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
+        $data['reservations'] = $this->bud_model->get_all_reservations2();
         $this->load->view('page/test', $data);
     }
-    public function pending(){
+    public function pending()
+    {
         if (!$this->session->userdata('id')) {
             // If not logged in, redirect to the login page
             redirect('page/loginview');
@@ -576,10 +594,12 @@ class Page extends CI_Controller
             redirect('page/landing_page'); // Redirect to a landing page for regular users
         }
 
+
         $data['reservations'] = $this->bud_model->get_all_reservations2();
         $data['court_categories'] = $this->bud_model->get_court_categories();
         $data['sports'] = $this->bud_model->get_sports();
         $this->load->view('page/pending', $data);
+        $this->load->view('template/adminheader');
     }
 
 
@@ -1048,19 +1068,13 @@ class Page extends CI_Controller
         $reservation = $this->bud_model->getReservation($reservationId);
 
         if ($reservation->status === 'pending') {
-            // Check if the reservation date is today
-            $today = date('Y-m-d');
-            $reservationDate = date('Y-m-d', strtotime($reservation->reserved_datetime));
+            $this->bud_model->updateStatus($reservationId, 'approved');
 
-            if ($reservationDate === $today) {
-                $this->bud_model->updateStatus($reservationId, 'approved');
-                $this->bud_model->transferToToday($reservation);
-            } else {
-                // If it's in the future, update status to 'approved' and transfer to the "future" table
-                $this->bud_model->updateStatus($reservationId, 'approved');
-                $this->bud_model->transferToFuture($reservation);
-                $this->bud_model->transferToToday($reservation);
-            }
+            $this->bud_model->transferToFuture($reservation);
+
+            $this->bud_model->updateApproveStatus($reservation->Date, 'approved');
+
+
 
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
@@ -1162,7 +1176,7 @@ class Page extends CI_Controller
             $this->bud_model->transferTodeclined($reservation);
 
             // Update status in the "today" table
-            $this->bud_model->updateDeclinedStatus($reservation->reserved_datetime, 'declined');
+            $this->bud_model->updateDeclinedStatus($reservation->Date, 'declined');
 
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
@@ -1181,7 +1195,7 @@ class Page extends CI_Controller
         $this->load->database();
 
 
-        $query = $this->db->get('courts');
+        $query = $this->db->get('court');
 
 
         if ($query->num_rows() > 0) {
@@ -1308,11 +1322,13 @@ class Page extends CI_Controller
 
         $reservationId = $this->input->post('reservationId');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
+        $newStartTime = $this->input->post('newStartTime');
+        $newEndTime = $this->input->post('newEndTime');
         $newCourt = $this->input->post('court');
         $newSport = $this->input->post('sport');
 
         // Call the model to update the reservation
-        $result = $this->bud_model->updateReservation_for_reservation($reservationId, $newReservedDatetime, $newCourt, $newSport);
+        $result = $this->bud_model->updateReservation_for_reservation($reservationId, $newReservedDatetime, $newStartTime, $newEndTime, $newCourt, $newSport);
 
         if ($result) {
             $response = array('status' => 'success');
@@ -1322,7 +1338,7 @@ class Page extends CI_Controller
 
         echo json_encode($response);
     }
-  
+
     public function check_court_sport_availability()
     {
         // Get the selected court, sport, date, and time from the AJAX request
@@ -2012,7 +2028,7 @@ class Page extends CI_Controller
                 'email' => $reservationDetails->email,
                 'court_id' => $reservationDetails->court_id,
                 'sport_id' => $reservationDetails->sport_id,
-         
+
             );
 
             // Encode the data to pass as a JSON string

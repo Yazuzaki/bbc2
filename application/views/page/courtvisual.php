@@ -1,66 +1,90 @@
-<!-- Your view file in CodeIgniter (e.g., application/views/badminton_courts.php) -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Courts</title>
-    <link rel="stylesheet" href="path/to/your/custom.css">
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.court-button').click(function () {
-                // Remove the 'selected' class from all buttons
-                $('.court-button').removeClass('selected');
-
-                // Add the 'selected' class to the clicked button
-                $(this).addClass('selected');
-
-                // You can also perform other actions here, such as updating a form input with the selected court number
-                var selectedCourt = $(this).data('court-number');
-                $('#selectedCourtInput').val(selectedCourt);
-            });
-        });
-    </script>
+    <title>Badminton Court Visualization</title>
     <style>
-        .court-button {
-            width: 100px;
-            height: 50px;
+        /* Add your CSS styles for courts here */
+        .court-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .court {
+            position: relative;
+            width: 150px;
+            height: 200px;
             margin: 10px;
-            background-color: #3498db;
-            color: #fff;
-            border: 1px solid #2980b9;
             cursor: pointer;
-            /* Add other styles as needed */
         }
 
-        /* Add a common style for the badminton court visualization */
-        .badminton-court {
-            /* Your badminton court styles here */
-            background-image: url('<?php echo base_url('asset/tennis-court-top-view-vector.jpg'); ?>');
-            background-size: cover;
-            /* Add other styles as needed */
+        .court img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .selected {
-            background-color: #e74c3c; /* Change background color for selected court */
-            border-color: #c0392b; /* Change border color for selected court */
+        .reservation-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>Badminton Courts</h1>
 
-    <!-- Loop through 11 courts -->
-    <?php for ($i = 1; $i <= 11; $i++) : ?>
-        <button class="court-button" data-court-number="<?= $i ?>">Court <?= $i ?></button>
-    <?php endfor; ?>
+<div class="court-container" id="court-container"></div>
 
-    <!-- Form input to capture selected court -->
-    <form method="post" action="path/to/your/controller/action">
-        <input type="hidden" id="selectedCourtInput" name="selected_court" value="">
-        <button type="submit">Submit</button>
-    </form>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Fetch reservation data from the server
+    $(document).ready(function() {
+        $.ajax({
+            url: '<?= base_url('badminton/fetch_reservations') ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(reservationData) {
+                renderCourts(reservationData);
+            },
+            error: function() {
+                console.error('Error fetching reservation data.');
+            }
+        });
+    });
+
+    function renderCourts(reservationData) {
+        const courtContainer = $('#court-container');
+
+        // Sample badminton court image URL
+        const courtImageURL = 'path/to/badminton_court_image.jpg';
+
+        // Assuming you have 11 courts
+        for (let i = 1; i <= 11; i++) {
+            const courtElement = $('<div class="court"></div>');
+            const courtImage = $(`<img src="${courtImageURL}" alt="Badminton Court">`);
+            courtElement.append(courtImage);
+
+            const reservation = reservationData.find(res => res.court_id === i);
+            if (reservation) {
+                const reservationInfo = $('<div class="reservation-info"></div>');
+                const status = reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1);
+                reservationInfo.text(`${reservation.Username} until ${reservation.EndTime} (${status})`);
+                courtElement.append(reservationInfo);
+            } else {
+                courtElement.append('<div class="reservation-info">No one is using this court right now</div>');
+            }
+
+            courtContainer.append(courtElement);
+        }
+    }
+</script>
+
 </body>
 </html>

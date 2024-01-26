@@ -125,7 +125,7 @@
               <a class="nav-link" aria-current="page" href="<?php echo base_url('page/landing_page'); ?>">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="<?php echo base_url('page/reserve'); ?>">Reserve</a>
+              <a class="nav-link" href="<?php echo base_url('page/reservation_view'); ?>">Reserve</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservation</a>

@@ -135,22 +135,16 @@ class bud_model extends CI_Model
             'status' => $newStatus
         );
 
-        $this->db->where('id', $reservationId);
-        $this->db->update('reservations', $data);
+        $this->db->where('ReservationID', $reservationId);
+        $this->db->update('testreserve', $data);
     }
 
     public function getReservation($reservationId)
     {
-        $this->db->where('id', $reservationId);
-        $reservation = $this->db->get('reservations')->row();
+        $this->db->where('ReservationID', $reservationId);
+        $reservation = $this->db->get('testreserve')->row();
 
-        if ($reservation) {
-            $reservation->popoverHtml = 'Reservation Details:<br>' .
-                'Date: ' . date('Y-m-d', strtotime($reservation->reserved_datetime)) . '<br>' .
-                'Time: ' . date('H:i', strtotime($reservation->reserved_datetime)) . '<br>' .
-                'Court: ' . $reservation->court . '<br>' .
-                'Sport: ' . $reservation->sport;
-        }
+      
 
         return $reservation;
     }
@@ -194,8 +188,8 @@ class bud_model extends CI_Model
 
     public function removeReservation($reservationId)
     {
-        $this->db->where('id', $reservationId);
-        $this->db->delete('reservations');
+        $this->db->where('ReservationID', $reservationId);
+        $this->db->delete('testreserve');
     }
 
     public function updateTodayStatus($reservedDatetime, $status)
@@ -208,18 +202,33 @@ class bud_model extends CI_Model
     public function transferTodeclined($reservation)
     {
         $data = array(
-            'reserved_datetime' => $reservation->reserved_datetime,
+            'ReservationID'=> $reservation->ReservationID,
+            'StartTime' => $reservation->StartTime,
+            'EndTime' => $reservation->EndTime,
+            'Username' => $reservation->Username,
+            'email' => $reservation->email,
+            'court_id' => $reservation->court_id,
+            'sport_id' => $reservation->sport_id,
+            'Date' => $reservation->Date,
+            'status'=>$reservation->status,
+            'qr_code' => $reservation->qr_code,
             'created_at' => $reservation->created_at,
-            'court' => $reservation->court,
-            'sport' => $reservation->sport,
+            'refnum' => $reservation->refnum, // This will be null if no file is uploaded
         );
-        $this->db->insert('declined', $data);
+      
+        $this->db->insert('decline', $data);
     }
     public function updateDeclinedStatus($reservedDatetime, $status)
     {
-        $this->db->where('reserved_datetime', $reservedDatetime);
+        $this->db->where('Date', $reservedDatetime);
         $data = array('status' => $status);
-        $this->db->update('declined', $data);
+        $this->db->update('decline', $data);
+    }
+    public function updateApproveStatus($reservedDatetime, $status)
+    {
+        $this->db->where('Date', $reservedDatetime);
+        $data = array('status' => $status);
+        $this->db->update('approve', $data);
     }
     public function get_reservations_by_date_range($start_date, $end_date)
     {
@@ -309,17 +318,20 @@ class bud_model extends CI_Model
     public function transferToFuture($reservation)
     {
         $data = array(
-            'reserved_datetime' => $reservation->reserved_datetime,
-            'created_at' => date('Y-m-d H:i:s'),
-            'court' => $reservation->court,
-            'sport' => $reservation->sport,
-            'user_email'=> $reservation->user_email,
-            'user_name' => $reservation->user_name,
-            'image' => $reservation->image,
-            'hours'=> $reservation->hours,
-            'status' => 'approved'
+            'ReservationID'=> $reservation->ReservationID,
+            'StartTime' => $reservation->StartTime,
+            'EndTime' => $reservation->EndTime,
+            'Username' => $reservation->Username,
+            'email' => $reservation->email,
+            'court_id' => $reservation->court_id,
+            'sport_id' => $reservation->sport_id,
+            'Date' => $reservation->Date,
+            'status'=>$reservation->status,
+            'qr_code' => $reservation->qr_code,
+            'created_at' => $reservation->created_at,
+            'refnum' => $reservation->refnum, // This will be null if no file is uploaded
         );
-        $this->db->insert('future', $data);
+        $this->db->insert('approve', $data);
     }
     public function getOngoingReservations($dateRange = null)
     {
@@ -382,16 +394,18 @@ class bud_model extends CI_Model
         return $this->db->affected_rows() > 0;
     }
 
-    public function updateReservation_for_reservation($reservationId, $newReservedDatetime, $newCourt, $newSport)
+    public function updateReservation_for_reservation($reservationId, $newReservedDatetime,$newStartTime, $newEndTime, $newCourt, $newSport)
     {
         $data = array(
-            'reserved_datetime' => $newReservedDatetime,
-            'court' => $newCourt,
-            'sport' => $newSport
+            'Date' => $newReservedDatetime,
+            'StartTime' => $newStartTime,
+            'EndTime' => $newEndTime,
+            'court_id' => $newCourt,
+            'sport_id' => $newSport
         );
 
-        $this->db->where('id', $reservationId);
-        $this->db->update('reservations', $data);
+        $this->db->where('ReservationID', $reservationId);
+        $this->db->update('testreserve', $data);
 
         return $this->db->affected_rows() > 0;
     }
@@ -1150,13 +1164,10 @@ class bud_model extends CI_Model
         return $query->result();
     }
     public function cancel_reservation($reservationId) {
-        // Implement your cancellation logic here
-        // For example, you might perform a database query to delete the reservation
 
         $this->db->where('ReservationID', $reservationId);
         $this->db->delete('testreserve');
 
-        // Check if the delete operation was successful
         return $this->db->affected_rows() > 0;
     }
     public function getReservationByIdAndUser($reservation_id, $user_email) {
@@ -1192,6 +1203,7 @@ public function get_available_times_by_date($selectedDate) {
 
     return $availableTimes;
 }
+
 
 private function generate_times2($startTime, $endTime) {
     $times = array();
