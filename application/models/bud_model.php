@@ -83,6 +83,11 @@ class bud_model extends CI_Model
     {
         return $this->db->get('testreserve')->result();
     }
+    public function get_all_reservationsdec()
+    {
+        return $this->db->get('decline')->result();
+    }
+    
     public function get_all_canceled_reservations()
     {
         return $this->db->get('canceled')->result();
@@ -1116,7 +1121,7 @@ class bud_model extends CI_Model
         foreach ($courts as $court) {
             $courtCategories[$court['category']] = array(
                 'start_court' => $court['court_id'],
-                'end_court' => $court['court_id'],
+                'end_court' => $court['court_number'],
                 'start_time' => '08:00:00', // You might want to fetch this from the database as well
                 'end_time' => '22:00:00',   // You might want to fetch this from the database as well
                 'fee' => $court['price']

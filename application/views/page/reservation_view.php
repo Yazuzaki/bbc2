@@ -25,7 +25,7 @@
         }
         ?>
 
-        <!--  <?php if (empty($available_times)): ?>
+       <!--  <?php if (empty($available_times)): ?>
             <div class="alert alert-warning">
                 No more available timeslots. Please choose a different date or time.
             </div>
@@ -104,7 +104,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -136,71 +135,6 @@
                 });
             });
         });
-        function scanAndSubmit() {
-            var fileInput = document.getElementById('referenceNum');
-            var scannedTextElement = document.getElementById('scannedText');
-            var extractedReferenceNumberElement = document.getElementById('extractedReferenceNumber');
-
-            var file = fileInput.files[0];
-
-            if (file) {
-                Tesseract.recognize(
-                    file,
-                    'eng',
-                    { logger: info => console.log(info) }
-                ).then(({ data: { text } }) => {
-                    scannedTextElement.textContent = text;
-
-                    // Define a regular expression for matching reference numbers
-                    var referenceNumberRegex = /\b(?:Ref(?:\.|:)?\s*No(?:\.|:)?|Reference\s*Number)\s*([\d\s]+)\b/g;
-
-                    // Extract reference numbers from the scanned text
-                    var matches = referenceNumberRegex.exec(text);
-
-                    if (matches && matches[1]) {
-                        var referenceNumber = matches[1];
-                        extractedReferenceNumberElement.innerHTML = referenceNumber;
-
-                        // Attach the extracted reference number to the form data
-                        var hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'scanned_reference_number';
-                        hiddenInput.value = referenceNumber;
-                        document.getElementById('imageForm').appendChild(hiddenInput);
-
-                        // Continue with form submission
-                        return true;
-                    } else {
-                        extractedReferenceNumberElement.innerHTML = 'No reference numbers found.';
-                        return false; // Cancel form submission
-                    }
-                });
-            } else {
-                alert('Please select an image before submitting.');
-                return false; // Cancel form submission
-            }
-            $.ajax({
-                        type: 'GET',
-                        url: '<?php echo site_url("Page/get_court_choices"); ?>',
-                        dataType: 'json',
-                        success: function (courts) {
-                            var courtSelect = document.getElementById('court');
-
-
-                            courts.forEach(function (court) {
-                                var option = document.createElement('option');
-                                option.value = court.court_id;
-                                option.text = court.court_id;
-                                courtSelect.appendChild(option);
-                            });
-                        },
-                        error: function () {
-                            alert('Error fetching court choices');
-                        }
-                    });
-        }
-
-
     </script>
 
 </body>

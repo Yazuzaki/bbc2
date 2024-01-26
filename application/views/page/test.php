@@ -320,7 +320,7 @@
                                         <select id="court" name="court" class="form-select" required>
                                             <?php foreach ($courts as $court): ?>
                                                 <option value="<?php echo $court['court_id']; ?>">
-                                                    <?php echo $court['court_number']; ?>
+                                                    <?php echo $court['court_name']; ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>

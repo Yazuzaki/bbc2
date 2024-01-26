@@ -153,7 +153,7 @@
                             <th>Court</th>
                             <th>QR Code</th>
                             <th>Proof of Payment</th>
-                            <th>Action</th>
+                            <th>Created</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -208,6 +208,9 @@
                                             img.src = src;
                                         }
                                     </script>
+                                     <td>
+                                        <?= $row->created_at ?>
+                                    </td>
                                     </tr>
                                     <?php endforeach; ?>
 

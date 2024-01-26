@@ -135,10 +135,8 @@ class Page extends CI_Controller
         $this->form_validation->set_rules('sport', 'Sport', 'required|numeric');
         $this->form_validation->set_rules('date', 'Date', 'required|date');
 
-        if ($this->form_validation->run() == FALSE) {
-            // Form validation failed, show the form again with errors
-            $this->index();
-        } else {
+       
+        
             // Form validation passed, process the reservation
 
             // Get the form data
@@ -201,9 +199,7 @@ class Page extends CI_Controller
             $this->load->view('template/header');
             $this->load->view('page/reservation_view');
         }
-    }
-
-
+    
 
     public function get_available_times()
     {
@@ -575,8 +571,32 @@ class Page extends CI_Controller
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
         $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
+        $data['court_categories'] = $this->bud_model->get_court_categories();
         $data['reservations'] = $this->bud_model->get_all_reservations2();
         $this->load->view('page/test', $data);
+    }
+    public function decline(){
+                // Check if the user is logged in
+                if (!$this->session->userdata('id')) {
+                    // If not logged in, redirect to the login page
+                    redirect('page/loginview');
+                }
+        
+                // Get the user's role from the session
+                $user_role = $this->session->userdata('role');
+        
+                // Check if the user's role is 'admin'
+                if ($user_role !== 'admin') {
+                    // If the user is not an admin, redirect them to a different page
+                    redirect('page/landing_page'); // Redirect to a landing page for regular users
+                }
+                // This part of the code is not executed if the user is redirected
+                $this->load->model('bud_model');
+                $this->load->view('template/adminheader');
+                $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
+                $data['court_categories'] = $this->bud_model->get_court_categories();
+                $data['reservations'] = $this->bud_model->get_all_reservationsdec();
+                $this->load->view('page/decline', $data);
     }
     public function pending()
     {
@@ -1468,7 +1488,7 @@ class Page extends CI_Controller
             redirect('dashboard');
         } else {
             // User is not logged in, load the login view
-            $this->load->view('login');
+            $this->load->view('page/loginview');
         }
     }
     public function process_login()
