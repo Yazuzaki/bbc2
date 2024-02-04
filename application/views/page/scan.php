@@ -20,7 +20,7 @@
 
 <body>
     <div class="container">
-        <h1 class="mt-5">Image Scanning</h1>
+        <h1 class="mt-5">Referencenumber Checker</h1>
 
         <form id="imageForm" enctype="multipart/form-data" class="mt-4">
             <div class="form-group">
@@ -38,6 +38,7 @@
             <h3 class="mt-3">Extracted Reference Number:</h3>
             <div id="extractedReferenceNumber" class="border p-3"></div>
         </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
@@ -93,6 +94,9 @@
                     success: function (response) {
                         console.log('Reference number sent to the backend successfully');
                         // You can handle the response from the backend here
+
+                     
+                        
                     },
                     error: function (error) {
                         console.error('Error sending reference number to the backend', error);

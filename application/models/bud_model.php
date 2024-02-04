@@ -87,10 +87,14 @@ class bud_model extends CI_Model
     {
         return $this->db->get('decline')->result();
     }
+    public function get_all_reservationsapp()
+    {
+        return $this->db->get('approve')->result();
+    }
     
     public function get_all_canceled_reservations()
     {
-        return $this->db->get('canceled')->result();
+        return $this->db->get('cancel')->result();
     }
     public function get_all_reservations_ongoing()
     {
@@ -98,7 +102,7 @@ class bud_model extends CI_Model
     }
     public function get_all_declined()
     {
-        return $this->db->get('declined')->result();
+        return $this->db->get('decline')->result();
     }
 
     public function get_all_approved()
@@ -360,7 +364,7 @@ class bud_model extends CI_Model
         $this->load->database();
 
         // Get reservation data from 'ongoing' table
-        $reservation_data = $this->db->get_where('future', array('id' => $reservationId))->row_array();
+        $reservation_data = $this->db->get_where('approve', array('ReservationID' => $reservationId))->row_array();
 
         if (!$reservation_data) {
             // Reservation not found, return false or handle the error as needed.
@@ -368,33 +372,35 @@ class bud_model extends CI_Model
         }
 
         // Remove the 'id' key from the reservation data
-        unset($reservation_data['id']);
+        unset($reservation_data['ReservationID']);
 
         $reservation_data['status'] = 'canceled';
 
-        $this->db->insert('canceled', $reservation_data);
+        $this->db->insert('cancel', $reservation_data);
 
         // Check if the insertion was successful
         if ($this->db->affected_rows() > 0) {
             // Delete the reservation from the 'ongoing' table
-            $this->db->where('id', $reservationId);
-            $this->db->delete('future');
+            $this->db->where('ReservationID', $reservationId);
+            $this->db->delete('approve');
 
             return true;
         }
 
         return false;
     }
-    public function updateReservation($reservationId, $newReservedDatetime, $newCourt, $newSport)
+    public function updateReservation($reservationId, $newReservedDatetime,$newStartTime, $newEndTime, $newCourt, $newSport)
     {
         $data = array(
-            'reserved_datetime' => $newReservedDatetime,
-            'court' => $newCourt,
-            'sport' => $newSport
+            'Date' => $newReservedDatetime,
+            'StartTime' => $newStartTime,
+            'EndTime' => $newEndTime,
+            'court_id' => $newCourt,
+            'sport_id' => $newSport
         );
 
-        $this->db->where('id', $reservationId);
-        $this->db->update('future', $data);
+        $this->db->where('ReservationID', $reservationId);
+        $this->db->update('approve', $data);
 
         return $this->db->affected_rows() > 0;
     }
@@ -761,12 +767,15 @@ class bud_model extends CI_Model
     }
 
     public function getSportFrequency() {
-        $this->db->select('sport, COUNT(*) as frequency');
-        $this->db->group_by('sport');
-        $query = $this->db->get('today');
-
+        $this->db->select('sport_id, COUNT(*) as frequency');
+        $this->db->group_by('sport_id');
+        $this->db->where_in('sport_id', array('Badminton', 'Table Tennis', 'Pickleball', 'Darts'));
+    
+        $query = $this->db->get('testreserve');
+    
         return $query->result();
     }
+    
     public function getReservationCount() {
         $this->db->select('sport, COUNT(*) as frequency');
         $this->db->from('today'); 
@@ -807,7 +816,7 @@ class bud_model extends CI_Model
     }
 
     public function getDeclinedCount() {
-        $query = $this->db->query("SELECT COUNT(*) as count FROM declined");
+        $query = $this->db->query("SELECT COUNT(*) as count FROM decline");
         $result = $query->row();
         return $result->count;
     }
@@ -817,18 +826,35 @@ class bud_model extends CI_Model
         return $result->count;
     }
     public function getpendingCount() {
-        $query = $this->db->query("SELECT COUNT(*) as count FROM reservations");
+        $query = $this->db->query("SELECT COUNT(*) as count FROM testreserve");
         $result = $query->row();
         return $result->count;
     }
+    
     public function insert_reference_number($reference_number) {
-        // Insert the reference number into the database
-        $data = array(
-            'referencenumber' => $reference_number
-        );
-
-        $this->db->insert('refnum', $data);
+        // Check if a record with the given reference number already exists
+        $existingRecord = $this->db->get_where('testreserve', array('referencenumber' => $reference_number))->row();
+    
+        if ($existingRecord) {
+            // If a matching record is found, update it
+            $this->db->where('adminref', $reference_number);
+            $this->db->update('testreserve', array('adminref' => $reference_number));
+        } else {
+            // If no matching record is found, insert a new record
+            $data = array(
+                'adminref' => $reference_number
+            );
+            $this->db->insert('testreserve', $data);
+        }
     }
+    public function is_reference_number_exists($referenceNumber) {
+        // Assuming you have a table named 'reservations' and a column named 'reference_number'
+        $this->db->where('referencenumber', $referenceNumber);
+        $query = $this->db->get('testreserve');
+
+        return $query->num_rows() > 0;
+    }
+    
     public function cancelReservation($reservationId)
     {
         // Get reservation details
@@ -1195,7 +1221,7 @@ class bud_model extends CI_Model
 public function get_available_times_by_date($selectedDate) {
     // Get all reservations for the selected date
     $this->db->select('StartTime, EndTime');
-    $this->db->from('testreserve');
+    $this->db->from('approve');
     $this->db->where('Date', $selectedDate);
     $query = $this->db->get();
     $reservedTimes = $query->result();
@@ -1207,6 +1233,39 @@ public function get_available_times_by_date($selectedDate) {
     $availableTimes = array_diff($allTimes, $this->extract_reserved_times2($reservedTimes));
 
     return $availableTimes;
+}
+public function get_available_times_by_date_and_court($selectedDate, $courtId) {
+    // Get all reservations for the selected date
+    $this->db->select('StartTime, EndTime, court_id');
+    $this->db->from('approve');
+    $this->db->where('Date', $selectedDate);
+    $query = $this->db->get();
+    $allReservations = $query->result();
+
+    // Generate all possible times between 8 am to 10 pm
+    $allTimes = $this->generate_times2('09:00:00', '22:00:00');
+
+    // Remove reserved times from the available times for other courts
+    $reservedTimesForOtherCourts = $this->get_reserved_times_for_other_courts($selectedDate, $courtId, $allReservations);
+    $availableTimes = array_diff($allTimes, $reservedTimesForOtherCourts);
+
+    return $availableTimes;
+}
+
+private function get_reserved_times_for_other_courts($selectedDate, $currentCourtId, $allReservations) {
+    // Filter reservations for other courts on the selected date
+    $reservedTimesForOtherCourts = array();
+    foreach ($allReservations as $reservation) {
+        if ($reservation->court_id != $currentCourtId) {
+            // If it's for another court, include the time slot
+            $reservedTimesForOtherCourts = array_merge(
+                $reservedTimesForOtherCourts,
+                $this->extract_reserved_times2(array($reservation))
+            );
+        }
+    }
+
+    return $reservedTimesForOtherCourts;
 }
 
 
@@ -1234,6 +1293,16 @@ private function extract_reserved_times2($reservedTimes) {
     }
 
     return $times;
+}
+public function getTopReservers() {
+    $this->db->select('Username, email, COUNT(*) as ReservationCount');
+    $this->db->from('approve');
+    $this->db->group_by('email, Username');
+    $this->db->order_by('ReservationCount', 'DESC');
+    $this->db->limit(10);
+
+    $query = $this->db->get();
+    return $query->result();
 }
 
 }

@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<!DOCTYPE html>
-<html lang="en">
 
 <head>
-<meta charset="UTF-8">
+
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <title>Reseved Slots</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+
+    <title>Pending Reservation</title>
 </head>
 
 <body>
@@ -138,87 +132,86 @@
             }
         }
     </style>
-     <div class="wrapper">
+    <div class="wrapper">
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
-                <label for="tab-1" class="tab-label">Declined</label>
+                <label for="tab-1" class="tab-label">Pending Reservations</label>
                 <div class="tab-content">
+
                     <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
-                            <tr>
-                                <th>Reserve ID</th>
-                                <th>Reserved Datetime</th>
-                                <th>Created on</th>
-                                <th>Status</th>
-                                <th>Sport</th>
-                                <th>Court</th>
-                                <th>Date of Cancellation</th>
+                            <th>Reservation ID</th>
+                            <th>Created</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Reserved Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Status</th>
+                            <th>Sport</th>
+                            <th>Court</th>
+                            <th>QR Code</th>
+                            <th>Proof of Payment</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($canceled as $row): ?>
+                            <?php foreach ($reservations as $row): ?>
                                 <tr>
                                     <td>
-                                        <?= $row->id ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->reserved_datetime ?>
+                                        <?= $row->ReservationID ?>
                                     </td>
                                     <td>
                                         <?= $row->created_at ?>
                                     </td>
                                     <td>
-                                    <?= $row->court ?>
+                                        <?= $row->Username ?>
                                     </td>
                                     <td>
-                                    <?= $row->sport ?>
+                                        <?= $row->email ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->Date ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->StartTime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->EndTime ?>
                                     </td>
                                     <td class="status-<?= strtolower($row->status) ?>">
                                         <?= $row->status ?>
                                     </td>
                                     <td>
-                                    <?= $row->date_of_cancellation ?>
+                                        <?= $row->sport_id ?>
                                     </td>
-                                   
-                                </tr>
-                            <?php endforeach; ?>
+                                    <td>
+                                        <?= $row->court_id ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->qr_code ?>
+                                    </td>
+                                    <td>
+                                        <a href="#" onclick="showImage('<?= base_url($row->refnum) ?>')">
+                                            <img src="<?= base_url($row->refnum) ?>" alt="Proof of Payment" width="100"
+                                                height="100">
+                                        </a>
+                                    </td>
+                                    <script>
+                                        function showImage(src) {
+                                            var img = new Image();
+                                            img.onload = function () {
+                                                var w = window.open("", "_blank");
+                                                w.document.write("<img src='" + src + "' width='" + img.width + "' height='" + img.height + "'>");
+                                            };
+                                            img.src = src;
+                                        }
+                                    </script>
+                                    </tr>
+                                    <?php endforeach; ?>
 
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            </div>
-            <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="responseModalLabel">Response</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body" id="responseBody">
+</tbody>
+</table>
+</div>
+</div>
 
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-            <script>
-                $(document).ready(function () {
-                    $('#myTable').DataTable();
-                });
-            </script>
-</body>
-
-</html>
-</body>
-</html>

@@ -153,7 +153,6 @@
                             <th>Court</th>
                             <th>QR Code</th>
                             <th>Proof of Payment</th>
-                            <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>

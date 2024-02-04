@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,8 @@
             font-family: Arial, sans-serif;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
@@ -45,6 +47,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <h2>User Reservations</h2>
@@ -88,16 +91,31 @@
             <tbody>
                 <?php foreach ($reservations as $reservation): ?>
                     <tr>
-                        <td><?php echo $reservation->ReservationID; ?></td>
-                        <td><?php echo $reservation->Username; ?></td>
-                        <td><?php echo $reservation->Date; ?></td>
-                        <td><?php echo $reservation->status; ?></td>
-                        <td><?php echo $reservation->StartTime; ?></td>
-                        <td><?php echo $reservation->EndTime; ?></td>
+                        <td>
+                            <?php echo $reservation->ReservationID; ?>
+                        </td>
+                        <td>
+                            <?php echo $reservation->Username; ?>
+                        </td>
+                        <td>
+                            <?php echo $reservation->Date; ?>
+                        </td>
+                        <td>
+                            <?php echo $reservation->status; ?>
+                        </td>
+                        <td>
+                            <?php echo $reservation->StartTime; ?>
+                        </td>
+                        <td>
+                            <?php echo $reservation->EndTime; ?>
+                        </td>
                         <td>
                             <?php
+                            $reservationStart = new DateTime($reservation->created_at);
+                            $reservationStart->modify('+48 hours');
+                            $reservationStart->setTime(0, 0, 0);
+
                             $now = new DateTime();
-                            $reservationStart = new DateTime($reservation->Date . ' ' . $reservation->StartTime);
 
                             if ($now > $reservationStart) {
                                 echo '<button class="btn btn-danger cancel-btn" disabled>Cancel</button>';
@@ -105,6 +123,7 @@
                                 echo '<button class="btn btn-danger cancel-btn" onclick="cancelReservation(' . $reservation->ReservationID . ')">Cancel</button>';
                             }
                             ?>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -119,4 +138,5 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 </body>
+
 </html>

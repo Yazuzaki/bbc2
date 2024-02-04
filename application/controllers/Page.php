@@ -93,9 +93,7 @@ class Page extends CI_Controller
 
         // Get available times for the specified date
         $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
-        $data['court_categories'] = $this->bud_model->get_court_categories();
-        $data['sports'] = $this->bud_model->get_sports();
-
+      
         // Load the view
         $this->load->view('template/header');
         $this->load->view('page/reservation_view', $data);
@@ -145,6 +143,7 @@ class Page extends CI_Controller
             $court_id = $this->input->post('court');
             $sport_id = $this->input->post('sport');
             $date = $this->input->post('date');
+            $referencenumber = $this->input->post('extractedReferenceNumber');
             $qr_code_model = new bud_model();
             $qr_code = $qr_code_model->generateRandomQRCode(27);
 
@@ -186,7 +185,8 @@ class Page extends CI_Controller
                 'sport_id' => $sport_id,
                 'Date' => $date,
                 'qr_code' => $qr_code,
-                'refnum' => $filePath, // This will be null if no file is uploaded
+                'refnum' => $filePath, 
+                'referencenumber' =>  $referencenumber,
             );
 
             // Insert reservation data into the database using the model
@@ -437,7 +437,7 @@ class Page extends CI_Controller
 
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
-        $data['declined'] = $this->bud_model->get_all_declined();
+        $data['reservations'] = $this->bud_model->get_all_declined();
         $this->load->view('page/history', $data);
 
 
@@ -493,6 +493,26 @@ class Page extends CI_Controller
             echo "Reservation canceled successfully.";
         } else {
             echo "Error canceling reservation.";
+        }
+    }
+    public function get_available_times2() {
+        // Check if the request is an AJAX request
+        if ($this->input->is_ajax_request()) {
+            // Get selected date and court ID from the AJAX request
+            $selectedDate = $this->input->post('selectedDate');
+            $courtId = $this->input->post('courtId');
+
+            // Load the necessary model
+            $this->load->model('bud_model'); // Replace 'your_model_name' with the actual model name
+
+            // Call the model method to get available times
+            $availableTimes = $this->bud_model->get_available_times_by_date_and_court($selectedDate, $courtId);
+
+            // Return the result as JSON
+            echo json_encode($availableTimes);
+        } else {
+            // If not an AJAX request, show an error or redirect
+            show_error('Invalid request', 403);
         }
     }
 
@@ -641,7 +661,8 @@ class Page extends CI_Controller
         }
         $this->load->model('bud_model');
         $this->load->view('template/adminheader');
-        $data['future_reservations'] = $this->bud_model->getFutureReservations();
+        $data['reservations'] = $this->bud_model->get_all_reservationsapp();
+        $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
 
         $this->load->view('page/reserved', $data);
 
@@ -842,10 +863,9 @@ class Page extends CI_Controller
         /*  $data['reservations'] = $this->bud_model->get_all_reservations();
          $this->load->view('page/admin', $data); */
         $data['sport_frequency'] = $this->bud_model->getSportFrequency();
-        $data['futureReservations'] = $this->bud_model->getrepReservations();
-        $data['canceledCount'] = $this->bud_model->getCanceledCount();
         $data['declinedCount'] = $this->bud_model->getDeclinedCount();
         $data['pendingCount'] = $this->bud_model->getpendingCount();
+        $data['top_reservers'] = $this->bud_model->getTopReservers();
 
 
         $this->load->view('page/admin', $data);
@@ -871,7 +891,7 @@ class Page extends CI_Controller
     public function canceled()
     {
         $this->load->model('bud_model');
-        $data['canceled'] = $this->bud_model->get_all_canceled_reservations();
+        $data['reservations'] = $this->bud_model->get_all_canceled_reservations();
         $this->load->view('template/adminheader');
         $this->load->view('page/canceled', $data);
     }
@@ -1317,14 +1337,14 @@ class Page extends CI_Controller
         // Retrieve form data
 
         $reservationId = $this->input->post('reservationId');
-        $name = $this->input->post('name');
-        $email = $this->input->post('email');
         $newReservedDatetime = $this->input->post('newReservedDatetime');
+        $newStartTime = $this->input->post('newStartTime');
+        $newEndTime = $this->input->post('newEndTime');
         $newCourt = $this->input->post('court');
         $newSport = $this->input->post('sport');
 
         // Call the model to update the reservation
-        $result = $this->bud_model->updateReservation($reservationId, $name, $email, $newReservedDatetime, $newCourt, $newSport);
+        $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newStartTime, $newEndTime, $newCourt, $newSport);
 
         if ($result) {
             $response = array('status' => 'success');
@@ -1942,6 +1962,19 @@ class Page extends CI_Controller
         } else {
             // Handle the case when the reference number is empty
             echo json_encode(['error' => 'Reference number is empty']);
+        }
+    }
+    public function check_reference_number() {
+        // Assuming 'Your_model' is the name of your model class
+        $this->load->model('bud_model');
+
+        $referenceNumber = $this->input->post('extractedReferenceNumber');
+
+        // Check if the reference number exists
+        if ($this->bud_model->is_reference_number_exists($referenceNumber)) {
+            echo json_encode(array('status' => 'exists', 'message' => 'Reference number already exists.'));
+        } else {
+            echo json_encode(array('status' => 'not_exists'));
         }
     }
 

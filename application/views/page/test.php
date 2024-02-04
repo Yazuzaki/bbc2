@@ -153,6 +153,7 @@
                             <th>Court</th>
                             <th>QR Code</th>
                             <th>Proof of Payment</th>
+                            <th>ReferenceNumber</th>
                             <th>Action</th>
                             </tr>
                         </thead>
@@ -192,6 +193,7 @@
                                     <td>
                                         <?= $row->qr_code ?>
                                     </td>
+                                    
                                     <td>
                                         <a href="#" onclick="showImage('<?= base_url($row->refnum) ?>')">
                                             <img src="<?= base_url($row->refnum) ?>" alt="Proof of Payment" width="100"
@@ -208,6 +210,9 @@
                                             img.src = src;
                                         }
                                     </script>
+                                    <td>
+                                        <?= $row->referencenumber ?>
+                                    </td>
 
                                     <td> <a href="#" class="btn btn-success reschedule-button mb-2" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
@@ -318,11 +323,11 @@
                                     <div class="mb-3">
                                         <label for="court" class="form-label">Select Court:</label>
                                         <select id="court" name="court" class="form-select" required>
-                                            <?php foreach ($courts as $court): ?>
-                                                <option value="<?php echo $court['court_id']; ?>">
-                                                    <?php echo $court['court_name']; ?>
-                                                </option>
-                                            <?php endforeach; ?>
+                                        <?php foreach ($courts as $court): ?>
+                        <option value="<?php echo $court['court_id']; ?>">
+                            <?php echo $court['court_name']; ?>
+                        </option>
+                    <?php endforeach; ?>
                                         </select>
                                     </div>
 
@@ -539,8 +544,8 @@
 
                             sports.forEach(function (sport) {
                                 var option = document.createElement('option');
-                                option.value = sport.sport_id;
-                                option.text = sport.sport_id;
+                                option.value = sport.sport_name;
+                                option.text = sport.sport_name;
                                 sportSelect.appendChild(option);
                             });
                         },

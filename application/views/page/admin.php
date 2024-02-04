@@ -18,23 +18,19 @@
 
         <!-- Cards Section -->
         <div class="row">
-            <div class="col-md-3">
-                <div class="card d-flex flex-fill bg-success">
-                    <div class="card-body">
-                        <h3 class="card-title">Total Reservations</h3>
-                        <p class="card-text">Total Reservations:
-                            <?php echo $futureReservations; ?>
-                        </p>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-md-3">
                 <div class="card d-flex flex-fill bg-success rounded">
                     <div class="card-body">
-                        <h3 class="card-title">Canceled Reservations</h3>
-                        <p class="card-text">Total Canceled Reservations:
-                            <?php echo $canceledCount; ?>
+                        <h3 class="card-title">Top Reservations</h3>
+                        <p class="card-text">Frequent Reservation:
+                            <?php foreach ($top_reservers as $reserver): ?>
+                            <p>Username:
+                                <?php echo $reserver->Username; ?>, <br>Reservation Count:
+                                <?php echo $reserver->ReservationCount; ?>
+                            </p>
+                        <?php endforeach; ?>
+
                         </p>
                     </div>
                 </div>
@@ -63,6 +59,7 @@
             </div>
         </div>
 
+
         <!-- Chart Section -->
         <div class="row">
             <div class="col-md-12">
@@ -75,7 +72,7 @@
     <script>
         var sportData = <?php echo json_encode($sport_frequency); ?>;
 
-        var sportLabels = sportData.map(item => item.sport);
+        var sportLabels = sportData.map(item => item.sport_id);
         var sportFrequency = sportData.map(item => item.frequency);
 
         // Define an array of colors for each bar

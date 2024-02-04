@@ -206,6 +206,27 @@
         <h4 class="mb-5"><strong>We Offer</strong></h4>
 
         <div class="row">
+          
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card">
+              <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+              
+                <img src="<?php echo base_url('asset/377148393_212715685191060_3519859876361067163_n.jpg'); ?>"
+                  class="img-fluid" />
+                <a href="#!">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                </a>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Beginner Court</h5>
+                <p class="card-text">
+
+                </p>
+
+              </div>
+            </div>
+          </div>
           <div class="col-lg-4 col-md-12 mb-4">
             <div class="card">
               <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
@@ -216,7 +237,7 @@
                 </a>
               </div>
               <div class="card-body">
-                <h5 class="card-title">11 Courts</h5>
+                <h5 class="card-title">Special Court</h5>
                 <p class="card-text">
 
                 </p>
@@ -228,33 +249,14 @@
           <div class="col-lg-4 col-md-6 mb-4">
             <div class="card">
               <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                <img src="<?php echo base_url('asset/375198426_192531200601577_2509852573378998790_n.jpg'); ?>"
+                <img src="<?php echo base_url('asset/369988791_1302865683705011_8359087066818662160_n.jpg'); ?>"
                   class="img-fluid" />
                 <a href="#!">
                   <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                 </a>
               </div>
               <div class="card-body">
-                <h5 class="card-title">Food & Beverages</h5>
-                <p class="card-text">
-
-                </p>
-
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card">
-              <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                <img src="<?php echo base_url('asset/312321978_485717883574073_1316112071071030010_n.jpg'); ?>"
-                  class="img-fluid" />
-                <a href="#!">
-                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                </a>
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Clubs</h5>
+                <h5 class="card-title">Regular Court</h5>
                 <p class="card-text">
 
                 </p>

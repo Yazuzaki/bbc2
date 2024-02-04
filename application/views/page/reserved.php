@@ -2,18 +2,17 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
-<script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
 
-    <title>Reseved Slots</title>
+    <title>Pending Reservation</title>
 </head>
 
 <body>
@@ -116,20 +115,20 @@
         @media (max-width: 768px) {
             .tab-label {
                 font-size: 14px;
-
+                /* Reduce font size for tab labels */
             }
 
             .tab-content {
                 top: 3.5em;
-
+                /* Adjust the top position of tab content */
                 padding: 1rem;
-
+                /* Increase padding for tab content */
             }
 
             .modal-content {
                 color: black;
                 font-size: 14px;
-
+                /* Reduce font size for modal content */
             }
         }
     </style>
@@ -137,58 +136,68 @@
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
-                <label for="tab-1" class="tab-label">Reservations</label>
+                <label for="tab-1" class="tab-label">Pending Reservations</label>
                 <div class="tab-content">
 
                     <table id="myTable" class="display table table-striped table-bordered">
                         <thead>
-                            <tr>
-                                <th>Reserve ID</th>
-                                <th>Reserved Datetime</th>
-                                <th>Created on</th>
-                                <th>Status</th>
-                                <th>Sport</th>
-                                <th>Court</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Ref num</th>
-                                <th>Action</th>
+                            <th>Reservation ID</th>
+                            <th>Created</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Reserved Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Status</th>
+                            <th>Sport</th>
+                            <th>Court</th>
+                            <th>QR Code</th>
+                            <th>Proof of Payment</th>
+                            <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($future_reservations as $row): ?>
+                            <?php foreach ($reservations as $row): ?>
                                 <tr>
                                     <td>
-                                        <?= $row->id ?>
-                                    </td>
-                                    <td>
-                                        <?= $row->reserved_datetime ?>
+                                        <?= $row->ReservationID ?>
                                     </td>
                                     <td>
                                         <?= $row->created_at ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->Username ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->email ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->Date ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->StartTime ?>
+                                    </td>
+                                    <td>
+                                        <?= $row->EndTime ?>
                                     </td>
                                     <td class="status-<?= strtolower($row->status) ?>">
                                         <?= $row->status ?>
                                     </td>
                                     <td>
-                                        <?= $row->sport ?>
+                                        <?= $row->sport_id ?>
                                     </td>
                                     <td>
-                                        <?= $row->court ?>
+                                        <?= $row->court_id ?>
                                     </td>
                                     <td>
-                                        <?= $row->user_name ?>
+                                        <?= $row->qr_code ?>
                                     </td>
                                     <td>
-                                        <?= $row->user_email ?>
-                                    </td>
-                                    <td>
-                                        <a href="#" onclick="showImage('<?= base_url($row->image) ?>')">
-                                            <img src="<?= base_url($row->image) ?>" alt="Reservation Image" width="100"
+                                        <a href="#" onclick="showImage('<?= base_url($row->refnum) ?>')">
+                                            <img src="<?= base_url($row->refnum) ?>" alt="Proof of Payment" width="100"
                                                 height="100">
                                         </a>
                                     </td>
-
                                     <script>
                                         function showImage(src) {
                                             var img = new Image();
@@ -199,22 +208,26 @@
                                             img.src = src;
                                         }
                                     </script>
-                                    <td>
-                                        <a href="#" class="btn btn-success cancel-button mb-2" data-toggle="modal"
+
+                                    <td> 
+
+                                    <a href="#" class="btn btn-success cancel-button" data-toggle="modal"
                                             data-target="#responseModal" data-action="cancel"
-                                            data-id="<?= $row->id ?>">Cancel</a>
+                                            data-id="<?= $row->ReservationID ?>">Cancel</a>
 
-                                        <a href="#" class="btn btn-danger reschedule-button" data-toggle="modal"
+                                        <a href="#" class="btn btn-danger reschedule-button mb-2" data-toggle="modal"
                                             data-target="#rescheduleModal" data-action="reschedule"
-                                            data-id="<?= $row->id ?>"
-                                            data-reserved-datetime="<?= $row->reserved_datetime ?>"
-                                            data-sport="<?= $row->sport ?>" data-court="<?= $row->court ?>"
-                                            data-name="<?= $row->user_name ?>"
-                                            data-email="<?= $row->user_email ?>">Reschedule</a>
-
-
+                                            data-id="<?= $row->ReservationID ?>" data-date="<?= $row->Date ?>"
+                                            data-start="<?= $row->StartTime ?>" data-end="<?= $row->EndTime ?>"
+                                            data-sport="<?= $row->sport_id ?>" data-court="<?= $row->court_id ?>"
+                                            data-name="<?= $row->Username ?>" data-email="<?= $row->email ?>"
+                                            data-qr-code="<?= $row->qr_code ?>">
+                                            Reseched
+                                        </a>
                                     </td>
                                 </tr>
+
+
                             <?php endforeach; ?>
 
                         </tbody>
@@ -240,57 +253,83 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-body">
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
 
-            <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
-                aria-labelledby="rescheduleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Reservation</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="reservationForm">
-                                <input type="hidden" name="reservationId" id="reservationId" value="">
-                                <div class="form-group">
-                                    <label for="currentReservationId">Reservation ID:</label>
-                                    <input type="text" id="currentReservationId" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userNameInput">Name:</label>
-                                    <input type="text" id="userNameInput" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userEmailInput">Email:</label>
-                                    <input type="text" id="userEmailInput" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="newReservedDatetime">New Reserved Datetime:</label>
-                                    <input type="datetime-local" id="newReservedDatetime" name="newReservedDatetime">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="sport" class="form-label">Select Sport:</label>
-                                    <select id="sport" name="sport" class="form-select" required>
-                                        <?php foreach ($sports as $sport): ?>
-                                            <option value="<?php echo $sport['sport_id']; ?>">
-                                                <?php echo $sport['sport_name']; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="court" class="form-label">Select Court:</label>
-                                    <select id="court" name="court" class="form-select" required>
+                <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog"
+                    aria-labelledby="rescheduleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="rescheduleModalLabel">Finalize Reservation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="reservationForm">
+                                    <input type="hidden" name="reservationId" id="reservationId" value="">
+                                    <div class="form-group">
+                                        <label for="currentReservationId">Reservation ID:</label>
+                                        <input type="text" id="currentReservationId" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="userNameInput">Name:</label>
+                                        <input type="text" id="userNameInput" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="userEmailInput">Email:</label>
+                                        <input type="text" id="userEmailInput" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newReservedDatetime">New Reserved Date:</label>
+                                        <input type="date" id="newReservedDatetime" name="newReservedDatetime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newStartTime">Start Time:</label>
+                                        <select class="form-control" id="newStartTime" name="newStartTime" required>
+                                            <?php foreach ($available_times as $time): ?>
+                                                <option value="<?php echo $time; ?>">
+                                                    <?php echo $time; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newEndTime">End Time:</label>
+                                        <select class="form-control" id="newEndTime" name="newEndTime" required>
+                                            <?php foreach ($available_times as $time): ?>
+                                                <option value="<?php echo $time; ?>">
+                                                    <?php echo $time; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sport" class="form-label">Select Sport:</label>
+                                        <select id="sport" name="sport" class="form-select" required>
+                                            <?php foreach ($sports as $sport): ?>
+                                                <option value="<?php echo $sport['sport_id']; ?>">
+                                                    <?php echo $sport['sport_name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="court" class="form-label">Select Court:</label>
+                                        <select id="court" name="court" class="form-select" required>
                                         <?php foreach ($courts as $court): ?>
-                                            <option value="<?php echo $court['court_id']; ?>">
-                                                <?php echo $court['court_number']; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                        </div>
+                        <option value="<?php echo $court['court_id']; ?>">
+                            <?php echo $court['court_name']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" id="submitReschedule">Reschedule</button>
@@ -299,8 +338,6 @@
                     </form>
                 </div>
             </div>
-
-
 
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -342,39 +379,37 @@
 
 
                 $('.reschedule-button').click(function (e) {
-                    e.preventDefault();
+                        e.preventDefault();
 
-                    var reservationId = $(this).data('id');
-                    var reservedDatetime = $(this).data('reserved-datetime');
-                    var sport = $(this).data('sport');
-                    var court = $(this).data('court');
-                    var userName = $(this).data('name'); // Get the user's name
-                    var userEmail = $(this).data('email'); // Get the user's email
+                        var reservationId = $(this).data('id');
+                        var reservedDate = $(this).data('date');
+                        var startTime = $(this).data('start');
+                        var endTime = $(this).data('end');
+                        var sport = $(this).data('sport');
+                        var court = $(this).data('court');
+                        var userName = $(this).data('name');
+                        var userEmail = $(this).data('email');
+                        var reservationQRCode = $(this).data('qr-code');
 
-                    $('#reservationId').val(reservationId);
-                    $('#currentReservationId').val(reservationId);
-                    $('#currentReservedDatetime').val(reservedDatetime);
-                    $('#newReservedDatetime').val(reservedDatetime);
-                    $('#userNameInput').val(userName); // Populate the user's name input
-                    $('#userEmailInput').val(userEmail); // Populate the user's email input
+                        // Set values in the modal
+                        $('#reservationId').val(reservationId);
+                        $('#currentReservationId').val(reservationId);
+                        $('#currentReservedDatetime').val(reservedDate);
+                        $('#newReservedDatetime').val(reservedDate);
+                        $('#newStartTime').val(startTime);
+                        $('#newEndTime').val(endTime);
+                        $('#userNameInput').val(userName);
+                        $('#userEmailInput').val(userEmail);
+                        $('#qrCodeInput').val(reservationQRCode);
+
+                        $('#sport').val(sport);
+                        $('#court').val(court);
+
+                        $('#rescheduleModal').modal('show');
+                    });
 
 
-                    $('#sport').val(sport);
-                    $('#court').val(court);
-
-
-
-                    $('#rescheduleModal').modal('hide');
-                });
-
-
-                iziToast.settings({
-        timeout: 5000, // Default toast timeout
-        resetOnHover: true,
-        transitionIn: 'fadeInDown',
-        transitionOut: 'fadeOutUp',
-        position: 'topRight', // You can change the toast position
-    });
+                
 
                 $('#submitReschedule').click(function () {
                     // Serialize the form data
@@ -422,42 +457,43 @@
 
 
                 $.ajax({
-                    type: 'GET',
-                    url: '<?php echo site_url("Page/get_court_choices"); ?>',
-                    dataType: 'json',
-                    success: function (courts) {
-                        var courtSelect = document.getElementById('court');
+                        type: 'GET',
+                        url: '<?php echo site_url("Page/get_court_choices"); ?>',
+                        dataType: 'json',
+                        success: function (courts) {
+                            var courtSelect = document.getElementById('court');
 
 
-                        courts.forEach(function (court) {
-                            var option = document.createElement('option');
-                            option.value = court.court_number;
-                            option.text = court.court_number;
-                            courtSelect.appendChild(option);
-                        });
-                    },
-                    error: function () {
-                        alert('Error fetching court choices');
-                    }
-                });
-                $.ajax({
-                    type: 'GET',
-                    url: '<?php echo site_url("Page/get_sport_choices"); ?>',
-                    dataType: 'json',
-                    success: function (sports) {
-                        var sportSelect = document.getElementById('sport');
+                            courts.forEach(function (court) {
+                                var option = document.createElement('option');
+                                option.value = court.court_id;
+                                option.text = court.court_id;
+                                courtSelect.appendChild(option);
+                            });
+                        },
+                        error: function () {
+                            alert('Error fetching court choices');
+                        }
+                    });
+                    $.ajax({
+                        type: 'GET',
+                        url: '<?php echo site_url("Page/get_sport_choices"); ?>',
+                        dataType: 'json',
+                        success: function (sports) {
+                            var sportSelect = document.getElementById('sport');
 
-                        sports.forEach(function (sport) {
-                            var option = document.createElement('option');
-                            option.value = sport.sport_name;
-                            option.text = sport.sport_name;
-                            sportSelect.appendChild(option);
-                        });
-                    },
-                    error: function () {
-                        alert('Error fetching sport choices');
-                    }
-                });
+                            sports.forEach(function (sport) {
+                                var option = document.createElement('option');
+                                option.value = sport.sport_name;
+                                option.text = sport.sport_name;
+                                sportSelect.appendChild(option);
+                            });
+                        },
+                        error: function () {
+                            alert('Error fetching sport choices');
+                        }
+                    });
+
 
             </script>
 </body>
