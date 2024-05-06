@@ -13,110 +13,194 @@
   <!-- MDB -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet" /><!-- MDB -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
     integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-  <title></title>
 </head>
 
 <body>
-  <style>
-    body {
-      background-color: #fbfbfb;
-    }
-
-    @media (min-width: 991.98px) {
-      main {
-        padding-left: 240px;
-      }
-    }
-
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      padding: 58px 0 0;
-      /* Height of navbar */
-      box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
-      width: 240px;
-      z-index: 600;
-    }
-
-  
-
-    @media (max-width: 991.98px) {
-      .sidebar {
-        transform: translateX(-100%); /* Hide the sidebar off-screen on small screens */
-      }
-    }
-
-    .sidebar.active {
-      transform: translateX(0); /* Show the sidebar when it has the 'active' class */
-    }
-  </style>
+  <!--Main Navigation-->
   <header>
-    <!-- Sidebar -->
-    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-      <div class="position-sticky">
-        <div class="list-group list-group-flush mx-3 mt-4">
-          <a href="<?php echo base_url('page/test'); ?>" class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true">
-            <i class=""></i><span>Pending Reservations</span>
-          </a>
-          <a href="<?php echo base_url('page/history'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple">
-            <i class=""></i><span>Declined</span>
-          </a>
-          <a href="<?php echo base_url('page/reserved'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Reserved Slots</span></a>
-        <!--   <a href="<?php echo base_url('page/approved'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Approved Reservations</span></a> -->
-          <a href="<?php echo base_url('page/canceled'); ?>" class="list-group-item list-group-item-action py-2 ripple">
-            <i class=""></i><span>Canceled</span>
-          </a>
-          <!-- <a href="<?php echo base_url('page/court_status'); ?>"
-            class="list-group-item list-group-item-action py-2 ripple"><i class=""></i><span>Court Manager</span></a> -->
-            <a href="<?php echo base_url('page/landing_page'); ?>" class="list-group-item list-group-item-action py-2 ripple"><i
-              class=""></i><span>Home Page</span></a>
+    <style>
+      .navbar .nav-link {
+        color: #fff !important;
+      }
 
+      .navbar {
+        background-color: #000000;
+        /* Replace with your desired color */
+      }
+    </style>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block" style="z-index: 2000;">
+      <div class="container-fluid">
+        <!-- Navbar brand -->
+        <a class="navbar-brand nav-link" href="<?php echo base_url('page/landing_page'); ?>">
+          <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="30"
+            alt="" loading="lazy" />
+        </a>
+        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01"
+          aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarExample01">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" aria-current="page" href="<?php echo base_url('page/test'); ?>">Pending Reservations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="" rel="nofollow" target="_blank"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved Slots</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/canceled'); ?>">Canceled</a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav d-flex flex-row">
+            <?php
+            // Check if the user is logged in
+            if ($this->session->userdata('id')) {
+              // Load the user's data from the database using the user ID
+              $user_id = $this->session->userdata('id');
+              $user = $this->db->get_where('users', array('id' => $user_id))->row();
+
+              if ($user) {
+                // If the user is an admin, show the "Admin" link
+                if ($user->role === 'admin') {
+                  echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/admin') . '">Admin</a>
+            </li>';
+                }
+
+
+                echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/logout') . '">Logout</a>
+            </li>';
+              }
+            } else {
+              // If not logged in, show the "Sign In" link
+              echo '<li class="nav-item me-3 me-lg-0">
+          <a class="nav-link" href="' . base_url('page/loginview') . '">Sign In</a>
+        </li>';
+              echo '<li class="nav-item me-3 me-lg-0">
+        <a class="nav-link" href="' . base_url('page/register') . '">Register</a>
+      </li>';
+            }
+            ?>
+
+
+            <!-- Icons -->
+
+
+
+          </ul>
         </div>
       </div>
     </nav>
-    <!-- Sidebar -->
-
-    <!-- Navbar -->
-    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-      <!-- Container wrapper -->
+    <!-- Navbar for Mobile Phones -->
+    <nav class="navbar navbar-expand-lg navbar-dark d-lg-none" style="z-index: 2000;">
       <div class="container-fluid">
-        <!-- Toggle button -->
-        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
-          aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <i class="fas fa-bars"></i>
-        </button>
-
-        <!-- Brand -->
-        <a class="navbar-brand" href="<?php echo base_url('page/admin'); ?>">
-          <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="50"
+        <!-- Navbar brand -->
+        <a class="navbar-brand nav-link" target="_blank" href="https://mdbootstrap.com/docs/standard/">
+          <img src="<?php echo base_url('asset/299584772_435117378634124_6677388645313997495_n.png'); ?>" height="30"
             alt="" loading="lazy" />
         </a>
-  
-        <ul class="navbar-nav ms-auto d-flex flex-row">
+        <!-- Add an id to the button for toggling the mobile navbar -->
+        <button id="mobileNavbarToggler" class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarExamplePhone" aria-controls="navbarExamplePhone" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarExamplePhone">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" aria-current="page" href="<?php echo base_url('page/test'); ?>">Pending Reservations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="" rel="nofollow" target="_blank"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/history'); ?>">Declined</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/reserved'); ?>">Reserved Slots</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo base_url('page/canceled'); ?>">Canceled</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav d-flex flex-row">
+            <?php
+            // Check if the user is logged in
+            if ($this->session->userdata('id')) {
+              // Load the user's data from the database using the user ID
+              $user_id = $this->session->userdata('id');
+              $user = $this->db->get_where('users', array('id' => $user_id))->row();
 
-          <li class="nav-item">
-    <a class="nav-link" href="<?php echo base_url('page/logout'); ?>">Logout</a>
-</li>
+              if ($user) {
+                // If the user is an admin, show the "Admin" link
+                if ($user->role === 'admin') {
+                  echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/admin') . '">Admin</a>
+            </li>';
+                }
 
+
+                echo '<li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="' . base_url('page/logout') . '">Logout</a>
+            </li>';
+              }
+            } else {
+              // If not logged in, show the "Sign In" link
+              echo '<li class="nav-item me-3 me-lg-0">
+          <a class="nav-link" href="' . base_url('page/loginview') . '">Sign In</a>
+        </li>';
+              echo '<li class="nav-item me-3 me-lg-0">
+        <a class="nav-link" href="' . base_url('page/register') . '">Register</a>
+      </li>';
+            }
+            ?>
+
+
+            <!-- Icons -->
+
+
+
+          </ul>
+        </div>
       </div>
-      <!-- Container wrapper -->
     </nav>
-    <!-- Navbar -->
   </header>
-  <!--Main Navigation-->
-  <br>
-  <br>
+  <script>
+    // JavaScript to close the mobile navbar when a navigation link is clicked
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get the mobileNavbarToggler button and the mobile navbar
+      var mobileNavbarToggler = document.getElementById("mobileNavbarToggler");
+      var mobileNavbar = document.getElementById("navbarExamplePhone");
+
+      // Add a click event listener to each navigation link
+      var navLinks = mobileNavbar.querySelectorAll(".nav-link");
+      navLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+          // Close the mobile navbar
+          if (mobileNavbar.classList.contains("show")) {
+            mobileNavbarToggler.click(); // Click the button to close the navbar
+          }
+        });
+      });
+    });
+  </script>
 </body>
+
 </html>

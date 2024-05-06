@@ -125,7 +125,7 @@
             }
         }
     </style>
-    <div class="wrapper">
+ 
         <div class="tabs">
             <div class="tab">
                 <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">

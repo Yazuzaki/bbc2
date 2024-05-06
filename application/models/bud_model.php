@@ -1234,20 +1234,38 @@ public function get_available_times_by_date($selectedDate) {
 
     return $availableTimes;
 }
-public function get_available_times_by_date_and_court($selectedDate, $courtId) {
-    // Get all reservations for the selected date
-    $this->db->select('StartTime, EndTime, court_id');
+public function get_available_times_by_court($selectedCourt)
+{
+    // Get all reservations for the selected court
+    $this->db->select('StartTime, EndTime');
     $this->db->from('approve');
-    $this->db->where('Date', $selectedDate);
+    $this->db->where('court_id', $selectedCourt);
     $query = $this->db->get();
-    $allReservations = $query->result();
+    $reservedTimes = $query->result();
 
     // Generate all possible times between 8 am to 10 pm
     $allTimes = $this->generate_times2('09:00:00', '22:00:00');
 
-    // Remove reserved times from the available times for other courts
-    $reservedTimesForOtherCourts = $this->get_reserved_times_for_other_courts($selectedDate, $courtId, $allReservations);
-    $availableTimes = array_diff($allTimes, $reservedTimesForOtherCourts);
+    // Remove reserved times from the available times
+    $availableTimes = array_diff($allTimes, $this->extract_reserved_times2($reservedTimes));
+
+    return $availableTimes;
+}
+public function get_available_times_by_date_and_court($selectedDate, $selectedCourt)
+{
+    // Get all reservations for the selected date and court
+    $this->db->select('StartTime, EndTime');
+    $this->db->from('approve');
+    $this->db->where('Date', $selectedDate);
+    $this->db->where('court_id', $selectedCourt);
+    $query = $this->db->get();
+    $reservedTimes = $query->result();
+
+    // Generate all possible times between 8 am to 10 pm
+    $allTimes = $this->generate_times2('09:00:00', '22:00:00');
+
+    // Remove reserved times from the available times
+    $availableTimes = array_diff($allTimes, $this->extract_reserved_times2($reservedTimes));
 
     return $availableTimes;
 }

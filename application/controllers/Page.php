@@ -92,7 +92,7 @@ class Page extends CI_Controller
 
 
         // Get available times for the specified date
-        $data['available_times'] = $this->bud_model->get_available_times($this->input->post('date'));
+        $data['available_times'] = $this->bud_model->get_available_times_by_date($this->input->post('date'));
       
         // Load the view
         $this->load->view('template/header');
@@ -118,6 +118,40 @@ class Page extends CI_Controller
 
         echo json_encode($availableTimes);
     }
+    public function court_click()
+{
+    // Check if it's an AJAX request
+    if ($this->input->is_ajax_request()) {
+        $selectedCourt = $this->input->post('court');
+
+     $availableTimes = $this->bud_model-->get_available_times_by_court($selectedCourt);
+
+       
+
+        // Return the available times in JSON format
+        echo json_encode($availableTimes);
+    } else {
+        show_404(); // Return 404 if it's not an AJAX request
+    }
+}
+public function date_and_court_click()
+{
+    // Check if it's an AJAX request
+    if ($this->input->is_ajax_request()) {
+        $selectedDate = $this->input->post('date');
+        $selectedCourt = $this->input->post('court');
+
+        // Perform logic to fetch available times based on $selectedDate and $selectedCourt
+        $availableTimes = $this->bud_model->get_available_times_by_date_and_court($selectedDate, $selectedCourt);
+
+        // Return the available times in JSON format
+        echo json_encode($availableTimes);
+    } else {
+        show_404(); // Return 404 if it's not an AJAX request
+    }
+}
+
+
 
     public function reservationviewprocess()
     {
@@ -1721,20 +1755,48 @@ class Page extends CI_Controller
          
          $this->load->view('page/qr_code_reader', ['data' => $data]); // Pass the data array as an associative array
      } */
-    public function reservation_details_view()
-    {
-        // Retrieve the 'data' parameter from the URL
-        $encoded_data = $this->input->get('data');
+     public function reservation_details_view()
+     {
+        
+     
+         // Get the user's role from the session
+         $userRole = $this->session->userdata('role');
+     
+         // Retrieve the 'data' parameter from the URL
+         $encoded_data = $this->input->get('data');
+     
+         // Decode the JSON data
+         $decoded_data = json_decode(urldecode($encoded_data), true);
+     
+         // Pass the decoded data and user role to the view
+         $data['reservationDetails'] = $decoded_data;
+         $data['userRole'] = $userRole;
+     
+         // Load the HTML view
+         $this->load->view('page/reservation_details_view', $data);
+     }
+     // Example controller method in CodeIgniter
+public function mark_unscannable_qr_code()
+{
+    // Check if the request is an AJAX request
+    if ($this->input->is_ajax_request()) {
+        // Get the QR code ID from the POST data
+        $qrCodeId = $this->input->post('qrCodeId');
 
-        // Decode the JSON data
-        $decoded_data = json_decode(urldecode($encoded_data), true);
+        // Perform the action to mark the QR code as unscannable
+        // For example, update a database record
+        // Replace 'your_qr_code_model' with your actual model name and method
+        $this->your_qr_code_model->mark_as_unscannable($qrCodeId);
 
-        // Pass the decoded data to the view
-        $data['reservationDetails'] = $decoded_data;
-
-        // Load the HTML view
-        $this->load->view('page/reservation_details_view', $data);
+        // Return a response (optional)
+        $response = ['success' => true, 'message' => 'QR code marked as unscannable'];
+        echo json_encode($response);
+    } else {
+        // Handle non-AJAX requests (optional)
+        show_404(); // Or any other response you want
     }
+}
+
 
 
 
@@ -1907,7 +1969,7 @@ class Page extends CI_Controller
 
 
 
-        $data['courts'] = $this->bud_model->getAvailableCourts();
+        $data['courts'] = $this->Bud_model->getAvailableCourts();
 
         $this->load->view('page/reserve_court');
     }
@@ -1922,8 +1984,8 @@ class Page extends CI_Controller
             'smtp_timeout' => '7',
             'SMTPDebug' => '1',
             'SMTPAuth' => true,
-            'smtp_user' => 'ojtweb_mailer@sdca.edu.ph',
-            'smtp_pass' => 'sdca2022',
+            'smtp_user' => 'patrickjeri.garcia@gmail.com',
+            'smtp_pass' => 'iuokimxkqntgdcuo',
             'charset' => 'utf-8',
             'newline' => '\r\n',
             'mailtype' => 'html',
@@ -2095,7 +2157,7 @@ class Page extends CI_Controller
             $this->ciqrcode->generate($params);
 
             // Send the QR code in an email as an attachment
-            $fromEmail = 'patrickjeri.garcia@sdca.edu.ph'; // Replace with your email
+            $fromEmail = 'patrickjeri.garcia@gmail.com'; // Replace with your email
             $fromName = 'Budz Badminton Court'; // Replace with your name
             $recipientEmail = $reservationDetails->email;
             $subject = 'QR Code for Reservation';

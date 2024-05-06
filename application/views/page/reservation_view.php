@@ -49,18 +49,25 @@
                     </select>
                     <div class="invalid-feedback">Please select a sport.</div>
                 </div>
-
                 <div class="form-group">
                     <label for="court">Court: Price per Hour <br>Special: 250PHP Regular 210PHP Beginner 180PHP</label>
                     <select class="form-control" id="court" name="court" required>
-                        <?php foreach ($courts as $court): ?>
-                            <option value="<?php echo $court['court_id']; ?>">
-                                <?php echo $court['court_number']; ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <option value="">Select Court</option>
+                        <option value="1">Court 1</option>
+                        <option value="2">Court 2</option>
+                        <option value="3">Court 3</option>
+                        <option value="4">Court 4</option>
+                        <option value="5">Court 5</option>
+                        <option value="6">Court 6</option>
+                        <option value="7">Court 7</option>
+                        <option value="8">Court 8</option>
+                        <option value="9">Court 9</option>
+                        <option value="10">Court 10</option>
+                        <option value="11">Court 11</option>
                     </select>
                     <div class="invalid-feedback">Please select a court.</div>
                 </div>
+
 
                 <div class="form-group">
                     <label for="start_time">Start Time:</label>
@@ -95,7 +102,7 @@
                 </div>
 
                 <div id="loadingContainer" style="display: none;">
-                    <p>Loading...</p>
+                    <p>Upoading...</p>
                 </div>
 
                 <div id="resultContainer" style="display: none;">
@@ -220,45 +227,30 @@
                 });
             }
 
-            // Attach a change event handler to the date input
-            $('#date').on('change', function () {
-                var selectedDate = $(this).val();
+               // Attach change event handlers to both date and court inputs
+    $('#date, #court').on('change', function () {
+        var selectedDate = $('#date').val();
+        var selectedCourt = $('#court').val();
 
-                // AJAX request to get available times for the selected date
-                $.ajax({
-                    url: '<?php echo base_url('Page/date_click'); ?>',
-                    type: 'POST',
-                    data: { date: selectedDate },
-                    dataType: 'json',
-                    success: function (response) {
-                        // Update the start and end time dropdowns with the new available times
-                        updateDropdowns(response);
-                    },
-                    error: function () {
-                        console.log('Error fetching available times.');
-                    }
-                });
-            });
-            $.ajax({
-                type: 'GET',
-                url: '<?php echo site_url("Page/get_court_choices"); ?>',
-                dataType: 'json',
-                success: function (courts) {
-                    var courtSelect = document.getElementById('court');
+        // AJAX request to get available times for the selected date and court
+        $.ajax({
+            url: '<?php echo base_url('Page/date_and_court_click'); ?>',
+            type: 'POST',
+            data: { date: selectedDate, court: selectedCourt },
+            dataType: 'json',
+            success: function (response) {
+                // Update the start and end time dropdowns with the new available times
+                updateDropdowns(response);
+            },
+            error: function () {
+                console.log('Error fetching available times.');
+            }
+        });
+    });
 
+           
 
-
-                    courts.forEach(function (court) {
-                        var option = document.createElement('option');
-                        option.value = court.court_id;
-                        option.text = court.court_name;
-                        courtSelect.appendChild(option);
-                    });
-                },
-                error: function () {
-                    alert('Error fetching court choices');
-                }
-            });
+         
             $.ajax({
                 type: 'GET',
                 url: '<?php echo site_url("Page/get_sport_choices"); ?>',

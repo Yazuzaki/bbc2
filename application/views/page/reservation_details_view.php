@@ -45,12 +45,30 @@
                 <th>Sport</th>
                 <td><?= $reservationDetails['sport_id'] ?></td>
             </tr>
-          
         </table>
     </div>
+    <?php if ($userRole === 'admin'): ?>
+    <div class="text-center">
+        <button id="markUnscannableBtn" class="btn btn-danger">Mark QR Code</button>
+    </div>
+<?php endif; ?>
     <!-- Include Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    // JavaScript to handle the button click event
+    document.getElementById('markUnscannableBtn').addEventListener('click', function() {
+        // Get the QR code ID from the reservation details
+        var qrCodeId = <?= json_encode($reservationDetails['qr_code']); ?>;
+
+        // Send an AJAX request to mark the QR code as unscannable
+        $.post('Page/mark_unscannable_qr_code', { qrCodeId: qrCodeId }, function(response) {
+            // Handle the response here
+            console.log(response); // Example: Log the response to the console
+            // You can also update the UI or show a notification based on the response
+        });
+    });
+</script>
 </body>
 </html>
