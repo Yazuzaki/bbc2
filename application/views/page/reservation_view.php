@@ -37,18 +37,17 @@
                         max="<?php echo date('Y-m-d', strtotime('+1 year')); ?>">
                     <div class="invalid-feedback">Please select a date.</div>
                 </div>
-
                 <div class="form-group">
                     <label for="sport">Sport:</label>
                     <select class="form-control" id="sport" name="sport" required>
-                        <?php foreach ($sports as $sport): ?>
-                            <option value="<?php echo $sport['sport_name']; ?>">
-                                <?php echo $sport['sport_name']; ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <option value="Badminton">Badminton</option>
+                        <option value="Pickleball">Pickleball</option>
+                        <option value="Tabletennis">Tabletennis</option>
+                        <option value="Darts">Darts</option>
                     </select>
                     <div class="invalid-feedback">Please select a sport.</div>
                 </div>
+
                 <div class="form-group">
                     <label for="court">Court: Price per Hour <br>Special: 250PHP Regular 210PHP Beginner 180PHP</label>
                     <select class="form-control" id="court" name="court" required>
@@ -227,47 +226,25 @@
                 });
             }
 
-               // Attach change event handlers to both date and court inputs
-    $('#date, #court').on('change', function () {
-        var selectedDate = $('#date').val();
-        var selectedCourt = $('#court').val();
+            // Attach change event handlers to both date and court inputs
+            $('#date, #court').on('change', function () {
+                var selectedDate = $('#date').val();
+                var selectedCourt = $('#court').val();
 
-        // AJAX request to get available times for the selected date and court
-        $.ajax({
-            url: '<?php echo base_url('Page/date_and_court_click'); ?>',
-            type: 'POST',
-            data: { date: selectedDate, court: selectedCourt },
-            dataType: 'json',
-            success: function (response) {
-                // Update the start and end time dropdowns with the new available times
-                updateDropdowns(response);
-            },
-            error: function () {
-                console.log('Error fetching available times.');
-            }
-        });
-    });
-
-           
-
-         
-            $.ajax({
-                type: 'GET',
-                url: '<?php echo site_url("Page/get_sport_choices"); ?>',
-                dataType: 'json',
-                success: function (sports) {
-                    var sportSelect = document.getElementById('sport');
-
-                    sports.forEach(function (sport) {
-                        var option = document.createElement('option');
-                        option.value = sport.sport_name;
-                        option.text = sport.sport_name;
-                        sportSelect.appendChild(option);
-                    });
-                },
-                error: function () {
-                    alert('Error fetching sport choices');
-                }
+                // AJAX request to get available times for the selected date and court
+                $.ajax({
+                    url: '<?php echo base_url('Page/date_and_court_click'); ?>',
+                    type: 'POST',
+                    data: { date: selectedDate, court: selectedCourt },
+                    dataType: 'json',
+                    success: function (response) {
+                        // Update the start and end time dropdowns with the new available times
+                        updateDropdowns(response);
+                    },
+                    error: function () {
+                        console.log('Error fetching available times.');
+                    }
+                });
             });
         });
     </script>
