@@ -190,7 +190,7 @@ public function date_and_court_click()
 
             // Move the uploaded file to the upload path
             if (move_uploaded_file($image['tmp_name'], $filePath)) {
-                echo "File uploaded successfully";
+               
             } else {
                 echo "Error uploading file";
             }
@@ -1237,32 +1237,68 @@ public function date_and_court_click()
 
 
 
-    public function decline_reservation($reservationId)
+    public function decline_reservation()
     {
         $this->load->model('bud_model');
-        $reservation = $this->bud_model->getReservation($reservationId);
-
+        
+        $reservationId = $this->input->post('ReservationID');
+        $declineReason = $this->input->post('decline_reason');
+        $reservation = $this->bud_model->getReservation2($reservationId);
+    
         if ($reservation->status === 'pending') {
-            // Update the status to 'approved' in the "reservations" table
+            // Update the status to 'declined' in the "reservations" table
             $this->bud_model->updateStatus($reservationId, 'declined');
-
-            // Transfer approved reservation to the "today" table
-            $this->bud_model->transferTodeclined($reservation);
-
-            // Update status in the "today" table
-            $this->bud_model->updateDeclinedStatus($reservation->Date, 'declined');
-
+    
+            // Transfer declined reservation to the "decline" table
+            $this->bud_model->transferToDeclined($reservation, $declineReason);
+    
             // Remove the reservation from the "reservations" table
             $this->bud_model->removeReservation($reservationId);
-
-            $response = array('status' => 'success');
+    
+            // Send the decline email
+            $this->send_decline_email($reservation, $declineReason);
+    
+            $response = array('status' => 'success', 'message' => 'Reservation declined successfully.');
         } else {
             $response = array('status' => 'error', 'message' => 'Reservation not pending.');
         }
-
-        // Send the response as JSON
-        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    
+        // Return JSON response
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
     }
+    
+
+private function send_decline_email($reservationDetails, $declineReason)
+{
+    $fromEmail = 'patrickjeri.garcia@gmail.com'; // Replace with your email
+    $fromName = 'Budz Badminton Court'; // Replace with your name
+    $recipientEmail = $reservationDetails->email;
+    $customerName = $reservationDetails->Username;
+    $subject = 'Reservation Declined';
+    $message = 'Dear ' . $customerName . ',<br><br>We regret to inform you that your reservation has been declined for the following reason:<br><br>' . $declineReason . '<br><br>Best Regards,<br>Budz Badminton Court';
+
+    $this->load->library('email');
+    $this->webmailer_config();
+    $this->email->set_newline("\r\n");
+    $this->email->from($fromEmail, $fromName);
+    $this->email->to($recipientEmail);
+    $this->email->subject($subject);
+    $this->email->message($message);
+
+    if ($this->email->send()) {
+        log_message('info', 'Decline email sent successfully to ' . $recipientEmail);
+        // Add iziToast success message here
+       
+    } else {
+        $error = $this->email->print_debugger(array('headers'));
+        log_message('error', 'Failed to send decline email to ' . $recipientEmail . ': ' . $error);
+    }
+}
+
+
+    
 
     public function get_court_choices()
     {
@@ -2208,5 +2244,67 @@ public function mark_unscannable_qr_code()
                 ->set_output(json_encode($response));
         }
     }
+    public function send_decline_notification($reservationQRCode)
+    {
+        $this->load->model('bud_model'); // Load the bud_model
+    
+        // Check if the reservation with the given QR code exists in the database using getReservation2
+        $reservationDetails = $this->bud_model->getReservation2($reservationQRCode);
+    
+        if ($reservationDetails) {
+            $fromEmail = 'patrickjeri.garcia@gmail.com'; // Replace with your email
+            $fromName = 'Budz Badminton Court'; // Replace with your name
+            $recipientEmail = $reservationDetails->email;
+            $subject = 'Reservation Declined';
+            $message = 'We regret to inform you that your reservation has been declined.';
+    
+            $this->load->library('email');
+            $this->webmailer_config(); // Initialize email configuration
+    
+            $this->email->set_newline("\r\n");
+            $this->email->from($fromEmail, $fromName);
+            $this->email->to($recipientEmail);
+            $this->email->subject($subject);
+            $this->email->message($message);
+    
+            if ($this->email->send()) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Decline notification email sent',
+                    'data' => $reservationDetails
+                );
+    
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+            } else {
+                // Log the error message
+                $error = $this->email->print_debugger(array('headers'));
+                log_message('error', 'Failed to send decline notification email: ' . $error);
+    
+                // Return a JSON response for email send failure
+                $response = array(
+                    'success' => false,
+                    'message' => 'Failed to send decline notification email'
+                );
+    
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+            }
+        } else {
+            // Return a JSON response for not found
+            $response = array(
+                'success' => false,
+                'message' => 'Reservation not found'
+            );
+    
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+        }
+    }
+    
+
 
 }

@@ -16,21 +16,21 @@
 
 
 -- Dumping database structure for bbcdb
-CREATE DATABASE IF NOT EXISTS `bbcdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `bbcdb`;
+CREATE DATABASE IF NOT EXISTS `bbcdb2` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `bbcdb2`;
 
 -- Dumping structure for table bbcdb.approve
 CREATE TABLE IF NOT EXISTS `approve` (
   `ReservationID` int NOT NULL AUTO_INCREMENT,
   `Date` date DEFAULT NULL,
-  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `status` enum('pending','approved','declined') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
-  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `refnum` longblob,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`ReservationID`) USING BTREE
@@ -45,8 +45,8 @@ REPLACE INTO `approve` (`ReservationID`, `Date`, `StartTime`, `EndTime`, `Userna
 -- Dumping structure for table bbcdb.beginner courts
 CREATE TABLE IF NOT EXISTS `beginner courts` (
   `court_id` int NOT NULL AUTO_INCREMENT,
-  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'available',
+  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'available',
   `price` decimal(10,2) NOT NULL DEFAULT '180.00',
   PRIMARY KEY (`court_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -61,14 +61,14 @@ REPLACE INTO `beginner courts` (`court_id`, `court_number`, `status`, `price`) V
 CREATE TABLE IF NOT EXISTS `cancel` (
   `ReservationID` int NOT NULL AUTO_INCREMENT,
   `Date` date DEFAULT NULL,
-  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `status` enum('pending','approved','declined') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
-  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `refnum` longblob,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`ReservationID`) USING BTREE
@@ -84,8 +84,8 @@ CREATE TABLE IF NOT EXISTS `canceled` (
   `id` int NOT NULL AUTO_INCREMENT,
   `reserved_datetime` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `status` enum('canceled') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'canceled',
   `date_of_cancellation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -215,8 +215,8 @@ REPLACE INTO `canceled` (`id`, `reserved_datetime`, `created_at`, `court`, `spor
 -- Dumping structure for table bbcdb.court
 CREATE TABLE IF NOT EXISTS `court` (
   `court_id` int NOT NULL AUTO_INCREMENT,
-  `court_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `court_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`court_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -237,9 +237,9 @@ REPLACE INTO `court` (`court_id`, `court_name`, `category`) VALUES
 -- Dumping structure for table bbcdb.courts
 CREATE TABLE IF NOT EXISTS `courts` (
   `court_id` int NOT NULL AUTO_INCREMENT,
-  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'available',
-  `category` enum('special','regular','beginner') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'available',
+  `category` enum('special','regular','beginner') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `price` decimal(8,2) NOT NULL,
   PRIMARY KEY (`court_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS `court_reservation` (
   `reservation_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`reservation_id`) USING BTREE,
   KEY `court_date_index` (`court_id`,`reservation_date`) USING BTREE,
   CONSTRAINT `fk_court_reservation_court` FOREIGN KEY (`court_id`) REFERENCES `courts` (`court_id`) ON DELETE CASCADE
@@ -873,7 +873,7 @@ CREATE TABLE IF NOT EXISTS `court_time_slots` (
   `reservation_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`time_slot_id`),
   KEY `court_date_index` (`court_id`,`reservation_date`) USING BTREE,
   CONSTRAINT `fk_court_time_slots_court` FOREIGN KEY (`court_id`) REFERENCES `courts` (`court_id`) ON DELETE CASCADE
@@ -5010,14 +5010,14 @@ REPLACE INTO `court_time_slots` (`time_slot_id`, `court_id`, `reservation_date`,
 CREATE TABLE IF NOT EXISTS `decline` (
   `ReservationID` int NOT NULL AUTO_INCREMENT,
   `Date` date DEFAULT NULL,
-  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `status` enum('pending','approved','declined') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
-  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `court_id` text COLLATE utf8mb4_general_ci NOT NULL,
   `sport_id` text COLLATE utf8mb4_general_ci NOT NULL,
-  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `refnum` longblob,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`ReservationID`) USING BTREE
@@ -5036,8 +5036,8 @@ CREATE TABLE IF NOT EXISTS `declined` (
   `id` int NOT NULL AUTO_INCREMENT,
   `reserved_datetime` datetime NOT NULL,
   `created_at` timestamp NOT NULL,
-  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `status` enum('pending','approved','declined') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=120 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -5139,8 +5139,8 @@ CREATE TABLE IF NOT EXISTS `future` (
   `id` int NOT NULL AUTO_INCREMENT,
   `reserved_datetime` datetime NOT NULL,
   `created_at` timestamp NOT NULL,
-  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `status` enum('approved','declined','canceled') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'approved',
   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `user_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -5269,7 +5269,7 @@ DELIMITER ;
 CREATE TABLE IF NOT EXISTS `nomo` (
   `id` int NOT NULL AUTO_INCREMENT,
   `court_number` int DEFAULT NULL,
-  `customer_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `customer_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `reservation_date` date DEFAULT NULL,
   `reservation_time` time DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -5303,8 +5303,8 @@ CREATE TABLE IF NOT EXISTS `ongoing` (
 -- Dumping structure for table bbcdb.refnum
 CREATE TABLE IF NOT EXISTS `refnum` (
   `ref_id` int NOT NULL AUTO_INCREMENT,
-  `referencenumber` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `adminref` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `referencenumber` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `adminref` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`ref_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -5313,8 +5313,8 @@ CREATE TABLE IF NOT EXISTS `refnum` (
 -- Dumping structure for table bbcdb.regular courts
 CREATE TABLE IF NOT EXISTS `regular courts` (
   `court_id` int NOT NULL AUTO_INCREMENT,
-  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'available',
+  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'available',
   `price` decimal(10,2) NOT NULL DEFAULT '210.00',
   PRIMARY KEY (`court_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -5331,9 +5331,9 @@ REPLACE INTO `regular courts` (`court_id`, `court_number`, `status`, `price`) VA
 CREATE TABLE IF NOT EXISTS `reservation` (
   `reservation_id` int NOT NULL AUTO_INCREMENT,
   `court_id` int NOT NULL,
-  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `reserved_datetime` datetime NOT NULL,
-  `status` enum('approved','declined','canceled') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'approved',
+  `status` enum('approved','declined','canceled') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'approved',
   PRIMARY KEY (`reservation_id`),
   KEY `court_id` (`court_id`),
   CONSTRAINT `reservation_ibfk_1` FOREIGN KEY (`court_id`) REFERENCES `courts` (`court_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -5365,7 +5365,7 @@ CREATE TABLE IF NOT EXISTS `reservations2` (
   `id` int NOT NULL AUTO_INCREMENT,
   `court_number` int NOT NULL,
   `reservation_date` date NOT NULL,
-  `reserved_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `reserved_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -5391,8 +5391,8 @@ CREATE TABLE IF NOT EXISTS `sched` (
 -- Dumping structure for table bbcdb.special courts
 CREATE TABLE IF NOT EXISTS `special courts` (
   `court_id` int NOT NULL AUTO_INCREMENT,
-  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'available',
+  `court_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('ongoing','available','unavailable') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'available',
   `price` decimal(10,2) NOT NULL DEFAULT '250.00',
   PRIMARY KEY (`court_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -5406,7 +5406,7 @@ REPLACE INTO `special courts` (`court_id`, `court_number`, `status`, `price`) VA
 -- Dumping structure for table bbcdb.sports
 CREATE TABLE IF NOT EXISTS `sports` (
   `sport_id` int NOT NULL AUTO_INCREMENT,
-  `sport_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `sport_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`sport_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -5424,8 +5424,8 @@ CREATE TABLE IF NOT EXISTS `test` (
   `time` time DEFAULT NULL,
   `end` time DEFAULT NULL,
   `created_at` timestamp NOT NULL,
-  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `court` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `sport` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `status` enum('approved','declined','canceled') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'approved',
   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `user_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -5441,18 +5441,18 @@ CREATE TABLE IF NOT EXISTS `test` (
 CREATE TABLE IF NOT EXISTS `testreserve` (
   `ReservationID` int NOT NULL AUTO_INCREMENT,
   `Date` date DEFAULT NULL,
-  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `StartTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `EndTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `status` enum('pending','approved','declined') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
-  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `court_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `sport_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `refnum` longblob,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `referencenumber` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `adminref` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `referencenumber` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `adminref` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`ReservationID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=236 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -5587,15 +5587,15 @@ REPLACE INTO `today` (`id`, `reserved_datetime`, `created_at`, `status`, `court`
 -- Dumping structure for table bbcdb.users
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `role` enum('admin','user') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'user',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('admin','user') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'user',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `email_verified` tinyint(1) DEFAULT '0',
-  `email_verification_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `qr_code_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `email_verification_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `qr_code_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `email_verification_token` (`email_verification_token`)
@@ -5613,9 +5613,9 @@ REPLACE INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `
 -- Dumping structure for table bbcdb.users2
 CREATE TABLE IF NOT EXISTS `users2` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `qr_code_data` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `qr_code_data` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -157,7 +157,11 @@ class bud_model extends CI_Model
 
         return $reservation;
     }
-   
+    public function getReservation2($reservationId)
+    {
+        $query = $this->db->get_where('testreserve', array('ReservationID' => $reservationId));
+        return $query->row(); // Returns a single row object or null if not found
+    }
     public function getReservationDetails($reservationId) {
         // Implement your logic to retrieve reservation details from the database based on the $reservationId.
         // Replace the following line with your actual database query.
@@ -208,25 +212,27 @@ class bud_model extends CI_Model
         $this->db->update('today', $data);
     }
 
-    public function transferTodeclined($reservation)
+    public function transferToDeclined($reservation, $declineReason)
     {
         $data = array(
-            'ReservationID'=> $reservation->ReservationID,
+            'ReservationID' => $reservation->ReservationID,
+            'Date' => $reservation->Date,
             'StartTime' => $reservation->StartTime,
             'EndTime' => $reservation->EndTime,
             'Username' => $reservation->Username,
+            'status' => 'declined',
             'email' => $reservation->email,
             'court_id' => $reservation->court_id,
             'sport_id' => $reservation->sport_id,
-            'Date' => $reservation->Date,
-            'status'=>$reservation->status,
             'qr_code' => $reservation->qr_code,
+            'refnum' => $reservation->refnum,
             'created_at' => $reservation->created_at,
-            'refnum' => $reservation->refnum, // This will be null if no file is uploaded
+            'decline_reason' => $declineReason // Add the reason for decline
         );
-      
+    
         $this->db->insert('decline', $data);
     }
+    
     public function updateDeclinedStatus($reservedDatetime, $status)
     {
         $this->db->where('Date', $reservedDatetime);

@@ -10,7 +10,10 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/css/iziModal.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.5.1/js/iziModal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+
 
     <title>Pending Reservation</title>
 </head>
@@ -193,7 +196,7 @@
                                     <td>
                                         <?= $row->qr_code ?>
                                     </td>
-                                    
+
                                     <td>
                                         <a href="#" onclick="showImage('<?= base_url($row->refnum) ?>')">
                                             <img src="<?= base_url($row->refnum) ?>" alt="Proof of Payment" width="100"
@@ -223,8 +226,10 @@
                                             data-qr-code="<?= $row->qr_code ?>">
                                             Approve
                                         </a>
-                                        <a href="#" data-toggle="modal" data-target="#responseModal" data-action="decline"
-                                            data-id="<?= $row->ReservationID ?>" class="btn btn-danger">Decline</a>
+                                        <a href="#" class="btn btn-danger mb-2" data-toggle="modal"
+                                            data-target="#declineModal" data-action="decline"
+                                            data-id="<?= $row->ReservationID ?>" data-email="<?= $row->email ?>"
+                                            data-id="<?= $row->qr_code ?>">Decline</a>
                                     </td>
                                 </tr>
 
@@ -323,11 +328,11 @@
                                     <div class="mb-3">
                                         <label for="court" class="form-label">Select Court:</label>
                                         <select id="court" name="court" class="form-select" required>
-                                        <?php foreach ($courts as $court): ?>
-                        <option value="<?php echo $court['court_id']; ?>">
-                            <?php echo $court['court_name']; ?>
-                        </option>
-                    <?php endforeach; ?>
+                                            <?php foreach ($courts as $court): ?>
+                                                <option value="<?php echo $court['court_id']; ?>">
+                                                    <?php echo $court['court_name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
 
@@ -344,6 +349,43 @@
                     </div>
 
                 </div>
+                <!-- Decline Reason Modal -->
+                <div class="modal fade" id="declineModal" tabindex="-1" role="dialog"
+                    aria-labelledby="declineModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="declineModalLabel">Reason for Decline</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="declineForm">
+                                <div class="modal-body">
+                                    <input type="hidden" name="ReservationID" id="modalReservationID">
+                                    <div class="form-group">
+                                        <label for="declineReason">Reason</label>
+                                        <textarea class="form-control" id="declineReason" name="decline_reason" rows="3"
+                                            required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-danger">Decline</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+
+
+
+
+                </script>
+
+
                 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
                 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -354,15 +396,7 @@
                         $('#myTable').DataTable({
 
                         });
-                        $('#responseModal').iziModal({
-                            title: 'Response',
-                            headerColor: '#1abc9c',
-                            width: 600,
-                            padding: 20,
-                            closeButton: true,
-                            overlayClose: false,
-                            overlayColor: 'rgba(0, 0, 0, 0.6)',
-                        });
+
 
                         // Function to open the response modal
                         function openResponseModal(message) {
@@ -371,6 +405,82 @@
                         }
 
                     });
+                    $('#declineModal').on('show.bs.modal', function (event) {
+                        var button = $(event.relatedTarget); // Button that triggered the modal
+                        var reservationID = button.data('id'); // Extract info from data-* attributes
+
+                        // Update the modal's content.
+                        var modal = $(this);
+                        modal.find('#modalReservationID').val(reservationID);
+                    });
+
+                    $('#declineForm').on('submit', function (e) {
+                        e.preventDefault();
+
+                        $.ajax({
+                            url: '<?= base_url('Page/decline_reservation') ?>',
+                            type: 'POST',
+                            data: $(this).serialize(),
+                            success: function (response) {
+                                // Check if the response is already in JSON format
+                                if (typeof response === 'object') {
+                                    handleResponse(response);
+                                } else {
+                                    try {
+                                        // Parse the response as JSON
+                                        response = JSON.parse(response);
+                                        handleResponse(response);
+                                    } catch (error) {
+                                        console.error('Error parsing JSON:', error);
+                                        iziToast.error({
+                                            title: 'Error',
+                                            message: 'An error occurred while processing your request.',
+                                            position: 'topRight'
+
+                                        });
+                                    }
+                                }
+                            },
+                            error: function () {
+                                iziToast.error({
+                                    title: 'Error',
+                                    message: 'An error occurred while processing your request.',
+                                    position: 'topRight'
+                                });
+                            }
+                        });
+                    });
+
+                    // Function to handle the response
+                    function handleResponse(response) {
+                        if (response.status === 'success') {
+                            $('#declineModal').hide();
+
+
+                            iziToast.success({
+                                title: 'Success',
+                                message: response.message,
+                                position: 'topRight',
+                                onClosed: function () {
+                                    $('#myTable').DataTable().ajax.reload(); // Reload the DataTable after successful decline
+                                }
+                            });
+
+                            // Show iziToast success message here
+                            iziToast.success({
+                                title: 'Success',
+                                message: 'Decline email sent successfully',
+                                position: 'topRight'
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'Error',
+                                message: response.message,
+                                position: 'topRight'
+                            });
+                        }
+                    }
+
 
                     $('.reschedule-button').click(function (e) {
                         e.preventDefault();
@@ -486,35 +596,35 @@
 
 
                     // Function to handle the "Decline" button click
-                    $(".btn-danger[data-action='decline']").click(function () {
-                        const reservationId = $(this).data("id");
-                        $.ajax({
-                            url: `<?= base_url('Page/decline_reservation/') ?>${reservationId}`,
-                            type: "GET",
-                            dataType: "json",
-                            success: function (data) {
-                                if (data.status === "success") {
-                                    $("#responseBody").text("Reservation declined successfully.");
-                                } else {
-                                    $("#responseBody").text("Failed to decline reservation: " + data.message);
-                                }
-                                $('#responseModal').modal('show');
-                            },
-                            error: function (xhr, status, error) {
-                                console.error("AJAX Error:", error);
-                            }
-                        });
-                    });
-                    responseModal.addEventListener('hidden.bs.modal', function () {
-                        responseBody.innerText = '';
-                        location.reload();
-                    });
+                    // $(".btn-danger[data-action='decline']").click(function () {
+                    //     const reservationId = $(this).data("id");
+                    //     $.ajax({
+                    //         url: `<?= base_url('Page/decline_reservation/') ?>${reservationId}`,
+                    //         type: "GET",
+                    //         dataType: "json",
+                    //         success: function (data) {
+                    //             if (data.status === "success") {
+                    //                 $("#responseBody").text("Reservation declined successfully.");
+                    //             } else {
+                    //                 $("#responseBody").text("Failed to decline reservation: " + data.message);
+                    //             }
+                    //             $('#responseModal').modal('show');
+                    //         },
+                    //         error: function (xhr, status, error) {
+                    //             console.error("AJAX Error:", error);
+                    //         }
+                    //     });
+                    // });
+                    // responseModal.addEventListener('hidden.bs.modal', function () {
+                    //     responseBody.innerText = '';
+                    //     location.reload();
+                    // });
 
-                    responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
-                        responseBody.innerText = '';
-                        $('#responseModal').modal('hide');
-                        location.reload();
-                    });
+                    // responseModal.querySelector('.btn-secondary').addEventListener('click', function () {
+                    //     responseBody.innerText = '';
+                    //     $('#responseModal').modal('hide');
+                    //     location.reload();
+                    // });
 
                     $.ajax({
                         type: 'GET',
