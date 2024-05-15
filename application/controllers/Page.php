@@ -89,7 +89,42 @@ class Page extends CI_Controller
 
         echo json_encode($response);
     }
-
+    public function feedback() {
+        // Form validation
+        $this->form_validation->set_rules('name', 'Name', 'required');
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+        $this->form_validation->set_rules('message', 'Message', 'required');
+    
+        if ($this->form_validation->run() == FALSE) {
+            // Form validation failed, reload the feedback form view with validation errors
+            $this->load->view('feedback_form');
+        } else {
+            // Form validation passed, process the feedback data
+            $name = $this->input->post('name');
+            $email = $this->input->post('email'); // Retrieve email from the form
+            $message = $this->input->post('message');
+    
+            // Send email
+            $this->load->library('email');
+    
+            $this->email->from('your@example.com', 'Your Name');
+            $this->email->to('recipient@example.com');
+    
+            $this->email->subject('New Feedback Received');
+            $this->email->message('Name: ' . $name . '<br>Email: ' . $email . '<br>Message: ' . $message);
+    
+            if ($this->email->send()) {
+                // Email sent successfully, display confirmation message
+                $data['confirmation'] = 'Thank you for your feedback! Your message has been sent.';
+                $this->load->view('feedback_form', $data);
+            } else {
+                // Email sending failed, display error message
+                $data['confirmation'] = 'Failed to send feedback. Please try again later.';
+                $this->load->view('feedback_form', $data);
+            }
+        }
+    }
+    
     public function availability_view()
     {
         // Load the model

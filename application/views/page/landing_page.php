@@ -7,7 +7,7 @@
 <html>
 
 <head>
-	<title>Industrious by TEMPLATED</title>
+	<title>Budz</title>
 	<meta charset="utf-8">
 	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -81,8 +81,19 @@
 	<footer id="footer">
 		<div class="inner">
 			<div class="content">
-				<section>
-				</section>
+			<section>
+                <h4>Leave Us Your Feedback</h4>
+				<?php echo form_open('Page/feedback'); ?>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" required></textarea>
+					<br>
+                    <button type="submit">Submit</button>
+					<?php echo form_close(); ?>
+            </section>
 				<section>
 					</ul>
 				</section>
