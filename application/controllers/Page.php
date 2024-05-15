@@ -22,12 +22,73 @@ class Page extends CI_Controller
     {
 
 
-        $this->load->view('template/header');
+        $this->load->view('template/newheader');
         $this->load->view('page/landing_page');
 
 
     }
+    public function adminver()
+    {
+        // Check if the user is logged in
+        if (!$this->session->userdata('id')) {
+            // If not logged in, redirect to the login page
+            redirect('page/loginview');
+        }
 
+        // Get the user's role from the session
+        $user_role = $this->session->userdata('role');
+
+        // Check if the user's role is 'admin'
+        if ($user_role !== 'admin') {
+            // If the user is not an admin, redirect them to a different page
+            redirect('page/landing_page'); // Redirect to a landing page for regular users
+        }
+
+        $this->load->view('template/adminheader');
+        $this->load->view('page/adminver');
+
+
+    }
+    public function verifyAndUpdate() {
+        // Get the reference number from the POST data
+        $referenceNumber = $this->input->post('referenceNumber');
+
+        // Your database update logic
+        $this->load->model('bud_model'); // Load your model
+        $result = $this->bud_model->updateReferenceNumber($referenceNumber);
+
+        if ($result) {
+            $response = array(
+                'status' => 'success',
+                'message' => 'Reference number saved successfully.'
+            );
+        } else {
+            $response = array(
+                'status' => 'error',
+                'message' => 'Failed to save reference number.'
+            );
+        }
+
+        // Send JSON response back to the client
+        echo json_encode($response);
+    }
+
+    public function verify_and_update() {
+        // Get the reference number from POST data
+        $referenceNumber = $this->input->post('referenceNumber');
+
+        // Perform verification using the model
+        $verificationResult = $this->verification_model->verify_reference_number($referenceNumber);
+
+        // Return JSON response based on verification result
+        if ($verificationResult) {
+            $response = array('status' => 'success');
+        } else {
+            $response = array('status' => 'error', 'message' => 'Failed to verify reference number.');
+        }
+
+        echo json_encode($response);
+    }
 
     public function availability_view()
     {

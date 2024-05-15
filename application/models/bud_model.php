@@ -157,6 +157,20 @@ class bud_model extends CI_Model
 
         return $reservation;
     }
+    public function updateReferenceNumber($referenceNumber) {
+        // Prepare data to be updated
+        $data = array(
+            'referencenumber' => 'verified'
+        );
+    
+        // Update data in the 'testreserve' table for the row with the given reference number
+        $this->db->where('referencenumber', $referenceNumber);
+        $this->db->update('testreserve', $data);
+    
+        // Check if the update was successful
+        return $this->db->affected_rows() > 0;
+    }
+    
     public function getReservation2($reservationId)
     {
         $query = $this->db->get_where('testreserve', array('ReservationID' => $reservationId));

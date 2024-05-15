@@ -231,6 +231,7 @@
                                             data-id="<?= $row->ReservationID ?>" data-email="<?= $row->email ?>"
                                             data-id="<?= $row->qr_code ?>">Decline</a>
                                     </td>
+                                 
                                 </tr>
 
 
@@ -396,13 +397,6 @@
                         $('#myTable').DataTable({
 
                         });
-
-
-                        // Function to open the response modal
-                        function openResponseModal(message) {
-                            $('#responseBody').html(message);
-                            $('#responseModal').iziModal('open');
-                        }
 
                     });
                     $('#declineModal').on('show.bs.modal', function (event) {
