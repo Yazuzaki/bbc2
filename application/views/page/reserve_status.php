@@ -8,6 +8,7 @@
 
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo base_url('application\assets\css\main.css'); ?>">
 
     <style>
         table {
@@ -134,6 +135,11 @@
     <?php endif; ?>
 
     <!-- Include jQuery and Bootstrap JS -->
+    <script src="<?php echo base_url('application\assets\js\jquery.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\browser.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\breakpoints.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\util.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\main.js'); ?>"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 

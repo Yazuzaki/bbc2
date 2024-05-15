@@ -7,6 +7,8 @@
     <title>Reservation Form</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo base_url('application\assets\css\main.css'); ?>">
+
 </head>
 
 <body>
@@ -121,11 +123,17 @@
             </div>
         </div>
     </div>
+    
     <!-- Include full version of jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> <!-- Add jQuery library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
+    <script src="<?php echo base_url('application\assets\js\jquery.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\browser.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\breakpoints.min.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\util.js'); ?>"></script>
+	<script src="<?php echo base_url('application\assets\js\main.js'); ?>"></script>
 
 
     <script>

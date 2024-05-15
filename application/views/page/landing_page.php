@@ -14,6 +14,9 @@
 	<meta name="description" content="">
 	<meta name="keywords" content="">
 	<link rel="stylesheet" href="<?php echo base_url('application\assets\css\main.css'); ?>">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+
 </head>
 
 <body class="is-preload">
@@ -21,13 +24,14 @@
 	<!-- Banner -->
 	<section id="banner">
 		<div class="inner">
-			<a class="logo" href="index.html">
-			<img src="<?php echo base_url('application\images\BBCLOGO-removebg-preview.png'); ?>" alt="Logo">
+			<a class="logo" href="#">
+				<img src="<?php echo base_url('application\images\BBCLOGO-removebg-preview.png'); ?>" alt="Logo">
 			</a>
 		</div>
 		</div>
 		<<video autoplay loop muted playsinline
-			src="<?php echo base_url('application\images\An9ZmJxGM_x5ZZBVebqVvaoDzmlRFz63Gh8tiCxjVh_E036qnBKSg4sVacHc5wZaimrryKUVrfPyaobwZ8D_VJBU.mp4'); ?>"></video>
+			src="<?php echo base_url('application\images\An9ZmJxGM_x5ZZBVebqVvaoDzmlRFz63Gh8tiCxjVh_E036qnBKSg4sVacHc5wZaimrryKUVrfPyaobwZ8D_VJBU.mp4'); ?>">
+			</video>
 	</section><!-- Highlights -->
 	<section class="wrapper">
 		<div class="inner">
@@ -40,19 +44,22 @@
 			</header>
 			<div class="highlights">
 				<section>
-				<img height="256" width="256" src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
+					<img height="256" width="256"
+						src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
 				</section>
 				<section>
-				<img height="256" width="256" src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
+					<img height="256" width="256"
+						src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
 				</section>
 				<section>
-				<img height="256" width="256" src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
+					<img height="256" width="256"
+						src="<?php echo base_url('application\images\200406237_340775037752137_106958076836942923_n.jpg'); ?>">
 				</section>
-				
+
 			</div>
 		</div>
 	</section><!-- CTA -->
-	
+
 	</section><!-- Testimonials -->
 	<section class="wrapper">
 		<div class="inner">
@@ -62,17 +69,17 @@
 			<div class="testimonials">
 				<section>
 					<div class="content">
-					<img height="256" width="256" src="<?php echo base_url('application\images\Beginner.jpg'); ?>">
+						<img height="256" width="256" src="<?php echo base_url('application\images\Beginner.jpg'); ?>">
 
 				</section>
 				<section>
 					<div class="content">
-					<img height="256" width="256" src="<?php echo base_url('application\images\Regular.jpg'); ?>">
+						<img height="256" width="256" src="<?php echo base_url('application\images\Regular.jpg'); ?>">
 
 				</section>
 				<section>
 					<div class="content">
-					<img height="256" width="256" src="<?php echo base_url('application\images\Special.jpg'); ?>">
+						<img height="256" width="256" src="<?php echo base_url('application\images\Special.jpg'); ?>">
 
 				</section>
 			</div>
@@ -81,19 +88,19 @@
 	<footer id="footer">
 		<div class="inner">
 			<div class="content">
-			<section>
-                <h4>Leave Us Your Feedback</h4>
-				<?php echo form_open('Page/feedback'); ?>
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                    <label for="message">Message:</label>
-                    <textarea id="message" name="message" required></textarea>
+				<section>
+					<h4>Leave Us Your Feedback</h4>
+					<?php echo form_open('Page/feedback', array('id' => 'feedback')); ?>
+					<label for="name">Name:</label>
+					<input type="text" id="name" name="name" required>
+					<label for="email">Email:</label>
+					<input type="email" id="email" name="email" required>
+					<label for="message">Message:</label>
+					<textarea id="message" name="message" required></textarea>
 					<br>
-                    <button type="submit">Submit</button>
+					<button type="submit">Submit</button>
 					<?php echo form_close(); ?>
-            </section>
+				</section>
 				<section>
 					</ul>
 				</section>
@@ -101,9 +108,10 @@
 					<h4></h4>
 					<ul class="plain">
 						<li><a href="#"><i class="icon fa-twitter">&nbsp;</i>Twitter</a></li>
-						<li><a href="#"><i class="icon fa-facebook">&nbsp;</i>Facebook</a></li>
+						<li><a href="https://www.facebook.com/budzbadmintoncourt"><i
+									class="icon fa-facebook">&nbsp;</i>Facebook</a></li>
 						<li><a href="#"><i class="icon fa-instagram">&nbsp;</i>Instagram</a></li>
-						<li><a href="#"><i class="icon fa-github">&nbsp;</i>Github</a></li>
+						<li><i class="icon fa-phone-square">&nbsp;</i>09153730100 </li>
 					</ul>
 				</section>
 			</div>
@@ -119,6 +127,44 @@
 	<script src="<?php echo base_url('application\assets\js\breakpoints.min.js'); ?>"></script>
 	<script src="<?php echo base_url('application\assets\js\util.js'); ?>"></script>
 	<script src="<?php echo base_url('application\assets\js\main.js'); ?>"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#feedback').submit(function(e) {
+            e.preventDefault(); // Prevent the form from submitting traditionally
+
+            // Serialize form data
+            var formData = $(this).serialize();
+
+            // Send AJAX request
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo site_url("Page/feedback"); ?>',
+                data: formData,
+                success: function(response) {
+                    // Show iziToast success message
+                    iziToast.success({
+                        title: 'Success',
+                        message: 'Thank you for your feedback! Your message has been sent.',
+                        position: 'topRight'
+                    });
+
+                    // Clear form fields
+                    $('#feedbackForm')[0].reset();
+                },
+                error: function(xhr, status, error) {
+                    // Show iziToast error message
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Failed to send feedback. Please try again later.',
+                        position: 'topRight'
+                    });
+                }
+            });
+        });
+    });
+</script>
+
 </body>
 
 </html>

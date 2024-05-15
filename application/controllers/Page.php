@@ -97,7 +97,7 @@ class Page extends CI_Controller
     
         if ($this->form_validation->run() == FALSE) {
             // Form validation failed, reload the feedback form view with validation errors
-            $this->load->view('feedback_form');
+            $this->load->view('page/landing_page');
         } else {
             // Form validation passed, process the feedback data
             $name = $this->input->post('name');
@@ -106,21 +106,19 @@ class Page extends CI_Controller
     
             // Send email
             $this->load->library('email');
-    
-            $this->email->from('your@example.com', 'Your Name');
-            $this->email->to('recipient@example.com');
-    
+            $this->webmailer_config();
+            $this->email->set_newline("\r\n");
+            $this->email->from($email);
+            $this->email->to('patrickjeri.garcia@gmail.com');
             $this->email->subject('New Feedback Received');
             $this->email->message('Name: ' . $name . '<br>Email: ' . $email . '<br>Message: ' . $message);
     
             if ($this->email->send()) {
-                // Email sent successfully, display confirmation message
-                $data['confirmation'] = 'Thank you for your feedback! Your message has been sent.';
-                $this->load->view('feedback_form', $data);
+                // Email sent successfully, display success message using izitoast
+                echo '<script> iziToast.success({ message: "Thank you for your feedback! Your message has been sent." }); </script>';
             } else {
-                // Email sending failed, display error message
-                $data['confirmation'] = 'Failed to send feedback. Please try again later.';
-                $this->load->view('feedback_form', $data);
+                // Email sending failed, display error message using izitoast
+                echo '<script> iziToast.error({ message: "Failed to send feedback. Please try again later." }); </script>';
             }
         }
     }
@@ -191,7 +189,7 @@ class Page extends CI_Controller
         $data['available_times'] = $this->bud_model->get_available_times_by_date($this->input->post('date'));
       
         // Load the view
-        $this->load->view('template/header');
+        $this->load->view('template/newheader');
         $this->load->view('page/reservation_view', $data);
     }
     public function fetch_reservations()
@@ -606,7 +604,7 @@ public function date_and_court_click()
         $data['reservations'] = $this->bud_model->getReservationsByUserEmail($userEmail);
 
         // Load views
-        $this->load->view('template/header');
+        $this->load->view('template/newheader');
         $this->load->view('page/reserve_status', $data);
     }
     public function cancelReservation()
