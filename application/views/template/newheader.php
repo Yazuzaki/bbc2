@@ -11,6 +11,7 @@
 			<li><a class="nav-link" aria-current="page" href="<?php echo base_url('page/landing_page'); ?>">Home</a></li>
 			<li> <a class="nav-link" href="<?php echo base_url('page/reservation_view'); ?>">Reserve</a></li>
 			<li><a class="nav-link" href="<?php echo base_url('page/reserve_status'); ?>">My Reservation</a></li>
+      <li><a class="nav-link" href="<?php echo base_url('page/courtvis'); ?>">Court Availability</a></li>
 		</ul>
         <ul class="links">
         <?php

@@ -49,6 +49,52 @@ class Page extends CI_Controller
 
 
     }
+    public function courtvis(){
+         // Get the date to filter the table
+         $date = $this->input->get('date') ? $this->input->get('date') : date('Y-m-d');
+
+         // Generate time slots from 9 AM to 10 PM
+         $timeSlots = array();
+         for ($hour = 9; $hour <= 22; $hour++) {
+             $time = date('g A', strtotime($hour . ':00'));
+             $timeSlots[$time] = $time;
+         }
+ 
+         // Check database for availability
+         $query = $this->db->select('StartTime, EndTime, court_id')
+                           ->from('approve')
+                           ->where('Date', $date)
+                           ->where('status', 'approved')
+                           ->get();
+ 
+         $bookedSlots = array();
+         if ($query->num_rows() > 0) {
+             // Collect booked time slots for each court
+             foreach ($query->result() as $row) {
+                 $courtId = $row->court_id;
+                 $startTime = date('g A', strtotime($row->StartTime)); // Format start time
+                 $endTime = date('g A', strtotime($row->EndTime)); // Format end time
+ 
+                 // Mark time slots as booked
+                 $startHour = date('G', strtotime($row->StartTime));
+                 $endHour = date('G', strtotime($row->EndTime));
+                 for ($hour = $startHour; $hour <= $endHour; $hour++) { // Adjusted to include end hour
+                     $time = date('g A', strtotime($hour . ':00'));
+                     $bookedSlots[$time][$courtId] = true;
+                 }
+             }
+         }
+ 
+         // Pass data to the view
+         $data['date'] = $date;
+         $data['timeSlots'] = $timeSlots;
+         $data['bookedSlots'] = $bookedSlots;
+ 
+         // Load the view
+         $this->load->view('template/newheader');
+         $this->load->view('page/courtvis', $data);
+     }
+    
     public function verifyAndUpdate() {
         // Get the reference number from the POST data
         $referenceNumber = $this->input->post('referenceNumber');

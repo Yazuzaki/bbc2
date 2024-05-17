@@ -1342,6 +1342,14 @@ public function getTopReservers() {
     $query = $this->db->get();
     return $query->result();
 }
+public function get_approved_bookings($date) {
+    $query = $this->db->select('StartTime, EndTime, court_id')
+                      ->from('approve')
+                      ->where('Date', $date)
+                      ->where('status', 'approved')
+                      ->get();
+    return $query->result();
+}
 
 }
 
