@@ -189,6 +189,13 @@ class bud_model extends CI_Model
             return false; // Reservation not found
         }
     }
+    public function getReservationDetails2($reservationId)
+{
+    $this->db->where('ReservationID', $reservationId);
+    $query = $this->db->get('approve');
+    return $query->row();
+}
+
     public function generateRandomQRCode($length) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -1350,6 +1357,16 @@ public function get_approved_bookings($date) {
                       ->get();
     return $query->result();
 }
+public function markQrCodeAsUsed($qrCodeId)
+{
+    $data = array(
+        'status' => 'used'
+    );
+
+    $this->db->where('qr_code', $qrCodeId);
+    return $this->db->update('reservations', $data); // Adjust table name if necessary
+}
+
 
 }
 

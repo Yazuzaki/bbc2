@@ -1541,29 +1541,92 @@ private function send_decline_email($reservationDetails, $declineReason)
     }
 
     public function reschedule_reservation()
-    {
-        $this->load->model('bud_model');
+{
+    $this->load->model('bud_model');
+    $this->load->library('ciqrcode');
 
-        // Retrieve form data
+    // Retrieve form data
+    $reservationId = $this->input->post('reservationId');
+    $newReservedDatetime = $this->input->post('newReservedDatetime');
+    $newStartTime = $this->input->post('newStartTime');
+    $newEndTime = $this->input->post('newEndTime');
+    $newCourt = $this->input->post('court');
+    $newSport = $this->input->post('sport');
 
-        $reservationId = $this->input->post('reservationId');
-        $newReservedDatetime = $this->input->post('newReservedDatetime');
-        $newStartTime = $this->input->post('newStartTime');
-        $newEndTime = $this->input->post('newEndTime');
-        $newCourt = $this->input->post('court');
-        $newSport = $this->input->post('sport');
+    // Call the model to update the reservation
+    $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newStartTime, $newEndTime, $newCourt, $newSport);
 
-        // Call the model to update the reservation
-        $result = $this->bud_model->updateReservation($reservationId, $newReservedDatetime, $newStartTime, $newEndTime, $newCourt, $newSport);
+    if ($result) {
+        // Retrieve the updated reservation details
+        $reservationDetails = $this->bud_model->getReservationDetails2($reservationId);
 
-        if ($result) {
-            $response = array('status' => 'success');
+        if ($reservationDetails) {
+            $dataToPass = array(
+                'qr_code' => $reservationDetails->qr_code,
+                'ReservationID' => $reservationDetails->ReservationID,
+                'Date' => $reservationDetails->Date,
+                'StartTime' => $reservationDetails->StartTime,
+                'EndTime' => $reservationDetails->EndTime,
+                'status' => $reservationDetails->status,
+                'Username' => $reservationDetails->Username,
+                'email' => $reservationDetails->email,
+                'court_id' => $reservationDetails->court_id,
+                'sport_id' => $reservationDetails->sport_id,
+            );
+
+            // Encode the data to pass as a JSON string
+            $dataParam = json_encode($dataToPass);
+
+            // Generate the QR code image
+            $params['data'] = base_url('page/reservation_details_view') . '?data=' . urlencode($dataParam);
+            $params['level'] = 'H';
+            $params['size'] = 10;
+            $params['savename'] = FCPATH . "application/uploads/qr_code_{$reservationId}.jpg";
+            $this->ciqrcode->generate($params);
+
+            // Send the QR code in an email as an attachment
+            $fromEmail = 'patrickjeri.garcia@gmail.com'; // Replace with your email
+            $fromName = 'Budz Badminton Court'; // Replace with your name
+            $recipientEmail = $reservationDetails->email;
+            $subject = 'QR Code for Rescheduled Reservation';
+            $message = "Dear {$reservationDetails->Username},\n\n" .
+            "Your reservation has been rescheduled to {$newReservedDatetime} from {$newStartTime} to {$newEndTime}.\n" .
+            "Please find the new QR code for your reservation attached to this email.\n\n" .
+            "Thank you,\nBudz Badminton Court";
+
+            $this->load->library('email');
+            $this->webmailer_config();
+            $this->email->set_newline("\r\n");
+            $this->email->from($fromEmail, $fromName);
+            $this->email->to($recipientEmail);
+            $this->email->subject($subject);
+            $this->email->message($message);
+            $this->email->attach(FCPATH . "application/uploads/qr_code_{$reservationId}.jpg"); // Attach the QR code image
+
+            if ($this->email->send()) {
+                // Delete the generated QR code after sending it in an email
+                unlink(FCPATH . "application/uploads/qr_code_{$reservationId}.jpg");
+
+                $response = array(
+                    'status' => 'success',
+                    'message' => 'Reservation rescheduled and QR Code sent via email'
+                );
+            } else {
+                $response = array(
+                    'status' => 'success',
+                    'message' => 'Reservation rescheduled but failed to send email with QR Code'
+                );
+            }
         } else {
-            $response = array('status' => 'error');
+            $response = array('status' => 'error', 'message' => 'Failed to retrieve updated reservation details');
         }
-
-        echo json_encode($response);
+    } else {
+        $response = array('status' => 'error', 'message' => 'Failed to reschedule reservation');
     }
+
+    echo json_encode($response);
+}
+
     public function finalize_reservation()
     {
         $this->load->model('bud_model');
@@ -2444,7 +2507,24 @@ public function mark_unscannable_qr_code()
                 ->set_output(json_encode($response));
         }
     }
-    
+    public function mark_unscannable_qr_code2()
+{
+    $this->load->model('bud_model');
+
+    // Retrieve QR code ID from POST request
+    $qrCodeId = $this->input->post('qrCodeId');
+
+    // Update the QR code status in the database
+    $result = $this->bud_model->markQrCodeAsUsed($qrCodeId);
+
+    if ($result) {
+        $response = array('status' => 'success', 'message' => 'QR Code marked as used');
+    } else {
+        $response = array('status' => 'error', 'message' => 'Failed to mark QR Code as used');
+    }
+
+    echo json_encode($response);
+}
 
 
 }

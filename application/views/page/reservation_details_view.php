@@ -14,9 +14,8 @@
         
         <h1 class="text-center">Reservation Details</h1>
         <table class="table">
-       
             <tr>
-            <th>Retrival ID</th>
+                <th>Retrieval ID</th>
                 <td><?= $reservationDetails['qr_code'] ?></td>
             </tr>
             <tr>
@@ -31,10 +30,12 @@
                 <th>Reservation Date</th>
                 <td><?= $reservationDetails['Date'] ?></td>
             </tr>
-            <th>Reservation Start</th>
+            <tr>
+                <th>Reservation Start</th>
                 <td><?= $reservationDetails['StartTime'] ?></td>
             </tr>
-            <th>Reservation End</th>
+            <tr>
+                <th>Reservation End</th>
                 <td><?= $reservationDetails['EndTime'] ?></td>
             </tr>
             <tr>
@@ -51,9 +52,9 @@
     <div class="text-center">
         <button id="markUnscannableBtn" class="btn btn-danger">Mark QR Code</button>
     </div>
-<?php endif; ?>
+    <?php endif; ?>
     <!-- Include Bootstrap JS and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
@@ -63,12 +64,13 @@
         var qrCodeId = <?= json_encode($reservationDetails['qr_code']); ?>;
 
         // Send an AJAX request to mark the QR code as unscannable
-        $.post('Page/mark_unscannable_qr_code', { qrCodeId: qrCodeId }, function(response) {
+        $.post('Page/mark_unscannable_qr_code2', { qrCodeId: qrCodeId }, function(response) {
             // Handle the response here
             console.log(response); // Example: Log the response to the console
+            alert(response.message); // Show the response message as an alert
             // You can also update the UI or show a notification based on the response
-        });
+        }, 'json');
     });
-</script>
+    </script>
 </body>
 </html>

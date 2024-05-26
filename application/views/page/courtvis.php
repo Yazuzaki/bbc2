@@ -6,7 +6,7 @@
     <title>Court Availability - <?php echo date('F j, Y', strtotime($date)); ?></title>
     <link rel="stylesheet" href="<?php echo base_url('application/assets/css/main.css'); ?>">
     <style>
-        body {
+ body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
@@ -26,7 +26,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 80%;
+            width: 100%;
             max-width: 1200px;
             overflow-x: auto;
         }
@@ -52,6 +52,11 @@
             padding: 10px;
             text-align: center;
             border-right: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px; /* Set a consistent height for rows */
+            width: 100px; /* Set a consistent width for columns */
         }
         .time-label, .court-header {
             font-weight: bold;
